@@ -8,18 +8,9 @@ const Crypto = require('../../../../common/Crypto').default;
 
 const WebFunc = require('../../../utils/WebFunc').default;
 
-const LocaleManager = require('../../../../common/LocaleManager').default; 
+const LocaleManager = require('../../../../common/LocaleManager').default;
 
-import {
-  Button, 
-  View, 
-  Topbar, 
-  Input,  
-  replaceNewScene,
-  getRootElementSize,
-  changeSceneTitle,
-  queryNamedGatewayInfoDictSync,
-} from '../../../widgets/WebCommonRouteProps';
+import { Button, View, Topbar, Input, replaceNewScene, getRootElementSize, changeSceneTitle, queryNamedGatewayInfoDictSync, } from '../../../widgets/WebCommonRouteProps';
 
 class Edit extends Component {
 
@@ -34,7 +25,7 @@ class Edit extends Component {
       rootElementSize: null,
       cachedRawPassword: "",
       cachedWriter: {
-        handle: "", 
+        handle: "",
         displayName: ""
       },
     };
@@ -90,32 +81,32 @@ class Edit extends Component {
     const url = namedGatewayInfo.protocol + "://" + namedGatewayInfo.apiGateway + basename + constants.ROUTE_PATHS.API_V1 + constants.ROUTE_PATHS.WRITER + "/" + params.writerId + constants.ROUTE_PATHS.DETAIL;
     let respData = null;
     NetworkFunc.get(url, paramDict)
-    .then(function(response) {
-      return response.json();
-    })
-    .then(function(responseData) {
-      respData = responseData;
-      return sceneRef.props.RoleLoginSingleton.instance.checkWhetherTokenHasExpiredAsync(sceneRef, respData);
-    })
-    .then(function(trueOrFalse) {
-      if (trueOrFalse) {
-        sceneRef.props.RoleLoginSingleton.instance.replaceRoleLoginScene(sceneRef);
-        return;
-      }
-      if (constants.RET_CODE.OK != respData.ret) {
-        alert(LocaleManager.instance.effectivePack().OOPS);
-        return;
-      }
-      sceneRef.setState({
-        savable: false,
-        deletable: true,
-        disabled: false,
-        cachedWriter: {
-          handle: respData.writer.handle,
-          displayName: respData.writer.display_name,
+      .then(function(response) {
+        return response.json();
+      })
+      .then(function(responseData) {
+        respData = responseData;
+        return sceneRef.props.RoleLoginSingleton.instance.checkWhetherTokenHasExpiredAsync(sceneRef, respData);
+      })
+      .then(function(trueOrFalse) {
+        if (trueOrFalse) {
+          sceneRef.props.RoleLoginSingleton.instance.replaceRoleLoginScene(sceneRef);
+          return;
         }
+        if (constants.RET_CODE.OK != respData.ret) {
+          alert(LocaleManager.instance.effectivePack().OOPS);
+          return;
+        }
+        sceneRef.setState({
+          savable: false,
+          deletable: true,
+          disabled: false,
+          cachedWriter: {
+            handle: respData.writer.handle,
+            displayName: respData.writer.display_name,
+          }
+        });
       });
-    });
   }
 
   isFormValid(writer) {
@@ -127,7 +118,7 @@ class Edit extends Component {
 
   save() {
     const sceneRef = this;
-    const params = sceneRef.props.match.params; 
+    const params = sceneRef.props.match.params;
     const {location, basename, ...other} = sceneRef.props;
 
     const isNew = (null == params.writerId);
@@ -151,52 +142,54 @@ class Edit extends Component {
 
       const namedGatewayInfo = queryNamedGatewayInfoDictSync().articleServer;
       let url = null;
-      if (isNew) url = namedGatewayInfo.protocol + "://" + namedGatewayInfo.apiGateway + basename + constants.ROUTE_PATHS.API_V1 + constants.ROUTE_PATHS.WRITER + constants.ROUTE_PATHS.ADD; 
-      else url = namedGatewayInfo.protocol + "://" + namedGatewayInfo.apiGateway + basename + constants.ROUTE_PATHS.API_V1 + constants.ROUTE_PATHS.WRITER + "/" + params.writerId + constants.ROUTE_PATHS.SAVE;
+      if (isNew)
+        url = namedGatewayInfo.protocol + "://" + namedGatewayInfo.apiGateway + basename + constants.ROUTE_PATHS.API_V1 + constants.ROUTE_PATHS.WRITER + constants.ROUTE_PATHS.ADD;
+      else
+        url = namedGatewayInfo.protocol + "://" + namedGatewayInfo.apiGateway + basename + constants.ROUTE_PATHS.API_V1 + constants.ROUTE_PATHS.WRITER + "/" + params.writerId + constants.ROUTE_PATHS.SAVE;
       let respData = null;
       NetworkFunc.post(url, paramDict)
-      .then(function(response) {
-        return response.json();
-      })
-      .then(function(responseData) {
-        respData = responseData;
-        return sceneRef.props.RoleLoginSingleton.instance.checkWhetherTokenHasExpiredAsync(sceneRef, respData);
-      })
-      .then(function(trueOrFalse) {
-        if (trueOrFalse) {
-          sceneRef.props.RoleLoginSingleton.instance.replaceRoleLoginScene(sceneRef);
-          return;
-        }
-        if (constants.RET_CODE.DUPLICATED == respData.ret) {
-          alert(LocaleManager.instance.effectivePack().WRITER_HANDLE_DUPLICATED);
-          sceneRef.setState({
-            disabled: false,
-            savable: sceneRef.isFormValid(sceneRef.state.cachedWriter),
-            deletable: false,
-          });
-          return;
-        }
-        if (constants.RET_CODE.OK != respData.ret) {
-          alert(LocaleManager.instance.effectivePack().OOPS);
-          sceneRef.setState({
-            disabled: false,
-            savable: sceneRef.isFormValid(sceneRef.state.cachedWriter),
-            deletable: false,
-          });
-          return;
-        }
-        
-        if (!isNew) {
-          sceneRef.setState({
-            disabled: false,
-            savable: false,
-            deletable: true,
-          });
-        } else {
-          const pathname = constants.ROUTE_PATHS.WRITER + "/" + respData.writer.id + constants.ROUTE_PATHS.EDIT;
-          replaceNewScene(sceneRef, pathname);
-        }
-      });
+        .then(function(response) {
+          return response.json();
+        })
+        .then(function(responseData) {
+          respData = responseData;
+          return sceneRef.props.RoleLoginSingleton.instance.checkWhetherTokenHasExpiredAsync(sceneRef, respData);
+        })
+        .then(function(trueOrFalse) {
+          if (trueOrFalse) {
+            sceneRef.props.RoleLoginSingleton.instance.replaceRoleLoginScene(sceneRef);
+            return;
+          }
+          if (constants.RET_CODE.DUPLICATED == respData.ret) {
+            alert(LocaleManager.instance.effectivePack().WRITER_HANDLE_DUPLICATED);
+            sceneRef.setState({
+              disabled: false,
+              savable: sceneRef.isFormValid(sceneRef.state.cachedWriter),
+              deletable: false,
+            });
+            return;
+          }
+          if (constants.RET_CODE.OK != respData.ret) {
+            alert(LocaleManager.instance.effectivePack().OOPS);
+            sceneRef.setState({
+              disabled: false,
+              savable: sceneRef.isFormValid(sceneRef.state.cachedWriter),
+              deletable: false,
+            });
+            return;
+          }
+
+          if (!isNew) {
+            sceneRef.setState({
+              disabled: false,
+              savable: false,
+              deletable: true,
+            });
+          } else {
+            const pathname = constants.ROUTE_PATHS.WRITER + "/" + respData.writer.id + constants.ROUTE_PATHS.EDIT;
+            replaceNewScene(sceneRef, pathname);
+          }
+        });
     });
   }
 
@@ -222,29 +215,29 @@ class Edit extends Component {
       const url = namedGatewayInfo.protocol + "://" + namedGatewayInfo.apiGateway + basename + constants.ROUTE_PATHS.API_V1 + constants.ROUTE_PATHS.WRITER + "/" + params.writerId + constants.ROUTE_PATHS.DELETE;
       let respData = null;
       NetworkFunc.post(url, paramDict)
-      .then(function(response) {
-        return response.json();
-      })
-      .then(function(responseData) {
-        respData = responseData;
-        return sceneRef.props.RoleLoginSingleton.instance.checkWhetherTokenHasExpiredAsync(sceneRef, respData);
-      })
-      .then(function(trueOrFalse) {
-        if (trueOrFalse) {
-          sceneRef.props.RoleLoginSingleton.instance.replaceRoleLoginScene(sceneRef);
-          return;
-        }
-        if (constants.RET_CODE.OK != respData.ret) {
-          alert(LocaleManager.instance.effectivePack().OOPS);
-          sceneRef.setState({
-            disabled: false,
-            savable: sceneRef.isFormValid(sceneRef.state.cachedWriter),
-            deletable: false,
-          });
-          return;
-        }
-        sceneRef.props.goBack(sceneRef);
-      });
+        .then(function(response) {
+          return response.json();
+        })
+        .then(function(responseData) {
+          respData = responseData;
+          return sceneRef.props.RoleLoginSingleton.instance.checkWhetherTokenHasExpiredAsync(sceneRef, respData);
+        })
+        .then(function(trueOrFalse) {
+          if (trueOrFalse) {
+            sceneRef.props.RoleLoginSingleton.instance.replaceRoleLoginScene(sceneRef);
+            return;
+          }
+          if (constants.RET_CODE.OK != respData.ret) {
+            alert(LocaleManager.instance.effectivePack().OOPS);
+            sceneRef.setState({
+              disabled: false,
+              savable: sceneRef.isFormValid(sceneRef.state.cachedWriter),
+              deletable: false,
+            });
+            return;
+          }
+          sceneRef.props.goBack(sceneRef);
+        });
     });
   }
 
@@ -253,7 +246,7 @@ class Edit extends Component {
     const params = sceneRef.props.match.params;
     const {location, basename, ...other} = sceneRef.props;
     const styles = sceneRef.styles;
-    
+
     const isNew = (null == params.writerId);
 
     const topbarProps = Object.assign({
@@ -269,9 +262,9 @@ class Edit extends Component {
 
     const topbarChildren = [];
     const topbar = (
-      <Topbar
-      {...topbarProps}
-      >
+    <Topbar
+    {...topbarProps}
+    >
         {topbarChildren}  
       </Topbar>
     );
@@ -292,13 +285,13 @@ class Edit extends Component {
     };
 
     const btnSave = (
-      <Button
-      disabled={sceneRef.state.disabled || !sceneRef.state.savable}
-      style={sharedButtonStyle}
-      onPress={(evt) => {
-        sceneRef.save();  
-      }}
-      >
+    <Button
+    disabled={sceneRef.state.disabled || !sceneRef.state.savable}
+    style={sharedButtonStyle}
+    onPress={(evt) => {
+      sceneRef.save();
+    }}
+    >
         {LocaleManager.instance.effectivePack().SAVE}
       </Button>
     );
@@ -306,91 +299,91 @@ class Edit extends Component {
     const btnDeleteStyle = {};
     Object.assign(btnDeleteStyle, sharedButtonStyle);
     Object.assign(btnDeleteStyle, {
-      display: (isNew? 'none' : 'inline-block')
+      display: (isNew ? 'none' : 'inline-block')
     });
     const btnDelete = (
-      <Button
-      disabled={sceneRef.state.disabled || !sceneRef.state.deletable}
-      style={btnDeleteStyle}
-      onPress={(evt) => {
-        sceneRef.delet(); 
-      }}
-      >
+    <Button
+    disabled={sceneRef.state.disabled || !sceneRef.state.deletable}
+    style={btnDeleteStyle}
+    onPress={(evt) => {
+      sceneRef.delet();
+    }}
+    >
         {LocaleManager.instance.effectivePack().DELETE}
       </Button>
     );
-      
+
     const buttonsRow = (
-      <View
-      style={{
-        marginTop: 3,
-        marginBottom: 3,
-      }}
-      >
+    <View
+    style={{
+      marginTop: 3,
+      marginBottom: 3,
+    }}
+    >
         {btnSave}
         {btnDelete}
       </View>
     );
 
     const mainScene = (
-      <View>
+    <View>
         <View>
           <Input
-          disabled={sceneRef.state.disabled}
-          type="text"
-          style={sharedInputStyle}
-          value={sceneRef.state.cachedWriter.handle}
-          onUpdated={(evt) => {
-            const newCachedWriter = {};
-            Object.assign(newCachedWriter, sceneRef.state.cachedWriter);
-            Object.assign(newCachedWriter, {
-              handle: evt.target.value,
-            });
-            sceneRef.setState({
-              savable: sceneRef.isFormValid(newCachedWriter),
-              deletable: false,
-              cachedWriter: newCachedWriter,
-            });
-          }}
-          placeholder={LocaleManager.instance.effectivePack().WRITER_HANDLE}
-          />
+    disabled={sceneRef.state.disabled}
+    type="text"
+    style={sharedInputStyle}
+    value={sceneRef.state.cachedWriter.handle}
+    onUpdated={(evt) => {
+      const newCachedWriter = {};
+      Object.assign(newCachedWriter, sceneRef.state.cachedWriter);
+      Object.assign(newCachedWriter, {
+        handle: evt.target.value,
+      });
+      sceneRef.setState({
+        savable: sceneRef.isFormValid(newCachedWriter),
+        deletable: false,
+        cachedWriter: newCachedWriter,
+      });
+    }}
+    placeholder={LocaleManager.instance.effectivePack().WRITER_HANDLE}
+    />
         </View>
         <View>
           <Input
-          disabled={sceneRef.state.disabled}
-          type="password"
-          style={sharedInputStyle}
-          value={sceneRef.state.cachedRawPassword}
-          onUpdated={(evt) => {
-            sceneRef.setState({
-              savable: sceneRef.isFormValid(sceneRef.state.cachedWriter),
-              deletable: false,
-              cachedRawPassword: evt.target.value,
-            });
-          }}
-          placeholder={LocaleManager.instance.effectivePack().WRITER_PASSWORD_INPUT_HINT}
-          />
+    disabled={sceneRef.state.disabled}
+    type="password"
+    style={sharedInputStyle}
+    value={sceneRef.state.cachedRawPassword}
+    onUpdated={(evt) => {
+      sceneRef.setState({
+        savable: sceneRef.isFormValid(sceneRef.state.cachedWriter),
+        deletable: false,
+        cachedRawPassword: evt.target.value,
+      });
+    }}
+    placeholder={LocaleManager.instance.effectivePack().WRITER_PASSWORD_INPUT_HINT}
+    />
         </View>
         <View>
           <Input
-          disabled={sceneRef.state.disabled}
-          type="text"
-          style={sharedInputStyle}
-          value={sceneRef.state.cachedWriter.displayName}
-          onUpdated={(evt) => {
-            const newCachedWriter = {};
-            Object.assign(newCachedWriter, sceneRef.state.cachedWriter);
-            Object.assign(newCachedWriter, {
-              displayName: evt.target.value,
-            });
-            sceneRef.setState({
-              savable: sceneRef.isFormValid(newCachedWriter),
-              deletable: false,
-              cachedWriter: newCachedWriter,
-            });
-          }}
-          placeholder={LocaleManager.instance.effectivePack().WRITER_DISPLAY_NAME}
-          />
+    disabled={sceneRef.state.disabled}
+    type="text"
+    style={sharedInputStyle}
+    value={sceneRef.state.cachedWriter.displayName}
+    onUpdated={(evt) => {
+      const newCachedWriter = {};
+      Object.assign(newCachedWriter, sceneRef.state.cachedWriter);
+      Object.assign(newCachedWriter, {
+        displayName: evt.target.value,
+      });
+      sceneRef.setState({
+        savable: sceneRef.isFormValid(newCachedWriter),
+        deletable: false,
+        cachedWriter: newCachedWriter,
+      });
+    }}
+    placeholder={LocaleManager.instance.effectivePack().WRITER_DISPLAY_NAME}
+    />
         </View>
         {buttonsRow}
       </View>
@@ -398,9 +391,9 @@ class Edit extends Component {
 
     return (
       <View
-        style={{
-          padding: 10
-        }}
+      style={{
+        padding: 10
+      }}
       >
         {topbar}
         {mainScene}

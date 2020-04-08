@@ -29,17 +29,17 @@ class SQLiteManager {
     }
 
     const instance = this;
-		let sqlitePath = '';
-		if(constants.NOT_IN_PRODUCTION){
-			sqlitePath = '../configs/preconfigured.test.sqlite'
-		} else {
-			sqlitePath = '../configs/preconfigured.sqlite'
-		}
+    let sqlitePath = '';
+    if (constants.NOT_IN_PRODUCTION) {
+      sqlitePath = '../configs/preconfigured.test.sqlite'
+    } else {
+      sqlitePath = '../configs/preconfigured.sqlite'
+    }
 
     // Refernece https://sequelize.readthedocs.io/en/v3/docs/getting-started/.
     this.dbRef = new Sequelize('preconfigured', 'null', 'null', {
       dialect: 'sqlite',
-      storage: baseAbsPath + sqlitePath 
+      storage: baseAbsPath + sqlitePath
     });
 
     this.testConnectionAsync = this.testConnectionAsync.bind(this);

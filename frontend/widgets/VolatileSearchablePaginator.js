@@ -29,18 +29,18 @@ class VolatileSearchablePaginator extends React.Component {
   handleListResponseData(responseData) {
     const widgetRef = this;
     const sceneRef = widgetRef.props.sceneRef;
-    const { RoleLoginSingleton, ...other } = sceneRef.props;
+    const {RoleLoginSingleton, ...other} = sceneRef.props;
     let dataList = widgetRef.props.extractDataListFromRespData(responseData);
     if (!dataList) {
       RoleLoginSingleton.instance.checkWhetherTokenHasExpiredAsync(sceneRef, responseData)
-        .then(function (trueOrFalse) {
+        .then(function(trueOrFalse) {
           if (!trueOrFalse) return;
           RoleLoginSingleton.instance.replaceRoleLoginScene(sceneRef);
         });
       return;
     }
     let newCellList = [];
-    dataList.map(function (single) {
+    dataList.map(function(single) {
       const singleCell = widgetRef.props.createCellReactElement(single, single._id);
       newCellList.push(singleCell);
     });
@@ -54,9 +54,9 @@ class VolatileSearchablePaginator extends React.Component {
     if (!widgetRef._listviewRef) return;
     widgetRef.setState({
       activePage: 1
-    }, function () {
+    }, function() {
       widgetRef._listviewRef.requestDataAsync(widgetRef.state.activePage)
-        .then(function (responseData) {
+        .then(function(responseData) {
           widgetRef.handleListResponseData(responseData);
         });
     });
@@ -66,73 +66,73 @@ class VolatileSearchablePaginator extends React.Component {
     const widgetRef = this;
     if (!widgetRef._listviewRef) return;
     widgetRef._listviewRef.requestDataAsync(widgetRef.state.activePage)
-      .then(function (responseData) {
+      .then(function(responseData) {
         widgetRef.handleListResponseData(responseData);
       });
   }
 
   render() {
     const widgetRef = this;
-    const { View, Input, NavItem, dataUrl, sceneRef, nPerPage, noResultHint, totSizePx, cellHeight, getRenderedComponentSize, Topbar, ...other } = widgetRef.props;
+    const {View, Input, NavItem, dataUrl, sceneRef, nPerPage, noResultHint, totSizePx, cellHeight, getRenderedComponentSize, Topbar, ...other} = widgetRef.props;
 
     // Search widget building.
     const searchInput = (
-      <Input
-        key='search-input'
-        style={{
-          height: 23,
-          width: 146,
-          padding: 3,
-          border: 'none',
-          color: constants.THEME.MAIN.BLACK,
-          borderRadius: '4px',
-        }}
-        value={widgetRef.state.searchKeyword}
-        onUpdated={(evt) => {
-          widgetRef.setState({
-            searchKeyword: evt.target.value
-          });
-        }}
-        onKeyDown={(evt) => {
-          if (evt.keyCode != constants.KEYBOARD_CODE.RETURN) return;
-          widgetRef.triggerSearch();
-        }}
-      >
+    <Input
+    key='search-input'
+    style={{
+      height: 23,
+      width: 146,
+      padding: 3,
+      border: 'none',
+      color: constants.THEME.MAIN.BLACK,
+      borderRadius: '4px',
+    }}
+    value={widgetRef.state.searchKeyword}
+    onUpdated={(evt) => {
+      widgetRef.setState({
+        searchKeyword: evt.target.value
+      });
+    }}
+    onKeyDown={(evt) => {
+      if (evt.keyCode != constants.KEYBOARD_CODE.RETURN) return;
+      widgetRef.triggerSearch();
+    }}
+    >
       </Input>
     );
 
     const searchButton = (
-      <View
-        key='search-button'
-        style={{
-          display: 'inline-block',
-          width: 18,
-          marginLeft: 10,
-          position: 'absolute',
-        }}
-        onClick={(evt) => {
-          widgetRef.triggerSearch();
-        }}
-      >
+    <View
+    key='search-button'
+    style={{
+      display: 'inline-block',
+      width: 18,
+      marginLeft: 10,
+      position: 'absolute',
+    }}
+    onClick={(evt) => {
+      widgetRef.triggerSearch();
+    }}
+    >
         <ClipartSearch />
       </View>
     );
 
     const searchEntry = (
-      <NavItem
-        style={{
-          lineHeight: 1,
-          display: 'block',
-          position: 'absolute',
-          left: '15%',
-          height: 45,
-          paddingTop: 11,
-          paddingBottom: 11,
-          width: '70%',
-          textAlign: 'center',
-          marginLeft: 10,
-        }}
-        key='search-entry-nav'>
+    <NavItem
+    style={{
+      lineHeight: 1,
+      display: 'block',
+      position: 'absolute',
+      left: '15%',
+      height: 45,
+      paddingTop: 11,
+      paddingBottom: 11,
+      width: '70%',
+      textAlign: 'center',
+      marginLeft: 10,
+    }}
+    key='search-entry-nav'>
         {searchInput}
         {searchButton}
       </NavItem>
@@ -140,10 +140,8 @@ class VolatileSearchablePaginator extends React.Component {
 
     const searchBarProps = Object.assign({
       showLoginNav: false,
-      onHasLoggedIn: () => {
-      },
-      onHasNotLoggedIn: () => {
-      },
+      onHasLoggedIn: () => {},
+      onHasNotLoggedIn: () => {},
       ref: (c) => {
         if (!c) return;
         const newSize = getRenderedComponentSize(c);
@@ -157,12 +155,12 @@ class VolatileSearchablePaginator extends React.Component {
 
     const searchBarChildren = [searchEntry];
     const searchBar = (
-      <Topbar
-        style={{
-          width: totSizePx.width,
-        }}
-        {...searchBarProps}
-      >
+    <Topbar
+    style={{
+      width: totSizePx.width,
+    }}
+    {...searchBarProps}
+    >
         {searchBarChildren}
       </Topbar>
     );
@@ -180,9 +178,9 @@ class VolatileSearchablePaginator extends React.Component {
       onPageSelectedBridge: (page) => {
         widgetRef.setState({
           activePage: page,
-        }, function () {
+        }, function() {
           widgetRef._listviewRef.requestDataAsync(widgetRef.state.activePage)
-            .then(function (responseData) {
+            .then(function(responseData) {
               widgetRef.handleListResponseData(responseData);
             });
         });
@@ -206,17 +204,17 @@ class VolatileSearchablePaginator extends React.Component {
     });
 
     const listview = (
-      <Paginator
-        style={{
-          width: totSizePx.width,
-          clear: 'both'
-        }}
-        ref={(c) => {
-          if (!c) return;
-          widgetRef._listviewRef = c;
-        }}
-        {...listViewProps}
-      />
+    <Paginator
+    style={{
+      width: totSizePx.width,
+      clear: 'both'
+    }}
+    ref={(c) => {
+      if (!c) return;
+      widgetRef._listviewRef = c;
+    }}
+    {...listViewProps}
+    />
     );
 
     return (
@@ -228,4 +226,4 @@ class VolatileSearchablePaginator extends React.Component {
   }
 }
 
-export default VolatileSearchablePaginator; 
+export default VolatileSearchablePaginator;

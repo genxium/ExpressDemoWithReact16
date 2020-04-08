@@ -8,7 +8,7 @@ const singletonEnforcer = Symbol();
 
 const Logger = require('./utils/Logger');
 const logger = Logger.instance.getLogger(__filename);
-const RoleLoginCacheTable = require('./models/RoleLoginCache'); 
+const RoleLoginCacheTable = require('./models/RoleLoginCache');
 
 const Sequelize = require('sequelize');
 const Op = Sequelize.Op;
@@ -50,7 +50,7 @@ class SingleRoleLoginCache {
     const stringifiedMetaData = JSON.stringify(metaData);
 
     return RoleLoginCacheTable.upsert({
-      role_id: roleId, 
+      role_id: roleId,
       role_name: instance.props.roleName,
       int_auth_token: intAuthToken,
       from_public_ip: fromPublicIp,
@@ -60,7 +60,7 @@ class SingleRoleLoginCache {
       updated_at: currentMillis,
     }, {
       where: {
-        role_id: roleId, 
+        role_id: roleId,
         role_name: instance.props.roleName,
         expires_at: {
           $gt: currentMillis,

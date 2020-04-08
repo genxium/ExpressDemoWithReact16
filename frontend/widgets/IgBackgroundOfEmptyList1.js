@@ -3,17 +3,17 @@
 import React from 'react';
 
 try {
-	// Needs feasible css-loader.
-	require('./IgBackgroundOfEmptyList1.css');
+  // Needs feasible css-loader.
+  require('./IgBackgroundOfEmptyList1.css');
 } catch (err) {
-	// Error handling here.
+  // Error handling here.
 }
 
 class IgBackgroundOfEmptyList1 extends React.Component {
-	render() {
-		const widgetRef = this;
-		return (
-			<div style={widgetRef.props.style}>
+  render() {
+    const widgetRef = this;
+    return (
+      <div style={widgetRef.props.style}>
 				<svg height="74px" width="160px" version="1.1" viewBox="0 0 160 74">
 					<defs />
 					<g fill="none" stroke="none" strokeWidth="1">
@@ -50,8 +50,8 @@ class IgBackgroundOfEmptyList1 extends React.Component {
 					</g>
 				</svg>
 			</div>
-		);
-	}
+    );
+  }
 }
 
 export default IgBackgroundOfEmptyList1;

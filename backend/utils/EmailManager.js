@@ -26,14 +26,15 @@ const emailUtil = require('emailjs/email');
 
 class EmailManager {
   constructor(enforcer) {
-    if (enforcer != singletonEnforcer) throw "Cannot construct singleton";
+    if (enforcer != singletonEnforcer)
+      throw "Cannot construct singleton";
     const instance = this;
     instance.smtpServer = emailUtil.server.connect({
-       user:      smtpCredentialDict.user, 
-       password:  smtpCredentialDict.pass, 
-       host:      smtpCredentialDict.endpoint, 
-       ssl:       true,
-    }); 
+      user: smtpCredentialDict.user,
+      password: smtpCredentialDict.pass,
+      host: smtpCredentialDict.endpoint,
+      ssl: true,
+    });
   }
 
   static get instance() {
@@ -47,11 +48,11 @@ class EmailManager {
     const instance = this;
     return new Promise(function(resolve, reject) {
       instance.smtpServer.send({
-        text:    text, 
-        from:    smtpCredentialDict.user, 
-        to:      to,
+        text: text,
+        from: smtpCredentialDict.user,
+        to: to,
         subject: subject,
-      }, function(err, message) { 
+      }, function(err, message) {
         if (undefined !== err && null !== err) {
           NetworkFunc.stacktraceIfDebugging(err);
           resolve(false);
@@ -61,7 +62,8 @@ class EmailManager {
         }
       });
     });
-  };
+  }
+  ;
 }
 
 exports.default = EmailManager;

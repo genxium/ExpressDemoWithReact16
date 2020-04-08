@@ -9,9 +9,7 @@ import React from 'react';
 import Modal from 'react-modal';
 Modal.setAppElement('#react-root'); // This is a dirty fix. -- YFLu, 2020-02-05.
 
-import {
-  getRenderedComponentSize,
-} from 'crimson-react-widgets/lib/util';
+import { getRenderedComponentSize, } from 'crimson-react-widgets/lib/util';
 /*
 It's by practice that the following snippet will import the whole module size of 'crimson-react-widgets' for this 'WebCommonRouteProps',
 
@@ -25,7 +23,7 @@ PROBABLY due to that each of 'crimson-react-widgets/lib/[^(index.js)]' is still 
 */
 
 import DropdownButton from 'react-bootstrap/DropdownButton';
-import MenuItem from 'react-bootstrap/DropdownItem'; 
+import MenuItem from 'react-bootstrap/DropdownItem';
 /*
 It's by the same bundle size argument that the following snippet
 
@@ -43,8 +41,8 @@ const constants = require('../../common/constants');
 const NetworkFunc = require('../../common/NetworkFunc').default;
 
 const queryNamedGatewayInfoDictSync = function() {
-  const jsonEncodedStr = document.getElementById('named-gateway-info').content;   
-  const dict = JSON.parse(jsonEncodedStr);    
+  const jsonEncodedStr = document.getElementById('named-gateway-info').content;
+  const dict = JSON.parse(jsonEncodedStr);
   return dict;
 };
 
@@ -53,20 +51,20 @@ class StatelessTopbar extends React.Component {
     const {onHasLoggedIn, onHasNotLoggedIn, sceneRef, ...other} = this.props;
     const accManager = (null == sceneRef.RoleLoginSingleton ? sceneRef.props.RoleLoginSingleton.instance : sceneRef.RoleLoginSingleton.instance);
     accManager.loadLoggedInRoleAsync(sceneRef)
-    .then(function() {
-      if (accManager.hasLoggedIn()) {
-        if (null == onHasLoggedIn) {
+      .then(function() {
+        if (accManager.hasLoggedIn()) {
+          if (null == onHasLoggedIn) {
+            return;
+          }
+          onHasLoggedIn();
           return;
         }
-        onHasLoggedIn();
-        return;
-      }
-      accManager.loginByIntAuthTokenAsync(sceneRef)
-      .then(function (hasLoggedIn) {
-        if (hasLoggedIn && null != onHasLoggedIn) onHasLoggedIn();
-        if (!hasLoggedIn && null != onHasNotLoggedIn) onHasNotLoggedIn();
+        accManager.loginByIntAuthTokenAsync(sceneRef)
+          .then(function(hasLoggedIn) {
+            if (hasLoggedIn && null != onHasLoggedIn) onHasLoggedIn();
+            if (!hasLoggedIn && null != onHasNotLoggedIn) onHasNotLoggedIn();
+          });
       });
-    });
   }
 
   render() {
@@ -100,25 +98,25 @@ class ModalPopup extends React.Component {
     super(props);
     const overflowStyle = (undefined === props.overflowStyle ? 'inherit' : props.overflowStyle);
     this.style = {
-      overlay : {
-        position          : 'fixed',
-        top               : 0,
-        left              : 0,
-        right             : 0,
-        bottom            : 0,
+      overlay: {
+        position: 'fixed',
+        top: 0,
+        left: 0,
+        right: 0,
+        bottom: 0,
       },
-      content : {
-        position                   : 'absolute',
-        left                       : '10px',
-        right                      : '10px',
-        bottom                     : 'auto',
-        border                     : '1px solid #ccc',
-        borderRadius               : '8px',
-        background                 : '#fff',
-        overflow                   : overflowStyle,
-        WebkitOverflowScrolling    : 'touch',
-        outline                    : 'none',
-        padding                    : '0px'
+      content: {
+        position: 'absolute',
+        left: '10px',
+        right: '10px',
+        bottom: 'auto',
+        border: '1px solid #ccc',
+        borderRadius: '8px',
+        background: '#fff',
+        overflow: overflowStyle,
+        WebkitOverflowScrolling: 'touch',
+        outline: 'none',
+        padding: '0px'
       }
     };
   }
@@ -126,11 +124,11 @@ class ModalPopup extends React.Component {
   render() {
     const {onHide, isStatic, title, show, children, footer, style, ...other} = this.props;
     let header = (
-      <h3
-        style={{
-          padding: '5px',
-          textAlign: 'center'
-        }}>
+    <h3
+    style={{
+      padding: '5px',
+      textAlign: 'center'
+    }}>
         {title}
       </h3>
     );
@@ -178,7 +176,7 @@ class Input extends React.Component {
 
   get value() {
     if (null == this._inputRef || null == this._inputRef.value) {
-      return ""; 
+      return "";
     }
     return this._inputRef.value;
   }
@@ -188,7 +186,7 @@ class Input extends React.Component {
     /*
     If an <Input /> is expected to be "uncontrolled component (https://reactjs.org/docs/uncontrolled-components.html)", pass in a "ref method" in "widgetRef.props". 
     */
-    const {onUpdated, ...other} = widgetRef.props; 
+    const {onUpdated, ...other} = widgetRef.props;
     return (
       <input
       onChange={ (evt) => {
@@ -278,12 +276,12 @@ const Image = createReactClass({
 });
 
 const HyperLink = createReactClass({
-  render: function () {
-    const { idx, href, ...other } = this.props;
+  render: function() {
+    const {idx, href, ...other} = this.props;
     return (
       <a
-        href={href}
-        {...other}
+      href={href}
+      {...other}
       >
         {this.props.children}
       </a>
@@ -305,7 +303,7 @@ const DropdownPicker = createReactClass({
       </DropdownButton>
     );
   }
-});  
+});
 
 const PickerItem = createReactClass({
   render: function() {
@@ -322,11 +320,11 @@ const PickerItem = createReactClass({
 
 const getRootElementSize = function() {
   const width = "innerWidth" in window
-                 ? window.innerWidth
-                 : document.documentElement.offsetWidth;
+    ? window.innerWidth
+    : document.documentElement.offsetWidth;
   const height = "innerHeight" in window
-                 ? window.innerHeight
-                 : document.documentElement.offsetHeight;
+    ? window.innerHeight
+    : document.documentElement.offsetHeight;
   return {
     width: width,
     height: height,
@@ -397,35 +395,12 @@ const changeSceneTitle = function(sceneRef, title) {
 };
 
 const queryWeChatPubsrvWebLoginInfoDictSync = function() {
-  const jsonEncodedStr = document.getElementById('wechat-pubsrv-web-login-info').content;   
-  const dict = JSON.parse(jsonEncodedStr);    
+  const jsonEncodedStr = document.getElementById('wechat-pubsrv-web-login-info').content;
+  const dict = JSON.parse(jsonEncodedStr);
   return dict;
 };
 
 /*
 Don't "export default {a JSObject}", which prohibits further partial imports.
 */
-export { 
-  View, 
-  Text, 
-  Image, 
-  Input, 
-  StatelessTopbar as Topbar, 
-  NavItem, 
-  HyperLink, 
-  DropdownPicker, 
-  PickerItem, 
-  StyleSheet, 
-  getRootElementSize,
-  getRenderedComponentSize,
-  Button,
-  goBack,
-  pushNewScene,
-  replaceNewScene,
-  ModalPopup,
-  dialPhoneNumber,  
-  changeSceneTitle,  
-  queryWeChatPubsrvWebLoginInfoDictSync,
-  queryNamedGatewayInfoDictSync,
-  topbarHeightPx,
- };
+export { View, Text, Image, Input, StatelessTopbar as Topbar, NavItem, HyperLink, DropdownPicker, PickerItem, StyleSheet, getRootElementSize, getRenderedComponentSize, Button, goBack, pushNewScene, replaceNewScene, ModalPopup, dialPhoneNumber, changeSceneTitle, queryWeChatPubsrvWebLoginInfoDictSync, queryNamedGatewayInfoDictSync, topbarHeightPx, };

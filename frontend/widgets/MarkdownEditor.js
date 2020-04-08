@@ -7,9 +7,7 @@ import ShortcutIconStateMachine from './ClipartStateMachine';
 import ShortcutIconSequenceDiagram from './ClipartSequenceDiagram';
 import ShortcutIconFormula from './ClipartFormula';
 
-import {
-  YAMDEditor
-} from 'crimson-react-widgets';
+import { YAMDEditor } from 'crimson-react-widgets';
 
 const LocaleManager = require('../../common/LocaleManager').default;
 const constants = require('../../common/constants');
@@ -21,11 +19,11 @@ class MarkdownEditor extends React.Component {
   }
 
   insertImageAtCursor(imageIdx) {
-    const widgetRef = this; 
+    const widgetRef = this;
     if (!widgetRef._editorRef) return;
     widgetRef._editorRef.insertImageAtCursor(imageIdx);
   }
-  
+
   render() {
     const widgetRef = this;
     const {shouldDisable, style, text, shouldHideShortcutBar, previewableImageList, previewableVideoList, SinglePicker, SinglePickerItem, onTextChangedBridge, ...other} = widgetRef.props;
@@ -33,7 +31,7 @@ class MarkdownEditor extends React.Component {
       marginLeft: 2,
       marginRight: 2,
       marginTop: 2,
-      backgroundColor: constants.THEME.MAIN.WHITE, 
+      backgroundColor: constants.THEME.MAIN.WHITE,
       color: constants.THEME.MAIN.GREY,
       fontWeight: 'bold',
     };
@@ -51,14 +49,14 @@ class MarkdownEditor extends React.Component {
       veGraphIcon: (<ShortcutIconStateMachine />),
       seqDiagramIcon: (<ShortcutIconSequenceDiagram />),
       mathIcon: (<ShortcutIconFormula />),
-      highlightIcon: 'hl', 
+      highlightIcon: 'hl',
       boldIcon: 'bold',
-      italicIcon: 'I', 
+      italicIcon: 'I',
       alignCenterIcon: '≡',
 
       previewHint: LocaleManager.instance.effectivePack().PREVIEW,
       content: text,
-      onContentChangedBridge: onTextChangedBridge, 
+      onContentChangedBridge: onTextChangedBridge,
       shouldDisable: shouldDisable,
 
       imgTag: 'iimag',
@@ -74,10 +72,10 @@ class MarkdownEditor extends React.Component {
 
       SinglePicker: SinglePicker,
       SinglePickerItem: SinglePickerItem,
-    
+
       ref: function(c) {
         if (!c) return;
-        widgetRef._editorRef = c; 
+        widgetRef._editorRef = c;
       },
     };
 

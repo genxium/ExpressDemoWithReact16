@@ -11,7 +11,8 @@ const Writer = require('../models/Writer');
 
 class WriterManager {
   constructor(enforcer) {
-    if (enforcer != singletonEnforcer) throw "Cannot construct singleton";
+    if (enforcer != singletonEnforcer)
+      throw "Cannot construct singleton";
   }
 
   static get instance() {
@@ -25,7 +26,7 @@ class WriterManager {
     return Crypto.hmacSha1Sign(content, salt);
   }
 
-	validateCredentialsAsync(handle, sha1HashedPassword, trx) {
+  validateCredentialsAsync(handle, sha1HashedPassword, trx) {
     const instance = this;
 
     if (null == handle || "" == handle) {
@@ -36,26 +37,27 @@ class WriterManager {
       throw new signals.GeneralFailure(constants.RET_CODE.INCORRECT_PASSWORD);
     }
 
-		return Writer.findOne({
+    return Writer.findOne({
       where: {
-			  handle: handle,
+        handle: handle,
         deleted_at: null,
       },
       transaction: trx,
-		})	
-		.then(function(doc) {
-      if (!doc) throw new signals.GeneralFailure(constants.RET_CODE.NONEXISTENT_HANDLE);
-      const salt = doc.salt;
-      const savedPassword = doc.password;  
-      const toBeCheckedPassword = instance.obscureWithSalt(sha1HashedPassword, salt);
-      
-      if (savedPassword != toBeCheckedPassword) {
-        throw new signals.GeneralFailure(constants.RET_CODE.INCORRECT_PASSWORD);
-      }
+    })
+      .then(function(doc) {
+        if (!doc)
+          throw new signals.GeneralFailure(constants.RET_CODE.NONEXISTENT_HANDLE);
+        const salt = doc.salt;
+        const savedPassword = doc.password;
+        const toBeCheckedPassword = instance.obscureWithSalt(sha1HashedPassword, salt);
 
-      return doc;
-		});
-	}
+        if (savedPassword != toBeCheckedPassword) {
+          throw new signals.GeneralFailure(constants.RET_CODE.INCORRECT_PASSWORD);
+        }
+
+        return doc;
+      });
+  }
 }
 
 exports.default = WriterManager;

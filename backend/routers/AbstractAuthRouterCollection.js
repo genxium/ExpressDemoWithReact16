@@ -24,14 +24,15 @@ class AbstractAuthRouterCollection {
     this.tokenAuth = function(req, res, next) {
       const token = (null == req.body || null == req.body.token ? req.query.token : req.body.token);
       logger.info("Processing tokenAuth for req.originalUrl = ", req.originalUrl, ", req.query = ", req.query, ", token = ", token);
-      
+
       if (null == token || "" == token) {
         return instance.tokenExpired(res);
-      };
-  
+      }
+      ;
+
       const trxInternalPromiseChain = (t) => {
         let tokenCache = instance.getOrCreateTokenCacheSync(req);
-        return tokenCache.getAsync(token, t); 
+        return tokenCache.getAsync(token, t);
       };
 
       const trxExternalPromise = MySQLManager.instance.dbRef.transaction(trxInternalPromiseChain);
@@ -39,8 +40,8 @@ class AbstractAuthRouterCollection {
         if (null == result) {
           instance.tokenExpired(res);
           return;
-        } 
-        
+        }
+
         // logger.info(Util.format("AbstractAuthRouterCollection.tokenAuth, got result.meta_data == %o for token == %s.", result.meta_data, token));
         req.loggedInRole = JSON.parse(result.meta_data);
         return next();
@@ -50,7 +51,7 @@ class AbstractAuthRouterCollection {
       };
 
       trxExternalPromise
-      .then(onTrxExternalPromiseFulfilled, onTrxExternalPromiseRejected)
+        .then(onTrxExternalPromiseFulfilled, onTrxExternalPromiseRejected)
       /*
       // Possibly due to a bug of "bluebird" https://github.com/petkaantonov/bluebird/issues/846, calling ".catch" or ".catch.finally" on "trxExternalPromise" will cause "unreturned promise warning". -- YFLu, 2020-03-07
       .catch((err) => {
@@ -60,12 +61,12 @@ class AbstractAuthRouterCollection {
         ...
       })
       */
-      ; 
+      ;
     };
     // Auth middlewares end.
 
-    this.pageRouter = null; 
-    this.authProtectedApiRouter = null; 
+    this.pageRouter = null;
+    this.authProtectedApiRouter = null;
   }
 
   nonexistentHandle(res) {
@@ -108,8 +109,8 @@ class AbstractAuthRouterCollection {
       case constants.ROLE_NAME.WRITER:
       case constants.ROLE_NAME.PLAYER:
         return RoleLoginCacheCollection.instance.getOrCreateCacheSync(roleName);
-        break;       
-      default:         
+        break;
+      default:
         logger.warn(Util.format("AbstractAuthRouterCollection.getOrCreateTokenCacheSync returning null for req.roleName == %s", req.roleName));
         return null;
     }
@@ -123,15 +124,15 @@ class AbstractAuthRouterCollection {
 
     MySQLManager.instance.dbRef.transaction(t => {
       return tokenCache.delAsync(token, t)
-      .then(function(trueOrFalse) {
-        res.json({
-          ret: (trueOrFalse ? constants.RET_CODE.OK : constants.RET_CODE.FAILURE)
-        });
-      })
+        .then(function(trueOrFalse) {
+          res.json({
+            ret: (trueOrFalse ? constants.RET_CODE.OK : constants.RET_CODE.FAILURE)
+          });
+        })
     })
-    .catch(function(err) {
-      instance.respondWithError(res, err);
-    });
+      .catch(function(err) {
+        instance.respondWithError(res, err);
+      });
   }
 
   commonLoggedInFinalHandler(req, res) {
@@ -146,30 +147,30 @@ class AbstractAuthRouterCollection {
       req.connection.socket.remoteAddress || '';
 
     let tokenCache = instance.getOrCreateTokenCacheSync(req);
-    const expiresAtGmtZero = Time.currentMillis() + (tokenCache.defaultTtlSeconds*1000);
+    const expiresAtGmtZero = Time.currentMillis() + (tokenCache.defaultTtlSeconds * 1000);
     MySQLManager.instance.dbRef.transaction(t => {
       return tokenCache.setAsync(loggedInRole.id, newToken, fromPublicIp, loggedInRole, expiresAtGmtZero, t)
     })
-    .then((trueOrFalse) => {
-      if (false == trueOrFalse) {
-        const toRet = {
-          ret: constants.RET_CODE.FAILURE,
-        };
-        res.json(toRet);
-      } else {
-        const toRet = {
-          ret: constants.RET_CODE.OK,
-          loggedInRole: loggedInRole,
-          token: newToken,
-          expiresAtGmtZero: expiresAtGmtZero,
-        };
-        // logger.info(Util.format("AbstractAuthRouterCollection.commonLoggedInFinalHandler, onFulfilled, toRet = %o", toRet));
-        res.json(toRet);
-      }
-    }, (err) => {
-      logger.error(Util.format("AbstractAuthRouterCollection.commonLoggedInFinalHandler, onRejected, err = %o", err));
-      instance.respondWithError(res, err);
-    });
+      .then((trueOrFalse) => {
+        if (false == trueOrFalse) {
+          const toRet = {
+            ret: constants.RET_CODE.FAILURE,
+          };
+          res.json(toRet);
+        } else {
+          const toRet = {
+            ret: constants.RET_CODE.OK,
+            loggedInRole: loggedInRole,
+            token: newToken,
+            expiresAtGmtZero: expiresAtGmtZero,
+          };
+          // logger.info(Util.format("AbstractAuthRouterCollection.commonLoggedInFinalHandler, onFulfilled, toRet = %o", toRet));
+          res.json(toRet);
+        }
+      }, (err) => {
+        logger.error(Util.format("AbstractAuthRouterCollection.commonLoggedInFinalHandler, onRejected, err = %o", err));
+        instance.respondWithError(res, err);
+      });
   }
 }
 

@@ -48,7 +48,7 @@ class MySQLManager {
       this.username = config.username;
       this.password = config.password;
 
-      
+
       this.dbRef = new Sequelize(instance.dbname, instance.username, instance.password, {
         host: instance.host,
         port: instance.port,
@@ -67,7 +67,7 @@ class MySQLManager {
 
   testConnectionAsync() {
     const instance = this;
-    return instance.dbRef.authenticate(); 
+    return instance.dbRef.authenticate();
   }
 }
 

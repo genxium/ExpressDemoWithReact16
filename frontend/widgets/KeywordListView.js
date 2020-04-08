@@ -1,30 +1,28 @@
 'use-strict';
 
 import React from 'react';
-import {
-  KeywordListView as KeywordListViewWidget,
-} from 'crimson-react-widgets';
+import { KeywordListView as KeywordListViewWidget, } from 'crimson-react-widgets';
 
 const NetworkFunc = require('../../common/NetworkFunc').default;
 const constants = require('../../common/constants');
-const LocaleManager = require('../../common/LocaleManager').default; 
+const LocaleManager = require('../../common/LocaleManager').default;
 
 class KeywordListView extends React.Component {
 
-	constructor(props) {
-		super(props);
-	}
+  constructor(props) {
+    super(props);
+  }
 
-	render() {
-		const widgetRef = this;
-		const {View, Input, Button, shouldDisable, keywordList, maxCount, cachedNewKeyword, onTextChangedBridge, onSingleKeywordDeleteTriggeredBridge, onNewKeywordAddTriggeredBridge, onRegexViolationBridge,  ...other} = widgetRef.props; 	
+  render() {
+    const widgetRef = this;
+    const {View, Input, Button, shouldDisable, keywordList, maxCount, cachedNewKeyword, onTextChangedBridge, onSingleKeywordDeleteTriggeredBridge, onNewKeywordAddTriggeredBridge, onRegexViolationBridge, ...other} = widgetRef.props;
 
     let effectiveOnRegexViolationBridge = onRegexViolationBridge;
     if (undefined === effectiveOnRegexViolationBridge) {
       effectiveOnRegexViolationBridge = () => {
         // TODO
       };
-    } 
+    }
     const subProps = {
       View: View,
       Input: Input,
@@ -50,7 +48,7 @@ class KeywordListView extends React.Component {
       {...subProps}
       />
     );
-	}
+  }
 }
 
 export default KeywordListView;

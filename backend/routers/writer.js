@@ -26,6 +26,8 @@ const sharedDao = require('../dao/shared');
 
 const SequelizeOp = require('sequelize').Op;
 
+const mime = require('mime');
+
 const createPageRouter = function() {
   const instance = this;
   const router = express.Router({
@@ -52,7 +54,7 @@ const articlePaginationListApi = function(req, res) {
   const orderKey = constants.UPDATED_AT;
 
   let state = parseInt(req.query.state);
-  if (isNaN(state) || constants.ARTICLE.STATE.NONE == state) { 
+  if (isNaN(state) || constants.ARTICLE.STATE.NONE == state) {
     state = null;
   }
 
@@ -75,7 +77,7 @@ const articlePaginationListApi = function(req, res) {
 
   let whereCondition = {
     writer_id: loggedInRole.id,
-    deleted_at: null 
+    deleted_at: null
   };
 
   let orConditions = [];
@@ -119,22 +121,22 @@ const articlePaginationListApi = function(req, res) {
       offset: (page - 1) * nPerPage
     });
   })
-  .then(function(result) {
-    if (null == result) {
-      throw new signals.GeneralFailure(constants.RET_CODE.FAILURE);
-    }
-    res.json({
-      ret: constants.RET_CODE.OK,
-      articleList: result.rows,
-      page: page,
-      nPerPage: nPerPage,
-      requestNo: requestNo,
-      totalCount: result.count,
+    .then(function(result) {
+      if (null == result) {
+        throw new signals.GeneralFailure(constants.RET_CODE.FAILURE);
+      }
+      res.json({
+        ret: constants.RET_CODE.OK,
+        articleList: result.rows,
+        page: page,
+        nPerPage: nPerPage,
+        requestNo: requestNo,
+        totalCount: result.count,
+      });
+    })
+    .catch(function(err) {
+      instance.respondWithError(res, err);
     });
-  })    
-  .catch(function(err) {
-    instance.respondWithError(res, err);
-  });
 };
 
 const articleDetailApi = function(req, res) {
@@ -150,23 +152,23 @@ const articleDetailApi = function(req, res) {
 
   MySQLManager.instance.dbRef.transaction(t => {
     return writerDao.queryReadableArticleAsync(articleId, loggedInRole.id, t)
+      .then(function(doc) {
+        if (null == doc) {
+          throw new signals.GeneralFailure();
+        }
+        article = doc;
+        return sharedDao.appendImageListForArticleAsync(article, t);
+      })
+  })
     .then(function(doc) {
-      if (null == doc) {
-        throw new signals.GeneralFailure();
-      }
-      article = doc;
-      return sharedDao.appendImageListForArticleAsync(article, t);
+      res.json({
+        ret: constants.RET_CODE.OK,
+        article: article,
+      });
     })
-  })
-  .then(function(doc) {
-    res.json({
-      ret: constants.RET_CODE.OK,
-      article: article,
+    .catch(function(err) {
+      instance.respondWithError(res, err);
     });
-  })
-  .catch(function(err) {
-    instance.respondWithError(res, err);
-  });
 };
 
 const articleSaveApi = function(req, res) {
@@ -179,8 +181,8 @@ const articleSaveApi = function(req, res) {
   }
 
   // TODO: Use a more efficient codec for "keywordList", e.g. protobuf.
-  const keywordList = JSON.parse(req.body.keywordList); 
-  const ossFilepathList = JSON.parse(req.body.ossFilepathList); 
+  const keywordList = JSON.parse(req.body.keywordList);
+  const ossFilepathList = JSON.parse(req.body.ossFilepathList);
 
   const bundle = {
     title: req.body.title,
@@ -198,8 +200,7 @@ const articleSaveApi = function(req, res) {
   MySQLManager.instance.dbRef.transaction(t => {
     if (null === articleId) {
       waitFor = writerDao.saveNewArticleAsync(writerId, bundle, t);
-    }
-    else {
+    } else {
       waitFor = writerDao.overwriteArticleAsync(articleId, writerId, bundle, t);
     }
     return waitFor
@@ -217,15 +218,15 @@ const articleSaveApi = function(req, res) {
         return sharedDao.appendImageListForArticleAsync(doc, t);
       });
   })
-  .then(function(doc) {
-    res.json({
-      ret: constants.RET_CODE.OK,
-      article: article,
+    .then(function(doc) {
+      res.json({
+        ret: constants.RET_CODE.OK,
+        article: article,
+      });
+    })
+    .catch(function(err) {
+      instance.respondWithError(res, err);
     });
-  })
-  .catch(function(err) {
-    instance.respondWithError(res, err);
-  });
 };
 
 const articleSubmitApi = function(req, res) {
@@ -239,19 +240,19 @@ const articleSubmitApi = function(req, res) {
   }
 
   MySQLManager.instance.dbRef.transaction(t => {
-    return writerDao.submitArticleAsync(articleId, loggedInRole.id, t);
-  })
-  .then(function(affectedRowsCount) {
-    if (1 != affectedRowsCount) {
-      throw new signals.GeneralFailure();
-    }
-    res.json({
-      ret: constants.RET_CODE.OK,
-    });
+    return writerDao.submitArticleAsync(articleId, loggedInRole.id, t)
+    .then(function(affectedRowsCount) {
+      if (1 != affectedRowsCount) {
+        throw new signals.GeneralFailure();
+      }
+      res.json({
+        ret: constants.RET_CODE.OK,
+      });
+    })
   })
   .catch(function(err) {
     instance.respondWithError(res, err);
-  });  
+  });
 };
 
 const articleSuspendApi = function(req, res) {
@@ -267,15 +268,15 @@ const articleSuspendApi = function(req, res) {
   }
 
   MySQLManager.instance.dbRef.transaction(t => {
-    return writerDao.suspendArticleAsync(articleId, loggedInRole.id, reason, t);
-  })
-  .then(function(affectedRowsCount) {
-    if (1 != affectedRowsCount) {
-      throw new signals.GeneralFailure();
-    }
-    res.json({
-      ret: constants.RET_CODE.OK,
-    });
+    return writerDao.suspendArticleAsync(articleId, loggedInRole.id, reason, t)
+    .then(function(affectedRowsCount) {
+      if (1 != affectedRowsCount) {
+        throw new signals.GeneralFailure();
+      }
+      res.json({
+        ret: constants.RET_CODE.OK,
+      });
+    })
   })
   .catch(function(err) {
     instance.respondWithError(res, err);
@@ -292,6 +293,7 @@ const uptokenFetchApi = function(req, res) {
   let remoteName = null;
   const currentMillis = Time.currentMillis();
   const bucket = QiniuServerUtil.instance.config.bucket;
+  const uphost = QiniuServerUtil.instance.config.uphost;
 
   const loggedInRole = req.loggedInRole;
   if (null == loggedInRole) {
@@ -299,7 +301,27 @@ const uptokenFetchApi = function(req, res) {
     return;
   }
 
-  remoteName = "w_" + loggedInRole.id.toString() + "_" + currentMillis;
+  let expectedMimetype = req.query.expectedMimetype;
+  remoteName = "w_" + loggedInRole.id.toString() + "_" + currentMillis + "/original";
+
+  // Only if a valid "expectedMimetype" were specified should the "" be handled. -- YFLu, 2020-04-07
+  if (
+      null != expectedMimetype 
+      && 
+      (
+        -1 != constants.ATTACHMENT.IMAGE.indexOf(expectedMimetype) 
+        || 
+        -1 != constants.ATTACHMENT.VIDEO.indexOf(expectedMimetype)
+      )
+    ) {
+    const expectedExtension = mime.getExtension(expectedMimetype);
+    if (null != expectedExtension) {
+      remoteName += ("." + expectedExtension);
+    }
+  } else {
+    expectedMimetype = "";
+  }
+
   const criteria = {
     oss_filepath: remoteName,
     oss_bucket: bucket,
@@ -312,6 +334,8 @@ const uptokenFetchApi = function(req, res) {
     state: constants.ATTACHMENT.STATE.CREATED,
     transcoding_failure_count: 0,
     max_transcoding_failure_count: 3,
+
+    mime_type: expectedMimetype,
 
     oss_filepath: remoteName,
     oss_bucket: bucket,
@@ -330,54 +354,54 @@ const uptokenFetchApi = function(req, res) {
   MySQLManager.instance.dbRef.transaction(t => {
     return AttachmentTable.findOne({
       where: criteria,
-      transaction: t 
+      transaction: t
     })
-    .then(function(doc) {
-      if (null == doc) {
-        waitFor = AttachmentTable.create(replacementSetObject, {
-          transaction: t
-        });
-      } else {
-        waitFor = AttachmentTable.update(replacementSetObject, {
-          where: {
-            id: doc.id,
-          },
-          transaction: t
-        });
-      }
+      .then(function(doc) {
+        if (null == doc) {
+          waitFor = AttachmentTable.create(replacementSetObject, {
+            transaction: t
+          });
+        } else {
+          waitFor = AttachmentTable.update(replacementSetObject, {
+            where: {
+              id: doc.id,
+            },
+            transaction: t
+          });
+        }
 
-      return waitFor;
-    })
-    .then(function(result) {
-      if (null == result) {
+        return waitFor;
+      })
+      .then(function(result) {
+        if (null == result) {
+          throw new signals.GeneralFailure();
+        }
+
+        const rawPutPolicyDict = {
+          scope: bucket + ':' + remoteName,
+          fsizeLimit: policyRoot.SINGLE_SIZE_LIMIT_BYTES,
+          mimeLimit: policyRoot.ALLOWED_MIME_TYPES.join(';')
+        };
+        return QiniuServerUtil.instance.createUptokenAsync(rawPutPolicyDict);
+      });
+  })
+    .then(function(uptoken) {
+      if (null == uptoken) {
+        logger.warn("Failed to generate uptoken.");
         throw new signals.GeneralFailure();
       }
-
-      const rawPutPolicyDict = {
-        scope: bucket + ':' + remoteName,
-        fsizeLimit: policyRoot.SINGLE_SIZE_LIMIT_BYTES,
-        mimeLimit: policyRoot.ALLOWED_MIME_TYPES.join(';')
-      };
-      return QiniuServerUtil.instance.createUptokenAsync(rawPutPolicyDict);
+      res.json({
+        ret: constants.RET_CODE.OK,
+        bucket: bucket,
+        uphost: uphost,
+        downloadEndpoint: downloadEndpoint,
+        ossFilepath: remoteName,
+        uptoken: uptoken
+      });
+    })
+    .catch(function(err) {
+      instance.respondWithError(res, err);
     });
-  })
-  .then(function(uptoken) {
-    if (null == uptoken) {
-      logger.warn("Failed to generate uptoken.");
-      throw new signals.GeneralFailure();
-    }
-    res.json({
-      ret: constants.RET_CODE.OK,
-      bucket: QiniuServerUtil.instance.config.bucket,
-      uphost: QiniuServerUtil.instance.config.uphost,
-      downloadEndpoint: downloadEndpoint,
-      ossFilepath: remoteName,
-      uptoken: uptoken
-    });
-  })
-  .catch(function(err) {
-    instance.respondWithError(res, err);
-  });
 };
 
 const createAuthProtectedApiRouter = function() {

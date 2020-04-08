@@ -3,10 +3,10 @@
 import React from 'react';
 
 class ClipartQuote extends React.Component {
-	render() {
-		const widgetRef = this;
-		return (
-			<div style={widgetRef.props.style}>
+  render() {
+    const widgetRef = this;
+    return (
+      <div style={widgetRef.props.style}>
 				<svg height="11px" width="11px" version="1.1" viewBox="0 0 11 11">
 	<defs/>
 	<g id="Page-1" fill="none" stroke="none" strokeWidth="1">
@@ -16,8 +16,8 @@ class ClipartQuote extends React.Component {
 	</g>
 </svg>
 			</div>
-		);
-	}
+    );
+  }
 }
 
 export default ClipartQuote;

@@ -4,15 +4,9 @@ import React, { Component } from 'react';
 const constants = require('../../../common/constants');
 const WebFunc = require('../../utils/WebFunc').default;
 
-const LocaleManager = require('../../../common/LocaleManager').default; 
+const LocaleManager = require('../../../common/LocaleManager').default;
 
-import {
-  View, 
-  Topbar, 
-  Button, 
-  pushNewScene,
-  changeSceneTitle,
-} from '../../widgets/WebCommonRouteProps';
+import { View, Topbar, Button, pushNewScene, changeSceneTitle, } from '../../widgets/WebCommonRouteProps';
 
 class Home extends Component {
 
@@ -45,8 +39,7 @@ class Home extends Component {
 
     const topbarProps = Object.assign({
       showLoginNav: false,
-      onHasLoggedIn: () => {
-      },
+      onHasLoggedIn: () => {},
       onHasNotLoggedIn: () => {
         RoleLoginSingleton.instance.replaceRoleLoginScene(sceneRef);
       },
@@ -55,9 +48,9 @@ class Home extends Component {
 
     const topbarChildren = [];
     const topbar = (
-      <Topbar
-      {...topbarProps}
-      >
+    <Topbar
+    {...topbarProps}
+    >
         {topbarChildren}  
       </Topbar>
     );
@@ -75,26 +68,26 @@ class Home extends Component {
     };
 
     const mainScene = (
-      <View>
+    <View>
         <Button
-        style={entryBtnStyle}
-        onPress={(evt) => {
-          const pathname = constants.ROUTE_PATHS.WRITER + constants.ROUTE_PATHS.LIST;
-          pushNewScene(sceneRef, pathname);
-        }}
-        >
+    style={entryBtnStyle}
+    onPress={(evt) => {
+      const pathname = constants.ROUTE_PATHS.WRITER + constants.ROUTE_PATHS.LIST;
+      pushNewScene(sceneRef, pathname);
+    }}
+    >
           {LocaleManager.instance.effectivePack().WRITER_LIST}
         </Button>
 
         <Button
-        style={logoutBtnStyle}
-        onPress={(evt) => {
-          RoleLoginSingleton.instance.logoutAsync(sceneRef)
-          .then(function(loggedOut) {
-            RoleLoginSingleton.instance.replaceRoleLoginScene(sceneRef);
-          });
-        }}
-        >
+    style={logoutBtnStyle}
+    onPress={(evt) => {
+      RoleLoginSingleton.instance.logoutAsync(sceneRef)
+        .then(function(loggedOut) {
+          RoleLoginSingleton.instance.replaceRoleLoginScene(sceneRef);
+        });
+    }}
+    >
           {LocaleManager.instance.effectivePack().LOGOUT}
         </Button>
       </View>
@@ -102,9 +95,9 @@ class Home extends Component {
 
     return (
       <View
-        style={{
-          padding: 10
-        }}
+      style={{
+        padding: 10
+      }}
       >
         {topbar}
         {mainScene}

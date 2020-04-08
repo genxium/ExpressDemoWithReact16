@@ -3,10 +3,10 @@
 import React from 'react';
 
 class ClipartFormula extends React.Component {
-	render() {
-		const widgetRef = this;
-		return (
-			<div style={widgetRef.props.style}>
+  render() {
+    const widgetRef = this;
+    return (
+      <div style={widgetRef.props.style}>
 				<svg height="14px" width="10px" version="1.1" viewBox="0 0 10 14">
 	<defs/>
 	<g id="Page-1" fill="none" stroke="none" strokeWidth="1">
@@ -16,8 +16,8 @@ class ClipartFormula extends React.Component {
 	</g>
 </svg>
 			</div>
-		);
-	}
+    );
+  }
 }
 
 export default ClipartFormula;

@@ -9,20 +9,7 @@ import ArticlePreviewer from '../../../widgets/ArticlePreviewer';
 
 import 'mermaid/dist/mermaid.min.js';
 
-import {
-  View, 
-  Topbar, 
-  Button, 
-  changeSceneTitle,
-  Input,
-  Image,
-  Text,
-  HyperLink,
-  ModalPopup,
-  NavItem,
-  getRenderedComponentSize,
-  getRootElementSize,
-} from '../../../widgets/WebCommonRouteProps';
+import { View, Topbar, Button, changeSceneTitle, Input, Image, Text, HyperLink, ModalPopup, NavItem, getRenderedComponentSize, getRootElementSize, } from '../../../widgets/WebCommonRouteProps';
 
 class Detail extends React.Component {
   constructor(props) {
@@ -31,11 +18,11 @@ class Detail extends React.Component {
     this.state = {
       disabled: false,
       topbarSize: {
-        width: '100%', 
+        width: '100%',
         height: 0,
       },
       footerSize: {
-        width: '100%', 
+        width: '100%',
         height: 0,
       },
       rootElementSize: null,
@@ -43,19 +30,18 @@ class Detail extends React.Component {
     };
   }
 
-  componentWillUnmount() {
-  }
+  componentWillUnmount() {}
 
   initScene() {
     const sceneRef = this;
     const props = sceneRef.props;
     const params = props.match.params;
     const {RoleLoginSingleton, location, basename, ...other} = sceneRef.props;
- 
+
     const paramDict = {};
     if (RoleLoginSingleton.instance.hasLoggedIn()) {
       Object.assign(paramDict, {
-        token: RoleLoginSingleton.instance.loggedInRole.token, 
+        token: RoleLoginSingleton.instance.loggedInRole.token,
       });
     }
 
@@ -63,25 +49,25 @@ class Detail extends React.Component {
 
     let respData = null;
     NetworkFunc.get(url, paramDict)
-    .then(function(response) {
-      return response.json();
-    })
-    .then(function(responseData) {
-      respData = responseData;
-      if (constants.RET_CODE.OK != respData.ret) {
-        RoleLoginSingleton.instance.checkWhetherTokenHasExpiredAsync(sceneRef, responseData)
-        .then(function(trueOrFalse) {
-          if (!trueOrFalse) return;
-          RoleLoginSingleton.instance.replaceRoleLoginScene(sceneRef);
+      .then(function(response) {
+        return response.json();
+      })
+      .then(function(responseData) {
+        respData = responseData;
+        if (constants.RET_CODE.OK != respData.ret) {
+          RoleLoginSingleton.instance.checkWhetherTokenHasExpiredAsync(sceneRef, responseData)
+            .then(function(trueOrFalse) {
+              if (!trueOrFalse) return;
+              RoleLoginSingleton.instance.replaceRoleLoginScene(sceneRef);
+            });
+          return;
+        }
+        sceneRef.setState({
+          cachedArticle: respData.article,
+        }, function() {
+          changeSceneTitle(sceneRef, sceneRef.state.cachedArticle.title);
         });
-        return;
-      } 
-      sceneRef.setState({
-        cachedArticle: respData.article,
-      }, function() {
-				changeSceneTitle(sceneRef, sceneRef.state.cachedArticle.title);
       });
-    });
   }
 
   componentDidMount() {
@@ -123,7 +109,7 @@ class Detail extends React.Component {
           return;
         }
         sceneRef.setState({
-          topbarSize: newSize, 
+          topbarSize: newSize,
         });
       },
       sceneRef: sceneRef
@@ -131,9 +117,9 @@ class Detail extends React.Component {
 
     const topbarChildren = [];
     const topbar = (
-      <Topbar
-      {...topbarProps}
-      >
+    <Topbar
+    {...topbarProps}
+    >
         {topbarChildren}  
       </Topbar>
     );
@@ -145,7 +131,8 @@ class Detail extends React.Component {
           {topbar}
         </View>
       );
-    };
+    }
+    ;
 
     const mainScenePaddingLeft = 5;
     const mainScenePaddingRight = 5;
@@ -153,27 +140,27 @@ class Detail extends React.Component {
     const mainScenePaddingBottom = 5;
 
     const mainScene = (
-      <ArticlePreviewer
-      View={View}
-      Input={Input}
-      ModalPopup={ModalPopup} 
-      Button={Button}
-      Text={Text}
-      Image={Image}
-      style={{
-        width: '100%',
-        paddingTop: mainScenePaddingTop,
-        paddingBottom: mainScenePaddingBottom,
-        paddingLeft: mainScenePaddingLeft,
-        paddingRight: mainScenePaddingRight,
-      }}
-      rootElementSize={{
-        width: sceneRef.state.rootElementSize.width,
-        height: (sceneRef.state.rootElementSize.height - sceneRef.state.footerSize.height - sceneRef.state.topbarSize.height),
-      }}
-      data={sceneRef.state.cachedArticle}
-      {...sceneRef.props}
-      />
+    <ArticlePreviewer
+    View={View}
+    Input={Input}
+    ModalPopup={ModalPopup}
+    Button={Button}
+    Text={Text}
+    Image={Image}
+    style={{
+      width: '100%',
+      paddingTop: mainScenePaddingTop,
+      paddingBottom: mainScenePaddingBottom,
+      paddingLeft: mainScenePaddingLeft,
+      paddingRight: mainScenePaddingRight,
+    }}
+    rootElementSize={{
+      width: sceneRef.state.rootElementSize.width,
+      height: (sceneRef.state.rootElementSize.height - sceneRef.state.footerSize.height - sceneRef.state.topbarSize.height),
+    }}
+    data={sceneRef.state.cachedArticle}
+    {...sceneRef.props}
+    />
     );
 
     const author = sceneRef.state.cachedArticle.author;
@@ -188,30 +175,30 @@ class Detail extends React.Component {
         }}
         >
           <View
-          style={{
-            display: 'inline-block',
-            fontSize: 14,
-          }}
-          >
+        style={{
+          display: 'inline-block',
+          fontSize: 14,
+        }}
+        >
             {LocaleManager.instance.effectivePack().ARTICLE_PROVIDED_BY_PREFIX}
           </View>
           <View
-          style={{
-            display: 'inline-block',
-            marginLeft: 5,
-            marginRight: 5,
-            fontSize: 18,
-            color: constants.THEME.MAIN.GREY,
-          }}
-          >
+        style={{
+          display: 'inline-block',
+          marginLeft: 5,
+          marginRight: 5,
+          fontSize: 18,
+          color: constants.THEME.MAIN.GREY,
+        }}
+        >
             {author.displayName}
           </View>
           <View
-          style={{
-            display: 'inline-block',
-            fontSize: 14,
-          }}
-          >
+        style={{
+          display: 'inline-block',
+          fontSize: 14,
+        }}
+        >
             {LocaleManager.instance.effectivePack().ARTICLE_PROVIDED_BY_SUFFIX}
           </View>
         </View>

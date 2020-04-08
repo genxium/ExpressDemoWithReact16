@@ -21,25 +21,25 @@ class ArticlePreviewer extends React.Component {
 
     const keywordWrapper = (
     <KeywordListView
-      style={{    
-        display: 'block',
-        width: '95%',
-        overflow: 'hidden',
-        whiteSpace: 'nowrap',
-        verticalAlign: 'middle',
-        textAlign: 'left',
-      }}
-      keywordList={data.keywordList}
-      shouldDisable={ () => {
-        return true;
-      }}
-      maxCount={constants.ARTICLE.CREATION_LIMIT.N_KEYWORDS}
-      cachedNewKeyword= {""}
-      onSingleKeywordDeleteTriggeredBridge= {()=>{}}
-      onNewKeywordAddTriggeredBridge= {()=>{}}
-      onTextChangedBridge= {()=>{}}  
-      {...widgetRef.props}
-      />
+    style={{
+      display: 'block',
+      width: '95%',
+      overflow: 'hidden',
+      whiteSpace: 'nowrap',
+      verticalAlign: 'middle',
+      textAlign: 'left',
+    }}
+    keywordList={data.keywordList}
+    shouldDisable={ () => {
+      return true;
+    }}
+    maxCount={constants.ARTICLE.CREATION_LIMIT.N_KEYWORDS}
+    cachedNewKeyword= {""}
+    onSingleKeywordDeleteTriggeredBridge= {() => {}}
+    onNewKeywordAddTriggeredBridge= {() => {}}
+    onTextChangedBridge= {() => {}}
+    {...widgetRef.props}
+    />
     );
 
     let previewableImageList = [];

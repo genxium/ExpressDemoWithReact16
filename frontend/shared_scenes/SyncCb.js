@@ -6,10 +6,7 @@ const NetworkFunc = require('../../common/NetworkFunc').default;
 const Time = require('../../common/Time').default;
 const constants = require('../../common/constants');
 
-import {
-  View, 
-  replaceNewScene,
-} from '../widgets/WebCommonRouteProps';
+import { View, replaceNewScene, } from '../widgets/WebCommonRouteProps';
 
 class SyncCb extends Component {
 
@@ -18,9 +15,7 @@ class SyncCb extends Component {
     const sceneRef = this;
   }
 
-  componentWillUnmount() {
-
-  }
+  componentWillUnmount() {}
 
   componentDidMount() {
     const sceneRef = this;
@@ -40,7 +35,9 @@ class SyncCb extends Component {
   render() {
     const sceneRef = this;
     return (
-      <View style={{padding: 64}}>
+      <View style={{
+        padding: 64
+      }}>
       </View>
     );
   }

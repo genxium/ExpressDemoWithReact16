@@ -28,9 +28,13 @@ app.use(constants.ROUTE_PATHS.BASE + constants.ROUTE_PATHS.CLIPART, express.stat
 
 // Body parser middleware.
 const bodyParser = require('body-parser');
-app.use(bodyParser.urlencoded({ extended: true }));
+app.use(bodyParser.urlencoded({
+  extended: true
+}));
 app.use(bodyParser.json());
-app.use(bodyParser.raw({ type: '*/*' }));
+app.use(bodyParser.raw({
+  type: '*/*'
+}));
 
 // Pug template. Reference http://expressjs.com/en/guide/using-template-engines.html
 app.set('view engine', 'pug');
@@ -50,21 +54,21 @@ MySQLManager.instance.testConnectionAsync()
     const CentralAuthRouterCollection = require('./routers/central_auth').default;
     const centralAuthRouterCollection = new CentralAuthRouterCollection();
 
-    app.post(constants.ROUTE_PATHS.BASE + constants.ROUTE_PARAMS.API_VER + constants.ROUTE_PATHS.CREDENTIALS + constants.ROUTE_PATHS.LOGIN, 
-            centralAuthRouterCollection.credentialsAuth, 
-            centralAuthRouterCollection.commonLoggedInFinalHandler.bind(centralAuthRouterCollection));
+    app.post(constants.ROUTE_PATHS.BASE + constants.ROUTE_PARAMS.API_VER + constants.ROUTE_PATHS.CREDENTIALS + constants.ROUTE_PATHS.LOGIN,
+      centralAuthRouterCollection.credentialsAuth,
+      centralAuthRouterCollection.commonLoggedInFinalHandler.bind(centralAuthRouterCollection));
 
-    app.post(constants.ROUTE_PATHS.BASE + constants.ROUTE_PARAMS.API_VER + constants.ROUTE_PATHS.INT_AUTH_TOKEN + constants.ROUTE_PATHS.LOGIN, 
-            centralAuthRouterCollection.tokenAuth, 
-            centralAuthRouterCollection.commonLoggedInFinalHandler.bind(centralAuthRouterCollection));
+    app.post(constants.ROUTE_PATHS.BASE + constants.ROUTE_PARAMS.API_VER + constants.ROUTE_PATHS.INT_AUTH_TOKEN + constants.ROUTE_PATHS.LOGIN,
+      centralAuthRouterCollection.tokenAuth,
+      centralAuthRouterCollection.commonLoggedInFinalHandler.bind(centralAuthRouterCollection));
 
     // Provide an API for "POST /profile/read {token: ....}", usually used by rpc.
 
-    app.post(constants.ROUTE_PATHS.BASE + constants.ROUTE_PARAMS.API_VER + constants.ROUTE_PATHS.LOGOUT, 
-            centralAuthRouterCollection.commonLogoutFinalHandler.bind(centralAuthRouterCollection));
+    app.post(constants.ROUTE_PATHS.BASE + constants.ROUTE_PARAMS.API_VER + constants.ROUTE_PATHS.LOGOUT,
+      centralAuthRouterCollection.commonLogoutFinalHandler.bind(centralAuthRouterCollection));
 
-    app.use(constants.ROUTE_PATHS.BASE, 
-            centralAuthRouterCollection.pageRouter);
+    app.use(constants.ROUTE_PATHS.BASE,
+      centralAuthRouterCollection.pageRouter);
 
     /*------------------------*/
 
@@ -76,6 +80,6 @@ MySQLManager.instance.testConnectionAsync()
     logger.error(err.stack);
   });
 
-process.on('uncaughtException', function (err) {
+process.on('uncaughtException', function(err) {
   logger.error(err.stack);
 })

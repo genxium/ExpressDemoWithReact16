@@ -17,7 +17,8 @@ const OssUptokenManager = require('./OssUptokenManager').default;
 class QiniuServerUtil extends OssUptokenManager {
 
   constructor(enforcer) {
-    if (enforcer != singletonEnforcer) throw "Cannot construct singleton";
+    if (enforcer != singletonEnforcer)
+      throw "Cannot construct singleton";
     super();
     this.config = null;
     try {
@@ -26,8 +27,7 @@ class QiniuServerUtil extends OssUptokenManager {
       qiniu.conf.ACCESS_KEY = this.config.appId;
       qiniu.conf.SECRET_KEY = this.config.appSecret;
       qiniu.conf.UP_HOST = this.config.uphost;
-    } catch (e) {
-    }
+    } catch (e) {}
   }
 
   static get instance() {
@@ -52,25 +52,39 @@ class QiniuServerUtil extends OssUptokenManager {
     return new Promise(function(resolve, reject) {
       const client = new qiniu.rs.Client();
       client.remove(bucket, remoteName, function(err, ret) {
-        if (undefined != err && null != err) {
+        if (null != err) {
           // Reference http://docs.qiniu.com/api/v6/rs.html#error-code
           switch (err.code) {
             case 200:
-            break;
-            case 612: 
-              resolve(constants.CDN_DELETION_RESULT_CODE.NOT_DELETED_NO_LONGER_EXISTING);
-            break;
-            case 401: 
-              resolve(constants.CDN_DELETION_RESULT_CODE.NOT_DELETED_PERMISSION_DENIED);
-            break;
+              break;
+            case 612:
+              resolve(constants.OSS_DELETION_RESULT_CODE.NOT_DELETED_NO_LONGER_EXISTING);
+              break;
+            case 401:
+              resolve(constants.OSS_DELETION_RESULT_CODE.NOT_DELETED_PERMISSION_DENIED);
+              break;
             default:
-              resolve(constants.CDN_DELETION_RESULT_CODE.UNKNOWN);  
-            break;
+              resolve(constants.OSS_DELETION_RESULT_CODE.UNKNOWN);
+              break;
           }
-          return; 
+          return;
         }
-          
-        resolve(constants.CDN_DELETION_RESULT_CODE.DELETED);
+
+        resolve(constants.OSS_DELETION_RESULT_CODE.DELETED);
+      });
+    });
+  }
+
+  statAsync(bucket, remoteName) {
+    return new Promise(function(resolve, reject) {
+      const client = new qiniu.rs.Client();
+      client.stat(bucket, remoteName, function(err, resp) {
+        if (null != err) {
+          resolve(null);
+          return;
+        }
+
+        resolve(resp);
       });
     });
   }

@@ -17,11 +17,11 @@ class WebFunc {
   }
 
   static setCookie(key, val, attributes) {
-    Cookies.set(key, val, attributes); 
+    Cookies.set(key, val, attributes);
   }
 
   static getCookie(key) {
-    return Cookies.get(key); 
+    return Cookies.get(key);
   }
 
   static removeCookie(key, attributes) {

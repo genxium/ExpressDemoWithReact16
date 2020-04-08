@@ -3,17 +3,17 @@
 import React from 'react';
 
 try {
-	// Needs feasible css-loader.
-	require('./ClipartSlimArrow.css');
+  // Needs feasible css-loader.
+  require('./ClipartSlimArrow.css');
 } catch (err) {
-	// Error handling here.
+  // Error handling here.
 }
 
 class ClipartSlimArrow extends React.Component {
-	render() {
-		const widgetRef = this;
-		return (
-			<div style={widgetRef.props.style}>
+  render() {
+    const widgetRef = this;
+    return (
+      <div style={widgetRef.props.style}>
 				<svg height="21px" width="13px" version="1.1" viewBox="0 0 13 21">
 					<defs />
 					<g id="slim-arrow" fill="none" stroke="none" strokeWidth="1">
@@ -29,8 +29,8 @@ class ClipartSlimArrow extends React.Component {
 					</g>
 				</svg>
 			</div>
-		);
-	}
+    );
+  }
 }
 
 export default ClipartSlimArrow;

@@ -7,7 +7,8 @@ const AbstractRoleLoginManager = require('../AbstractRoleLoginManager').default;
 
 class AdminManager extends AbstractRoleLoginManager {
   constructor(enforcer) {
-    if (enforcer != singletonEnforcer) throw "Cannot construct singleton";
+    if (enforcer != singletonEnforcer)
+      throw "Cannot construct singleton";
     super();
     this.roleName = constants.ROLE_NAME.ADMIN;
   }

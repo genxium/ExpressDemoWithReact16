@@ -1,6 +1,6 @@
 const baseAbsPath = __dirname + '/';
 const constants = require(baseAbsPath + '../../common/constants');
-const BackendApiCore = require('node-wechat-util').BackendApiCore; 
+const BackendApiCore = require('node-wechat-util').BackendApiCore;
 
 const singleton = Symbol();
 const singletonEnforcer = Symbol();
@@ -8,11 +8,12 @@ const singletonEnforcer = Symbol();
 class WeChatSingleton extends BackendApiCore {
 
   constructor(enforcer) {
-    if (enforcer != singletonEnforcer) throw "Cannot construct singleton";
+    if (enforcer != singletonEnforcer)
+      throw "Cannot construct singleton";
     super();
 
     const configFilepath = (constants.USE_FSERVER ? baseAbsPath + '../configs/fserver.conf' : baseAbsPath + '../configs/wechat_pubsrv.conf');
-    
+
     this.loadConfigFileSync(configFilepath);
     this.TRADE_TYPE = {
       NATIVE: 'NATIVE'

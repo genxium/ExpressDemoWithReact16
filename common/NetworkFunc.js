@@ -11,7 +11,7 @@ class NetworkFunc {
   }
 
   static guid() {
-    const s4 = function () {
+    const s4 = function() {
       return Math.floor((1 + Math.random()) * 0x10000)
         .toString(16)
         .substring(1);
@@ -21,7 +21,7 @@ class NetworkFunc {
   }
 
   static shortCode(nsegs) {
-    const s4 = function () {
+    const s4 = function() {
       return Math.floor((1 + Math.random()) * 0x10000)
         .toString(16)
         .substring(1);
@@ -36,11 +36,10 @@ class NetworkFunc {
   }
 
   static strReplaceInOrder(str, args) {
-    return str.replace(/{(\d+)}/g, function (match, number) {
+    return str.replace(/{(\d+)}/g, function(match, number) {
       return typeof args[number] != 'undefined'
         ? args[number]
-        : match
-        ;
+        : match;
     });
   }
 
@@ -58,16 +57,16 @@ class NetworkFunc {
 
   static searchStrToMap(searchStr) {
     if (null == searchStr) return null;
-    const questionSymbolSplits = searchStr.split('?'); 
+    const questionSymbolSplits = searchStr.split('?');
     if (null == questionSymbolSplits || 0 >= questionSymbolSplits.length) return null;
     const effectiveKvStr = (1 >= questionSymbolSplits.length ? questionSymbolSplits[0] : questionSymbolSplits[1]);
     if (null == effectiveKvStr) return null;
-    const andSymbolSplits = effectiveKvStr.split('&'); 
+    const andSymbolSplits = effectiveKvStr.split('&');
     let toRet = {};
     for (let i = 0; i < andSymbolSplits.length; ++i) {
       const kvStr = andSymbolSplits[i];
       if (null == kvStr) continue;
-      const equalsSymbolSplits = kvStr.split('=');  
+      const equalsSymbolSplits = kvStr.split('=');
       if (null == equalsSymbolSplits || 1 >= equalsSymbolSplits.length) continue;
       toRet[equalsSymbolSplits[0]] = equalsSymbolSplits[1];
     }
@@ -77,8 +76,8 @@ class NetworkFunc {
   // The `fetch` polyfill API requires explicit specification of basic-auth or other cookie associated communication, reference https://github.com/github/fetch#sending-cookies.
   static get(url, paramsDict) {
     if (!paramsDict || Object.keys(paramsDict).length == 0) return fetch(url, {
-      credentials: 'same-origin',
-    });
+        credentials: 'same-origin',
+      });
     const concatenated = url + "?" + NetworkFunc.mapToSortedQueryParams(paramsDict);
     return fetch(concatenated, {
       credentials: 'same-origin',
@@ -87,27 +86,27 @@ class NetworkFunc {
 
   static post(url, paramsDict) {
     return (
-      fetch(url, {
-        method: 'POST',
-        credentials: 'same-origin',
-        headers: {
-          'Content-Type': 'application/x-www-form-urlencoded'
-        },
-        body: NetworkFunc.mapToSortedQueryParams(paramsDict)
-      })
+    fetch(url, {
+      method: 'POST',
+      credentials: 'same-origin',
+      headers: {
+        'Content-Type': 'application/x-www-form-urlencoded'
+      },
+      body: NetworkFunc.mapToSortedQueryParams(paramsDict)
+    })
     );
   }
 
   static postJson(url, paramsDict) {
     return (
-      fetch(url, {
-        method: 'POST',
-        credentials: 'same-origin',
-        headers: {
-          'Content-Type': "application/json"
-        },
-        body: JSON.stringify(paramsDict)
-      })
+    fetch(url, {
+      method: 'POST',
+      credentials: 'same-origin',
+      headers: {
+        'Content-Type': "application/json"
+      },
+      body: JSON.stringify(paramsDict)
+    })
     );
   }
 
@@ -118,7 +117,8 @@ class NetworkFunc {
     }
     return false;
   }
-};
+}
+;
 
 // Use "CommonJs `require`" syntax to import for both NodeJsBackend and React16Frontend to guarantee compatibility.
 exports.default = NetworkFunc;

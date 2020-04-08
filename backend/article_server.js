@@ -22,9 +22,13 @@ app.use(constants.ROUTE_PATHS.BASE + constants.ROUTE_PATHS.CLIPART, express.stat
 
 // Body parser middleware.
 const bodyParser = require('body-parser');
-app.use(bodyParser.urlencoded({ extended: true }));
+app.use(bodyParser.urlencoded({
+  extended: true
+}));
 app.use(bodyParser.json());
-app.use(bodyParser.raw({ type: '*/*' }));
+app.use(bodyParser.raw({
+  type: '*/*'
+}));
 
 // Pug template. Reference http://expressjs.com/en/guide/using-template-engines.html
 app.set('view engine', 'pug');
@@ -45,11 +49,11 @@ MySQLManager.instance.testConnectionAsync()
      **/
     const PlayerRouterCollection = require('./routers/player').default;
     const playerRouterCollection = new PlayerRouterCollection();
-    app.use(constants.ROUTE_PATHS.BASE + constants.ROUTE_PATHS.PLAYER + constants.ROUTE_PARAMS.API_VER + constants.ROUTE_PATHS.PUBLIC, 
-            playerRouterCollection.unprotectedApiRouter);
+    app.use(constants.ROUTE_PATHS.BASE + constants.ROUTE_PATHS.PLAYER + constants.ROUTE_PARAMS.API_VER + constants.ROUTE_PATHS.PUBLIC,
+      playerRouterCollection.unprotectedApiRouter);
 
-    app.use(constants.ROUTE_PATHS.BASE + constants.ROUTE_PATHS.PLAYER, 
-            playerRouterCollection.pageRouter);
+    app.use(constants.ROUTE_PATHS.BASE + constants.ROUTE_PATHS.PLAYER,
+      playerRouterCollection.pageRouter);
 
     //---Player router ends.---
 
@@ -63,12 +67,12 @@ MySQLManager.instance.testConnectionAsync()
     const WriterRouterCollection = require('./routers/writer').default;
     const writerRouterCollection = new WriterRouterCollection();
 
-    app.use(constants.ROUTE_PATHS.BASE + constants.ROUTE_PATHS.WRITER, 
-            writerRouterCollection.pageRouter);
+    app.use(constants.ROUTE_PATHS.BASE + constants.ROUTE_PATHS.WRITER,
+      writerRouterCollection.pageRouter);
 
-    app.use(constants.ROUTE_PATHS.BASE + constants.ROUTE_PATHS.WRITER + constants.ROUTE_PARAMS.API_VER, 
-            writerRouterCollection.tokenAuth, 
-            writerRouterCollection.authProtectedApiRouter);
+    app.use(constants.ROUTE_PATHS.BASE + constants.ROUTE_PATHS.WRITER + constants.ROUTE_PARAMS.API_VER,
+      writerRouterCollection.tokenAuth,
+      writerRouterCollection.authProtectedApiRouter);
 
     //---Writer router ends.---
 
@@ -82,12 +86,12 @@ MySQLManager.instance.testConnectionAsync()
     const AdminRouterCollection = require('./routers/admin').default;
     const adminRouterCollection = new AdminRouterCollection();
 
-    app.use(constants.ROUTE_PATHS.BASE + constants.ROUTE_PATHS.ADMIN, 
-            adminRouterCollection.pageRouter);
+    app.use(constants.ROUTE_PATHS.BASE + constants.ROUTE_PATHS.ADMIN,
+      adminRouterCollection.pageRouter);
 
-    app.use(constants.ROUTE_PATHS.BASE + constants.ROUTE_PATHS.ADMIN + constants.ROUTE_PARAMS.API_VER, 
-            adminRouterCollection.tokenAuth, 
-            adminRouterCollection.authProtectedApiRouter);
+    app.use(constants.ROUTE_PATHS.BASE + constants.ROUTE_PATHS.ADMIN + constants.ROUTE_PARAMS.API_VER,
+      adminRouterCollection.tokenAuth,
+      adminRouterCollection.authProtectedApiRouter);
 
     //---Admin router ends.---
 

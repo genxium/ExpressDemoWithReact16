@@ -8,7 +8,8 @@ const singletonEnforcer = Symbol();
 class ArticleUtil {
 
   constructor(enforcer) {
-    if (enforcer != singletonEnforcer) throw "Cannot construct singleton";
+    if (enforcer != singletonEnforcer)
+      throw "Cannot construct singleton";
   }
 
   static get instance() {
@@ -17,28 +18,28 @@ class ArticleUtil {
     }
     return this[singleton];
   }
-	
-	notApprovedStateList() {
-		return [
-			constants.ARTICLE.STATE.CREATED,
-			constants.ARTICLE.STATE.PENDING,
-			constants.ARTICLE.STATE.DENIED,
-			constants.ARTICLE.STATE.ADMIN_SUSPENDED,
-			constants.ARTICLE.STATE.AUTHOR_SUSPENDED,
-		];
-	}
-		
-	editableStateList() {
-		return [
-			constants.ARTICLE.STATE.CREATED,
-			constants.ARTICLE.STATE.DENIED,
-			constants.ARTICLE.STATE.ADMIN_SUSPENDED,
-			constants.ARTICLE.STATE.AUTHOR_SUSPENDED,
-		];
-	}	
 
-	stateChoiceList() {
-		return [
+  notApprovedStateList() {
+    return [
+      constants.ARTICLE.STATE.CREATED,
+      constants.ARTICLE.STATE.PENDING,
+      constants.ARTICLE.STATE.DENIED,
+      constants.ARTICLE.STATE.ADMIN_SUSPENDED,
+      constants.ARTICLE.STATE.AUTHOR_SUSPENDED,
+    ];
+  }
+
+  editableStateList() {
+    return [
+      constants.ARTICLE.STATE.CREATED,
+      constants.ARTICLE.STATE.DENIED,
+      constants.ARTICLE.STATE.ADMIN_SUSPENDED,
+      constants.ARTICLE.STATE.AUTHOR_SUSPENDED,
+    ];
+  }
+
+  stateChoiceList() {
+    return [
       {
         title: LocaleManager.instance.effectivePack().ALL,
         key: constants.ARTICLE.STATE.NONE,
@@ -67,30 +68,30 @@ class ArticleUtil {
         title: LocaleManager.instance.effectivePack().AUTHOR_SUSPENDED,
         key: constants.ARTICLE.STATE.AUTHOR_SUSPENDED,
       },
-		];
-	}
+    ];
+  }
 
-	categoryChoiceList() {
-		return [
-			{
-				title: LocaleManager.instance.effectivePack().ALL,
-				key: constants.ARTICLE.CATEGORY.NONE,
-			},
-			{
-				title: LocaleManager.instance.effectivePack().LATEST,
-				key: constants.ARTICLE.CATEGORY.LATEST,
-			},
+  categoryChoiceList() {
+    return [
       {
-				title: LocaleManager.instance.effectivePack().MISC,
-				key: constants.ARTICLE.CATEGORY.MISC,
-			},
-		];
-	} 
-	
-	isEditable(article) {
-		const instance = this;
-		return (-1 != instance.editableStateList().indexOf(article.state));
-	}
+        title: LocaleManager.instance.effectivePack().ALL,
+        key: constants.ARTICLE.CATEGORY.NONE,
+      },
+      {
+        title: LocaleManager.instance.effectivePack().LATEST,
+        key: constants.ARTICLE.CATEGORY.LATEST,
+      },
+      {
+        title: LocaleManager.instance.effectivePack().MISC,
+        key: constants.ARTICLE.CATEGORY.MISC,
+      },
+    ];
+  }
+
+  isEditable(article) {
+    const instance = this;
+    return (-1 != instance.editableStateList().indexOf(article.state));
+  }
 }
 
 // Use "CommonJs `require`" syntax to import for both NodeJsBackend and React16Frontend to guarantee compatibility.

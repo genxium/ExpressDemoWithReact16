@@ -6,92 +6,67 @@ const WebFunc = require('../../utils/WebFunc').default;
 
 const LocaleManager = require('../../../common/LocaleManager').default;
 
-import {
-  Jumbotron,
-  Container,
-  Card,
-  CardColumns,
-  ListGroup,
-} from 'react-bootstrap';
+import { Jumbotron, Container, Card, CardColumns, ListGroup, } from 'react-bootstrap';
 
-import { 
-  FaSadCry, 
-  FaSadTear,
-  FaRegSadCry,
-  FaRegSadTear,
-  FaAssistiveListeningSystems,
-  FaNewspaper,
-  FaCodeBranch,
-  FaRegNewspaper,
-  FaPhone,
-  FaUserShield,
-  FaPiggyBank,
-  FaVideo,
-} from 'react-icons/fa';
+import { FaSadCry, FaSadTear, FaRegSadCry, FaRegSadTear, FaAssistiveListeningSystems, FaNewspaper, FaCodeBranch, FaRegNewspaper, FaPhone, FaUserShield, FaPiggyBank, FaVideo, } from 'react-icons/fa';
 
-import {
-  View, 
-  Topbar, 
-  Button, 
-  pushNewScene,
-  changeSceneTitle,
-} from '../../widgets/WebCommonRouteProps';
+import { View, Topbar, Button, pushNewScene, changeSceneTitle, } from '../../widgets/WebCommonRouteProps';
 
 class Home extends React.Component {
 
-	constructor(props) {
-		super(props);
-		const sceneRef = this;
-
-		this.styles = {
-			entryCommon: {
-				display: 'block',
-				marginTop: 5,
-			},
-		};
-
-		this.state = {
-			initialized: false,
-		};
-	}
-
-	componentDidMount() {
+  constructor(props) {
+    super(props);
     const sceneRef = this;
-		changeSceneTitle(sceneRef, LocaleManager.instance.effectivePack().PLAYER_CONSOLE);
-	}
 
-	render() {
-		const sceneRef = this;
-		const { RoleLoginSingleton, ...other } = sceneRef.props;
-		const styles = sceneRef.styles;
+    this.styles = {
+      entryCommon: {
+        display: 'block',
+        marginTop: 5,
+      },
+    };
 
-		const topbarProps = Object.assign({
-			showLoginNav: false,
-			onHasLoggedIn: () => {
-				sceneRef.setState({
-					initialized: true,
-				});
-			},
-			onHasNotLoggedIn: () => {
+    this.state = {
+      initialized: false,
+    };
+  }
+
+  componentDidMount() {
+    const sceneRef = this;
+    changeSceneTitle(sceneRef, LocaleManager.instance.effectivePack().PLAYER_CONSOLE);
+  }
+
+  render() {
+    const sceneRef = this;
+    const {RoleLoginSingleton, ...other} = sceneRef.props;
+    const styles = sceneRef.styles;
+
+    const topbarProps = Object.assign({
+      showLoginNav: false,
+      onHasLoggedIn: () => {
+        sceneRef.setState({
+          initialized: true,
+        });
+      },
+      onHasNotLoggedIn: () => {
         /*
         * Do not impose a "IntAuthTokenWall" on homepage, yet still provide a topbar for proactively triggering the action. 
         * We use ReactJs to build the homepage instead of a "static page (which in most cases easier for SEO)" because our existing "topbar utility (which features login state management)" was written in ReactJs.  
         * 
         * -- YFLu, 2020-02-02
         */
-				// RoleLoginSingleton.instance.replaceRoleLoginScene(sceneRef);
-			},
-			sceneRef: sceneRef
-		}, sceneRef.props);
+        // RoleLoginSingleton.instance.replaceRoleLoginScene(sceneRef);
+      },
+      sceneRef: sceneRef
+    }, sceneRef.props);
 
-		const topbarChildren = [];
-		const topbar = (
-			<Topbar
-				{...topbarProps}
-			>
+    const topbarChildren = [];
+    const topbar = (
+    <Topbar
+    {...topbarProps}
+    >
 				{topbarChildren}
 			</Topbar>
-		);
+    );
 
     /*
     * This cliparts should all be tailored to square aspect ratio, i.e. 1:1.
@@ -100,8 +75,8 @@ class Home extends React.Component {
     const profilingClipartPath = constants.ROUTE_PATHS.BASE + constants.ROUTE_PATHS.CLIPART + "/performance-testing.jpg";
     const deliveredClipartPath = constants.ROUTE_PATHS.BASE + constants.ROUTE_PATHS.CLIPART + "/delivered-1.png";
 
-		const mainScene = (
-      <View>
+    const mainScene = (
+    <View>
       <Jumbotron fluid>
         <Container>
           <h1>DGFluoresence</h1>
@@ -159,15 +134,15 @@ class Home extends React.Component {
         </Card>
       </CardColumns>
       </View>
-		);
+    );
 
-		return (
-			<View
-			>
+    return (
+      <View
+      >
 				{mainScene}
 			</View>
-		);
-	}
+    );
+  }
 }
 
 export default Home;

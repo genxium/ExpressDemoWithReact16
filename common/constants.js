@@ -12,7 +12,7 @@ exports.NOT_IN_PRODUCTION = NOT_IN_PRODUCTION;
 exports.USE_FSERVER = ('true' == process.env.FSERVER);
 
 exports.HTTP_PROTO = (NOT_IN_PRODUCTION ? 'http' : 'http');
-exports.HTTP_PORT = (NOT_IN_PRODUCTION ? (IS_STAGING ? ":8008" : ":9099") : ""); 
+exports.HTTP_PORT = (NOT_IN_PRODUCTION ? (IS_STAGING ? ":8008" : ":9099") : "");
 
 exports.AUTH_CHANNEL = {
   EMAIL: 0,
@@ -118,20 +118,20 @@ exports.KEYBOARD_CODE = {
 }
 
 exports.ARTICLE = {
-	CATEGORY: {
+  CATEGORY: {
     NONE: 0,
-		LATEST: 1,
-		MISC: 2,
-	},
-	STATE: {
+    LATEST: 1,
+    MISC: 2,
+  },
+  STATE: {
     NONE: 0,
-		CREATED: 1,
-		PENDING: 2,
-		APPROVED: 3,
-		DENIED: 4,
-		ADMIN_SUSPENDED: 5,
-		AUTHOR_SUSPENDED: 6,
-	},
+    CREATED: 1,
+    PENDING: 2,
+    APPROVED: 3,
+    DENIED: 4,
+    ADMIN_SUSPENDED: 5,
+    AUTHOR_SUSPENDED: 6,
+  },
   CREATION_LIMIT: {
     N_NOT_APPROVED: 5,
     N_KEYWORDS: 10,
@@ -165,6 +165,13 @@ exports.RET_CODE = {
   NOT_IMPLEMENTED_YET: 65535,
 };
 
+exports.OSS_DELETION_RESULT_CODE = {
+  UNKNOWN: 10000,
+  DELETED: 10001,
+  NOT_DELETED_NO_LONGER_EXISTING: 10002,
+  NOT_DELETED_PERMISSION_DENIED: 10003,
+};
+
 const ROUTE_PATHS = {
   ROOT: "/",
   API_V1: "/Api/V1",
@@ -183,7 +190,7 @@ const ROUTE_PATHS = {
   FETCH: "/Fetch",
 
   LIVECHAT: "/Livechat",
-  CONSOLE: "/Console", 
+  CONSOLE: "/Console",
   SKU: "/Sku",
 
   CREDENTIALS: "/Credentials",
@@ -370,8 +377,8 @@ exports.THEME = {
     BROWN_REDISH: "rgba(128, 64, 0, 0.5)",
     BLUE: "blue",
     TRANSPARENT: "transparent",
-		KEYWORD: "#333333",
-		KEYWORD_BG: "#FCE1A4",
+    KEYWORD: "#333333",
+    KEYWORD_BG: "#FCE1A4",
   },
 };
 
@@ -390,11 +397,11 @@ exports.ATTACHMENT = {
     SOLIDIFED_PENDING_TRANSCODING: 1,
     SOLIDIFED_TRANSCODED: 2,
     SOLIDIFED_TRANSCODING_FAILED: 3,
-    /*
-    * For each "attachment" record, it could be "deleted softly" during any state, including "SOLIDIFED_PENDING_TRANSCODING".
-    *
-    * -- YFLu, 2020-03-03
-    */
+  /*
+  * For each "attachment" record, it could be "deleted softly" during any state, including "SOLIDIFED_PENDING_TRANSCODING".
+  *
+  * -- YFLu, 2020-03-03
+  */
   },
 
   META_TYPE: {

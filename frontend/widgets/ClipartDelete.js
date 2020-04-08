@@ -3,17 +3,17 @@
 import React from 'react';
 
 try {
-	// Needs feasible css-loader.
-	require('./ClipartDelete.css');
-} catch(err) {
- // Error handling here.
+  // Needs feasible css-loader.
+  require('./ClipartDelete.css');
+} catch (err) {
+  // Error handling here.
 }
 
 class ClipartDelete extends React.Component {
-	render() {
-		const widgetRef = this;
-		return (
-			<div style={widgetRef.props.style}>
+  render() {
+    const widgetRef = this;
+    return (
+      <div style={widgetRef.props.style}>
 				<svg height="57px" width="57px" version="1.1" viewBox="0 0 57 57">
 	<defs/>
 	<g id="clipart-delete-outermost" fill="none" stroke="none" strokeWidth="1">
@@ -30,8 +30,8 @@ class ClipartDelete extends React.Component {
 	</g>
 </svg>
 			</div>
-		);
-	}
+    );
+  }
 }
 
 export default ClipartDelete;

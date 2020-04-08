@@ -6,7 +6,7 @@ const signals = require('../../common/signals');
 const NetworkFunc = require('../../common/NetworkFunc').default;
 const Crypto = require('../../common/Crypto').default;
 const Time = require('../../common/Time').default;
-const LocaleManager = require('../../common/LocaleManager').default; 
+const LocaleManager = require('../../common/LocaleManager').default;
 
 const MySQLManager = require('../utils/MySQLManager');
 const NamedGatewayManager = require('../utils/NamedGatewayManager').default;
@@ -28,7 +28,7 @@ const _adminCredentialsAuthImpl = function(req, res, next) {
   const instance = this;
   const handle = req.body.handle;
   const hashedPassword = req.body.password;
-  logger.info("_adminCredentialsAuthImpl, handle == " + handle + ", hashedPassword == " + hashedPassword); 
+  logger.info("_adminCredentialsAuthImpl, handle == " + handle + ", hashedPassword == " + hashedPassword);
 
   if (null == handle || "" == handle) {
     return instance.nonexistentHandle(res);
@@ -37,7 +37,7 @@ const _adminCredentialsAuthImpl = function(req, res, next) {
   if (null == hashedPassword || "" == hashedPassword) {
     return instance.incorrectPassword(res);
   }
-    
+
   try {
     // Intentionally re-parsing the conf file everytime.
     const config = yaml.safeLoad(fs.readFileSync(baseAbsPath + '../configs/admin_auth_dict.conf', 'utf8'));
@@ -45,7 +45,7 @@ const _adminCredentialsAuthImpl = function(req, res, next) {
       const adminDict = config[k];
       if (handle != adminDict.handle) {
         // Skip.
-        continue;  
+        continue;
       }
       if (hashedPassword == Crypto.sha1Sign(adminDict.pass)) {
         // Matched.
@@ -53,7 +53,7 @@ const _adminCredentialsAuthImpl = function(req, res, next) {
           id: adminDict.id,
           handle: adminDict.handle,
         };
-        return next();   
+        return next();
       }
       return instance.incorrectPassword(res); // Handle matched but incorrect password.
     }
@@ -81,9 +81,9 @@ const _writerCredentialsAuthImpl = function(req, res, next) {
     if (null == result) {
       instance.respondWithError(res, null);
       return;
-    } 
-    
-    req.loggedInRole = result; 
+    }
+
+    req.loggedInRole = result;
     return next();
   };
   const onTrxExternalPromiseRejected = (err) => {
@@ -91,7 +91,7 @@ const _writerCredentialsAuthImpl = function(req, res, next) {
   };
 
   trxExternalPromise
-  .then(onTrxExternalPromiseFulfilled, onTrxExternalPromiseRejected)
+    .then(onTrxExternalPromiseFulfilled, onTrxExternalPromiseRejected)
   /*
   // Possibly due to a bug of "bluebird" https://github.com/petkaantonov/bluebird/issues/846, calling ".catch" or ".catch.finally" on "trxExternalPromise" will cause "unreturned promise warning". -- YFLu, 2020-03-07
   .catch((err) => {
@@ -101,7 +101,7 @@ const _writerCredentialsAuthImpl = function(req, res, next) {
     ...
   })
   */
-  ; 
+  ;
 };
 
 const credentialsAuthImpl = function(req, res, next) {
@@ -123,7 +123,9 @@ const credentialsAuthImpl = function(req, res, next) {
 
 const createPageRouter = function() {
   const instance = this;
-  const router = express.Router({mergeParams: true});
+  const router = express.Router({
+    mergeParams: true
+  });
   router.get(constants.ROUTE_PATHS.LOGIN, instance.spa);
 
   return router;

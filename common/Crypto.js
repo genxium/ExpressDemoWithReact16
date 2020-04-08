@@ -14,7 +14,7 @@ class Crypto {
   }
 
   static hmacSha1Sign(seed, key) {
-    return hmacSha1(seed.toString(), key.toString()).toString();  
+    return hmacSha1(seed.toString(), key.toString()).toString();
   }
 }
 

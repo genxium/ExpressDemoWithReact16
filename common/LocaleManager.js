@@ -5,7 +5,8 @@ const singletonEnforcer = Symbol();
 
 class LocaleManager {
   constructor(enforcer) {
-    if (enforcer != singletonEnforcer) throw "Cannot construct singleton";
+    if (enforcer != singletonEnforcer)
+      throw "Cannot construct singleton";
   }
 
   static get instance() {

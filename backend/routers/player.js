@@ -4,7 +4,7 @@ const express = require('express');
 const constants = require('../../common/constants');
 const signals = require('../../common/signals');
 const NetworkFunc = require('../../common/NetworkFunc').default;
-const LocaleManager = require('../../common/LocaleManager').default; 
+const LocaleManager = require('../../common/LocaleManager').default;
 
 const NamedGatewayManager = require('../utils/NamedGatewayManager').default;
 const MySQLManager = require('../utils/MySQLManager');
@@ -19,7 +19,9 @@ const WeChatSingleton = require('../utils/WeChatSingleton').default;
 
 const createPageRouter = function() {
   const instance = this;
-  const router = express.Router({mergeParams: true});
+  const router = express.Router({
+    mergeParams: true
+  });
   router.get(constants.ROUTE_PATHS.ROOT, (instance.landingPageSpa.bind(instance)));
   router.get(constants.ROUTE_PATHS.HOME, (instance.landingPageSpa.bind(instance)));
 
@@ -30,35 +32,37 @@ const createPageRouter = function() {
 const articleDetailApi = function(req, res) {
   const instance = this;
 
-	let articleId = (null == req.params.articleId ? null : parseInt(req.params.articleId));
+  let articleId = (null == req.params.articleId ? null : parseInt(req.params.articleId));
   let article = null;
 
   MySQLManager.instance.dbRef.transaction(t => {
     return playerDao.queryReadableArticleAsync(articleId, t)
+      .then(function(doc) {
+        article = doc;
+        return sharedDao.appendImageListForArticleAsync(article, t);
+      })
+      .then(function(doc) {
+        return sharedDao.appendAuthorForArticleAsync(article, t);
+      });
+  })
     .then(function(doc) {
-      article = doc;  
-      return sharedDao.appendImageListForArticleAsync(article, t);
+      res.json({
+        ret: constants.RET_CODE.OK,
+        article: article,
+      });
     })
-    .then(function(doc) {
-      return sharedDao.appendAuthorForArticleAsync(article, t);
+    .catch(function(err) {
+      instance.respondWithError(res, err);
     });
-  })
-  .then(function(doc) {
-    res.json({
-      ret: constants.RET_CODE.OK,
-      article: article,
-    });
-  })
-  .catch(function(err) {
-    instance.respondWithError(res, err);
-  });
 };
 
 const createUnprotectedApiRouter = function() {
   const instance = this;
-  const router = express.Router({mergeParams: true});
+  const router = express.Router({
+    mergeParams: true
+  });
   router.get(constants.ROUTE_PATHS.ARTICLE + constants.ROUTE_PARAMS.ARTICLE_ID + constants.ROUTE_PATHS.DETAIL, articleDetailApi.bind(instance));
-  
+
   return router;
 };
 
@@ -69,7 +73,7 @@ class PlayerRouterCollection extends AbstractAuthRouterCollection {
     this.tokenCache = RoleLoginCacheCollection.instance.getOrCreateCacheSync(constants.ROLE_NAME.PLAYER);
 
     this.pageRouter = (createPageRouter.bind(instance))();
-    this.authProtectedApiRouter = null; 
+    this.authProtectedApiRouter = null;
     this.unprotectedApiRouter = (createUnprotectedApiRouter.bind(instance))();
   }
 
@@ -83,7 +87,7 @@ class PlayerRouterCollection extends AbstractAuthRouterCollection {
       metaKeywords: LocaleManager.instance.effectivePack().APP_NAME,
       metaDescription: LocaleManager.instance.effectivePack().ABSTACT,
       jsBundleUri: constants.ROUTE_PATHS.BASE + jsBundle,
-      wechatPubsrvWebLoginInfo: wechatPubsrvWebLoginInfoEncoded,  
+      wechatPubsrvWebLoginInfo: wechatPubsrvWebLoginInfoEncoded,
       namedGatewayInfo: namedGatewayInfoEncoded,
     });
   }
@@ -92,27 +96,28 @@ class PlayerRouterCollection extends AbstractAuthRouterCollection {
     // TODO: Employ full server rendering.
     const instance = this;
     let articleId = (null == req.params.articleId ? null : parseInt(req.params.articleId));
-    
+
     MySQLManager.instance.dbRef.transaction(t => {
       return playerDao.queryReadableArticleAsync(articleId, t);
     })
-    .then(function(article) {
-      if (!article) throw new signals.GeneralFailure();
-      let customMetaKeywords = "";
-      if (null != article.keywordList && 0 < article.keywordList.length) {
-        for (let i = 0; i < article.keywordList.length; ++i) {
-          customMetaKeywords += article.keywordList[i];
-          customMetaKeywords += " ";
-        } 
-      }
-      const customTitle = article.title;
-      const customMetaDescription = article.content;
+      .then(function(article) {
+        if (!article)
+          throw new signals.GeneralFailure();
+        let customMetaKeywords = "";
+        if (null != article.keywordList && 0 < article.keywordList.length) {
+          for (let i = 0; i < article.keywordList.length; ++i) {
+            customMetaKeywords += article.keywordList[i];
+            customMetaKeywords += " ";
+          }
+        }
+        const customTitle = article.title;
+        const customMetaDescription = article.content;
 
-      instance.spaRender(req, res, customMetaKeywords, customMetaDescription, customTitle);
-    })
-    .catch(function(err) {
-      instance.respondWithError(res, err);
-    });
+        instance.spaRender(req, res, customMetaKeywords, customMetaDescription, customTitle);
+      })
+      .catch(function(err) {
+        instance.respondWithError(res, err);
+      });
   }
 
   spaRender(req, res, customMetaKeywords, customMetaDescription, customTitle) {
@@ -124,7 +129,7 @@ class PlayerRouterCollection extends AbstractAuthRouterCollection {
       metaKeywords: ('string' == typeof customMetaKeywords ? customMetaKeywords : LocaleManager.instance.effectivePack().APP_NAME),
       metaDescription: ('string' == typeof customMetaDescription ? customMetaDescription : LocaleManager.instance.effectivePack().ABSTACT),
       jsBundleUri: constants.ROUTE_PATHS.BASE + jsBundle,
-      wechatPubsrvWebLoginInfo: wechatPubsrvWebLoginInfoEncoded,  
+      wechatPubsrvWebLoginInfo: wechatPubsrvWebLoginInfoEncoded,
       namedGatewayInfo: namedGatewayInfoEncoded,
     });
   }

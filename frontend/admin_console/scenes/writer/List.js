@@ -8,28 +8,14 @@ const WebFunc = require('../../../utils/WebFunc').default;
 const Paginator = require('../../../widgets/Paginator').default;
 const ClipartSearch = require('../../../widgets/ClipartSearch').default;
 
-const LocaleManager =  require('../../../../common/LocaleManager').default;
+const LocaleManager = require('../../../../common/LocaleManager').default;
 const NetworkFunc = require('../../../../common/NetworkFunc').default;
 const constants = require('../../../../common/constants');
 
-import {
-  Topbar,
-  Button, 
-  View, 
-  Image, 
-  Input,
-  Text, 
-  pushNewScene, 
-  replaceNewScene,
-  getRootElementSize,
-  changeSceneTitle,
-  NavItem,
-  getRenderedComponentSize,
-  queryNamedGatewayInfoDictSync,
-} from '../../../widgets/WebCommonRouteProps';
+import { Topbar, Button, View, Image, Input, Text, pushNewScene, replaceNewScene, getRootElementSize, changeSceneTitle, NavItem, getRenderedComponentSize, queryNamedGatewayInfoDictSync, } from '../../../widgets/WebCommonRouteProps';
 
 class List extends Component {
-  
+
   createCellReactElement(writer, key) {
     const sceneRef = this;
     const {basename, ...other} = sceneRef.props;
@@ -51,25 +37,25 @@ class List extends Component {
       }}
       >
         {writer.handle}
-      </View>     
+      </View>
     );
   }
 
   handleListResponseData(responseData) {
     const sceneRef = this;
     const {RoleLoginSingleton, ...other} = sceneRef.props;
-    let writerList = responseData.writerList; 
+    let writerList = responseData.writerList;
     if (!writerList) {
       RoleLoginSingleton.instance.checkWhetherTokenHasExpiredAsync(sceneRef, responseData)
-      .then(function(trueOrFalse) {
-        if (!trueOrFalse) return;
-        RoleLoginSingleton.instance.replaceRoleLoginScene(sceneRef);
-      });
+        .then(function(trueOrFalse) {
+          if (!trueOrFalse) return;
+          RoleLoginSingleton.instance.replaceRoleLoginScene(sceneRef);
+        });
       return;
     }
     let newCellList = [];
     writerList.map(function(single) {
-      const singleCell = sceneRef.createCellReactElement(single, single.id); 
+      const singleCell = sceneRef.createCellReactElement(single, single.id);
       newCellList.push(singleCell);
     });
     sceneRef.setState({
@@ -78,7 +64,7 @@ class List extends Component {
   }
 
   constructor(props) {
-    super(props); 
+    super(props);
 
     this._cellHeightPx = 130;
 
@@ -97,7 +83,7 @@ class List extends Component {
       activePage: 1,
       searchKeyword: "",
       cachedSearchKeyword: "",
-      cellList: [], 
+      cellList: [],
     };
 
     this.styles = {
@@ -119,9 +105,7 @@ class List extends Component {
     });
   }
 
-  componentWillUnmount() {
-
-  }
+  componentWillUnmount() {}
 
   componentDidUpdate(prevProps) {
     // Seems like that "history.replace" won't re-invoke "componentDidMount" any more since "react-router-v4 + react-16".
@@ -145,26 +129,26 @@ class List extends Component {
 
     replaceNewScene(sceneRef, pathname, params);
   }
-    
+
   initScene() {
     const sceneRef = this;
     const query = NetworkFunc.searchStrToMap(sceneRef.props.location.search);
-    const effectiveActivePage = (null == query.page ? sceneRef.state.activePage : parseInt(query.page));  
+    const effectiveActivePage = (null == query.page ? sceneRef.state.activePage : parseInt(query.page));
     let effectiveSearchKeyword = sceneRef.state.searchKeyword;
-    
+
     if (undefined !== query.sk) {
-      effectiveSearchKeyword = query.sk;    
+      effectiveSearchKeyword = query.sk;
     }
-  
+
     sceneRef.setState({
       activePage: effectiveActivePage,
       searchKeyword: effectiveSearchKeyword,
       cachedSearchKeyword: effectiveSearchKeyword,
     }, function() {
       sceneRef._listviewRef.requestDataAsync(sceneRef.state.activePage)
-      .then(function(responseData) {
-        sceneRef.handleListResponseData(responseData);
-      });
+        .then(function(responseData) {
+          sceneRef.handleListResponseData(responseData);
+        });
     })
   }
 
@@ -175,62 +159,62 @@ class List extends Component {
 
     // Search widget building.
     const searchInput = (
-      <Input
-      key='search-input'
-      style={{
-        height: 23,
-        width: 146,
-        padding: 3,
-        border: 'none',
-        color: constants.THEME.MAIN.BLACK,
-        borderRadius: '4px',
-      }}
-      value={sceneRef.state.cachedSearchKeyword}
-      onUpdated={ (evt) => {
-        sceneRef.setState({
-          cachedSearchKeyword: evt.target.value
-        });
-      }}
-      onKeyDown={ (evt) => {
-        if (evt.keyCode != constants.KEYBOARD_CODE.RETURN) return;
-        sceneRef.triggerSearch();
-      }}
-      >
+    <Input
+    key='search-input'
+    style={{
+      height: 23,
+      width: 146,
+      padding: 3,
+      border: 'none',
+      color: constants.THEME.MAIN.BLACK,
+      borderRadius: '4px',
+    }}
+    value={sceneRef.state.cachedSearchKeyword}
+    onUpdated={ (evt) => {
+      sceneRef.setState({
+        cachedSearchKeyword: evt.target.value
+      });
+    }}
+    onKeyDown={ (evt) => {
+      if (evt.keyCode != constants.KEYBOARD_CODE.RETURN) return;
+      sceneRef.triggerSearch();
+    }}
+    >
       </Input>
     );
 
     const searchButton = (
-      <View
-      key='search-button'
-      style={{
-        display: 'inline-block',
-        width: 18,
-        marginLeft: 10,
-        position: 'absolute',
-      }}
-      onClick={(evt) => {
-        sceneRef.triggerSearch();
-      }}
-      >
+    <View
+    key='search-button'
+    style={{
+      display: 'inline-block',
+      width: 18,
+      marginLeft: 10,
+      position: 'absolute',
+    }}
+    onClick={(evt) => {
+      sceneRef.triggerSearch();
+    }}
+    >
         <ClipartSearch />
       </View>
     );
 
     const searchEntry = (
-      <NavItem
-          style={{
-          lineHeight: 1,
-          display: 'block',
-          position: 'absolute',
-          left: '15%',
-          height: 45,
-          paddingTop: 11,
-          paddingBottom: 11,
-          width: '70%',
-          textAlign: 'center',
-          marginLeft: 10,
-        }}
-        key='search-entry-nav'>
+    <NavItem
+    style={{
+      lineHeight: 1,
+      display: 'block',
+      position: 'absolute',
+      left: '15%',
+      height: 45,
+      paddingTop: 11,
+      paddingBottom: 11,
+      width: '70%',
+      textAlign: 'center',
+      marginLeft: 10,
+    }}
+    key='search-entry-nav'>
         {searchInput}
         {searchButton}
       </NavItem>
@@ -251,7 +235,7 @@ class List extends Component {
         const oldSize = sceneRef.state.topbarSize;
         if (null !== oldSize && oldSize.width == newSize.width && oldSize.height == newSize.height) return;
         sceneRef.setState({
-          topbarSize: newSize, 
+          topbarSize: newSize,
         });
       },
       sceneRef: sceneRef,
@@ -259,17 +243,17 @@ class List extends Component {
 
     const topbarChildren = [searchEntry];
     const topbar = (
-      <Topbar
-      style={styles.topbar}
-      {...topbarProps}
-      >
+    <Topbar
+    style={styles.topbar}
+    {...topbarProps}
+    >
         {topbarChildren}
       </Topbar>
     );
 
     const buttonsRowSingleStyle = {
       fontSize: 18,
-      display: 'inline-block',      
+      display: 'inline-block',
     };
 
     let buttonsRow = null;
@@ -279,17 +263,17 @@ class List extends Component {
 
     if (null !== sceneRef.state.rootElementSize) {
       const btnAdd = (
-        <Button
-        style={buttonsRowSingleStyle}
-        onPress={(evt) => {
-          const pathname = constants.ROUTE_PATHS.WRITER + constants.ROUTE_PATHS.ADD;
-          pushNewScene(sceneRef, pathname);
-        }}
-        >
+      <Button
+      style={buttonsRowSingleStyle}
+      onPress={(evt) => {
+        const pathname = constants.ROUTE_PATHS.WRITER + constants.ROUTE_PATHS.ADD;
+        pushNewScene(sceneRef, pathname);
+      }}
+      >
           {LocaleManager.instance.effectivePack().SYMBOL_ADD} 
         </Button>
       );
-    
+
       buttonsRow = (
         <View
         style={{
@@ -301,7 +285,7 @@ class List extends Component {
           const oldSize = sceneRef.state.buttonsRowSize;
           if (null !== oldSize && oldSize.width == newSize.width && oldSize.height == newSize.height) return;
           sceneRef.setState({
-            buttonsRowSize: newSize, 
+            buttonsRowSize: newSize,
           });
         }}
         >
@@ -324,7 +308,7 @@ class List extends Component {
             requestNo: 0,
           };
           Object.assign(filters, {
-              searchKeyword: sceneRef.state.searchKeyword,
+            searchKeyword: sceneRef.state.searchKeyword,
           });
           return filters;
         },
@@ -342,27 +326,27 @@ class List extends Component {
           Object.assign(params, {
             page: page,
           });
-  
+
           replaceNewScene(sceneRef, pathname, params);
         },
       }, sceneRef.props);
 
       listview = (
         <Paginator
-          style={{
-            clear: 'both'
-          }}
-          ref={ (c) => {
-            if (!c) return;
-            sceneRef._listviewRef = c;
-          }}
-          {...listViewProps}
+        style={{
+          clear: 'both'
+        }}
+        ref={ (c) => {
+          if (!c) return;
+          sceneRef._listviewRef = c;
+        }}
+        {...listViewProps}
         />
       );
     }
 
     const mainScene = (
-      <View>
+    <View>
         {buttonsRow}
         {listview}
       </View>
@@ -375,6 +359,6 @@ class List extends Component {
       </View>
     );
   }
-} 
+}
 
 export default List;

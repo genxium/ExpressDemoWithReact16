@@ -7,7 +7,7 @@ class OssUptokenManager {
 
   createUptokenAsync(constrainDict) {
     const instance = this;
-    return this._createUptokenAsyncImpl(constrainDict); 
+    return this._createUptokenAsyncImpl(constrainDict);
   }
 }
 

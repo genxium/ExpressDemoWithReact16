@@ -3,10 +3,10 @@
 import React from 'react';
 
 class ClipartSearch extends React.Component {
-	render() {
-		const widgetRef = this;
-		return (
-			<div style={widgetRef.props.style}>
+  render() {
+    const widgetRef = this;
+    return (
+      <div style={widgetRef.props.style}>
 				<svg height="18px" width="16px" version="1.1" viewBox="0 0 16 18">
 					<defs />
 					<g id="Page-1" fill="none" stroke="none" strokeWidth="1">
@@ -18,8 +18,8 @@ class ClipartSearch extends React.Component {
 					</g>
 				</svg>
 			</div>
-		);
-	}
+    );
+  }
 }
 
 export default ClipartSearch;

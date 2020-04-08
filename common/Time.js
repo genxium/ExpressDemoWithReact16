@@ -101,8 +101,8 @@ class Time {
     return obj;
   }
 
-  // NOTE: Time utils ends.
-} 
+// NOTE: Time utils ends.
+}
 
 // Use "CommonJs `require`" syntax to import for both NodeJsBackend and React16Frontend to guarantee compatibility.
 exports.default = Time;
