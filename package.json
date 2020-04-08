@@ -22,7 +22,6 @@
     "pug": "^2.0.0-beta5",
     "qiniu": "^6.1.13",
     "request": "^2.81.0",
-    "sequelize": "^5.21.5",
-    "sqlite3": "^4.1.1"
+    "sequelize": "^5.21.5"
   }
 }
