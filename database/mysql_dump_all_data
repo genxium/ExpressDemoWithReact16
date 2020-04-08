@@ -1,0 +1,22 @@
+#!/bin/bash
+
+if [ $# -lt 3 ]; then 
+  echo "Usage: $0 <liveDbHost> <liveDbPort> <liveDbUname>"
+  exit 1
+fi
+
+basedir=$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )
+
+liveDbHost=$1
+liveDbPort=$2
+liveDbUname=$3
+isTest=$4
+dbname=efactory
+
+if [ $# -eq 3 ]; then
+  mysqldump --extended-insert=false --host=$liveDbHost --port=$liveDbPort -u$liveDbUname $dbname -p > $basedir/all-$(date '+%Y-%m-%d_%H.%M.%S').sql
+fi
+
+if [ $# -eq 4 ]; then
+  mysqldump --extended-insert=false --host=$liveDbHost --port=$liveDbPort -u$liveDbUname $dbname"_test" -p > $basedir/all_test-$(date '+%Y-%m-%d_%H.%M.%S').sql
+fi

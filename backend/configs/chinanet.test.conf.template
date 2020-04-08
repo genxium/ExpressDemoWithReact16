@@ -1,0 +1,8 @@
+{
+  appId: 'foo',
+  appSecret: 'bar',
+  bucket: 'foob-dev',
+  uphost: 'http://mydev.up.v[0-9]+.wcsapi.com',
+  videoDownloadEndpoint: 'http://video.somewhere.com',
+  imageDownloadEndpoint: 'http://video.somewhere.com'
+}

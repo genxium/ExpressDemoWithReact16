@@ -1,0 +1,26 @@
+#!/bin/bash
+
+basedir=$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )
+
+function beautify_js_by_folder {
+  root_folder=$1
+  echo "About to beautify under $root_folder"
+  node $basedir/node_modules/esformatter/bin/esformatter -i "$root_folder/*.js" 
+  for d in $(find $root_folder -mindepth 1 -maxdepth 1 -type d)
+  do
+    if [[ $d =~ "/node_modules" || $d =~ "/bin" || $d =~ "/pugs" || $d =~ "/static" || $d =~ "/configs" ]]; 
+    then
+      continue  
+    fi
+    echo "About to beautify under $d"
+    node $basedir/node_modules/esformatter/bin/esformatter -i "$d/**/*.js" 
+  done 
+}
+
+target_root_folders=( "$basedir/common" "$basedir/backend" "$basedir/frontend" )
+
+for root_folder in "${target_root_folders[@]}"
+do
+  beautify_js_by_folder $root_folder 
+done
+

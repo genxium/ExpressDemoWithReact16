@@ -1,0 +1,8 @@
+{
+  appId: 'foo',
+  appSecret: 'bar',
+  bucket: 'foob',
+  uphost: 'http://someup.qiniu.com',
+  videoDownloadEndpoint: 'http://my.bkt.clouddn.com',
+  imageDownloadEndpoint: 'http://my.bkt.clouddn.com'
+}

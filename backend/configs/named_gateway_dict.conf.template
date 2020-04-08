@@ -1,0 +1,10 @@
+articleServer:
+  protocol: http
+  portToListen: 3000
+  apiGateway: 192.168.56.102:3000 # Note that the "apiGateway" seen by client-side can use a different port from "portToListen".  
+  pageGateway: 192.168.56.102:3000   
+authServer: 
+  protocol: http
+  portToListen: 3001
+  apiGateway: 192.168.56.102:3001
+  pageGateway: 192.168.56.102:3001   

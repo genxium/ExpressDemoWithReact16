@@ -1,0 +1,9 @@
+daily
+rotate 4
+
+# create new (empty) log files after rotating old ones
+create
+
+LOGPATH_TO_BE_REPLACED {
+	size 128k
+}
