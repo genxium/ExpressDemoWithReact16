@@ -9,6 +9,7 @@ const AttachmentTable = require('../models/Attachment');
 const Logger = require('../utils/Logger');
 const logger = Logger.instance.getLogger(__filename);
 
+const QiniuServerUtil = require('../utils/QiniuServerUtil').default;
 const SequelizeOp = require('sequelize').Op;
 
 exports.getExclusiveAttachmentOssFilepathListInFirstOperand = function(firstOperandList, secondOperandList) {
@@ -173,7 +174,7 @@ const queryImageListForArticleAsync = function(article, trx) {
 exports.queryImageListForArticleAsync = queryImageListForArticleAsync;
 
 const appendImageListForArticleAsync = function(article, trx) {
-  return queryImageListForArticleAsync()
+  return queryImageListForArticleAsync(article, trx)
   .then(function(imageList) {
     for (let i in imageList) {
       Object.assign(imageList[i], {

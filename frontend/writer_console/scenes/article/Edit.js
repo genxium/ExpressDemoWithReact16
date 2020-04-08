@@ -35,6 +35,7 @@ import {
   goBack,
   topbarHeightPx,
   ModalPopup,
+  queryNamedGatewayInfoDictSync,
 } from '../../../widgets/WebCommonRouteProps';
 
 const LocaleManager = require('../../../../common/LocaleManager').default;
@@ -814,17 +815,17 @@ class Edit extends Component {
         break;
         case constants.ARTICLE.STATE.DENIED:
           articleStateToDisplayStr = LocaleManager.instance.effectivePack().DENIED;
-          if (null === cachedArticle.deniedReason || undefined === cachedArticle.deniedReason) break;
+          if (null == cachedArticle.deniedReason) break;
           negativeReasonStr = cachedArticle.deniedReason;
         break;
         case constants.ARTICLE.STATE.ADMIN_SUSPENDED:
           articleStateToDisplayStr = LocaleManager.instance.effectivePack().ADMIN_SUSPENDED;
-          if (null === cachedArticle.adminSuspendedReason || undefined === cachedArticle.adminSuspendedReason) break;
+          if (null == cachedArticle.adminSuspendedReason) break;
           negativeReasonStr = cachedArticle.adminSuspendedReason;
         break;
         case constants.ARTICLE.STATE.AUTHOR_SUSPENDED:
           articleStateToDisplayStr = LocaleManager.instance.effectivePack().AUTHOR_SUSPENDED;
-          if (null === cachedArticle.authorSuspendedReason || undefined === cachedArticle.authorSuspendedReason) break;
+          if (null == cachedArticle.authorSuspendedReason) break;
           negativeReasonStr = cachedArticle.authorSuspendedReason;
         break;
         default:
@@ -942,9 +943,10 @@ class Edit extends Component {
       </NavItem>
     );
 
+    const namedGatewayInfo = queryNamedGatewayInfoDictSync().articleServer;
     const viewAsPlayerEntry = (
       <HyperLink
-      href={(constants.HTTP_PROTO + "://" + window.location.hostname + constants.HTTP_PORT)+ constants.ROUTE_PATHS.BASE + constants.ROUTE_PATHS.PLAYER + constants.ROUTE_PATHS.ARTICLE + "/" + params.articleId + constants.ROUTE_PATHS.DETAIL}
+      href={namedGatewayInfo.protocol + "://" + namedGatewayInfo.pageGateway + constants.ROUTE_PATHS.BASE + constants.ROUTE_PATHS.PLAYER + constants.ROUTE_PATHS.ARTICLE + "/" + params.articleId + constants.ROUTE_PATHS.DETAIL}
       style={{
         display: (notApproved ? 'none' : 'block'),
         fontSize: 20,

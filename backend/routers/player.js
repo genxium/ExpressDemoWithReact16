@@ -7,6 +7,7 @@ const NetworkFunc = require('../../common/NetworkFunc').default;
 const LocaleManager = require('../../common/LocaleManager').default; 
 
 const NamedGatewayManager = require('../utils/NamedGatewayManager').default;
+const MySQLManager = require('../utils/MySQLManager');
 
 const RoleLoginCacheCollection = require('../RoleLoginCacheCollection').default;
 
@@ -33,14 +34,14 @@ const articleDetailApi = function(req, res) {
   let article = null;
 
   MySQLManager.instance.dbRef.transaction(t => {
-    return playerDao.queryReadableArticleAsync(articleId, t);
-  })
-  .then(function(doc) {
-    article = doc;  
-    return sharedDao.appendImageListForArticleAsync(article, t);
-  })
-  .then(function(doc) {
-    return sharedDao.appendAuthorForArticleAsync(article, t);
+    return playerDao.queryReadableArticleAsync(articleId, t)
+    .then(function(doc) {
+      article = doc;  
+      return sharedDao.appendImageListForArticleAsync(article, t);
+    })
+    .then(function(doc) {
+      return sharedDao.appendAuthorForArticleAsync(article, t);
+    });
   })
   .then(function(doc) {
     res.json({

@@ -242,7 +242,7 @@ const articleSubmitApi = function(req, res) {
     return writerDao.submitArticleAsync(articleId, loggedInRole.id, t);
   })
   .then(function(affectedRowsCount) {
-    if (1 == affectedRowsCount) {
+    if (1 != affectedRowsCount) {
       throw new signals.GeneralFailure();
     }
     res.json({

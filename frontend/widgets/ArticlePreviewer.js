@@ -12,7 +12,7 @@ class ArticlePreviewer extends React.Component {
     const widgetRef = this;
     const {View, data, rootElementSize, ...other} = widgetRef.props;
     let contentWrapper = null;
-    if (undefined == data || null == data) {
+    if (null == data) {
       return (
         <View>
         </View>
@@ -45,7 +45,7 @@ class ArticlePreviewer extends React.Component {
     let previewableImageList = [];
     if (undefined !== data.imageList && null !== data.imageList) {
       data.imageList.map(function(single) {
-        const effectiveImgSrc = (single.domain + "/" + single.remoteName);
+        const effectiveImgSrc = (single.downloadEndpoint + "/" + single.ossFilepath);
         previewableImageList.push({
           src: effectiveImgSrc,
         });
@@ -55,7 +55,7 @@ class ArticlePreviewer extends React.Component {
     let previewableVideoList = [];
     if (undefined !== data.videoList && null !== data.videoList) {
       data.videoList.map(function(single) {
-        const effectiveVideoSrc = (single.domain + "/" + single.remoteName);
+        const effectiveVideoSrc = (single.downloadEndpoint + "/" + single.ossFilepath);
         previewableVideoList.push({
           src: effectiveVideoSrc,
         });

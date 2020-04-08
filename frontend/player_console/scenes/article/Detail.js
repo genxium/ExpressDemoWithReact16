@@ -5,7 +5,6 @@ const constants = require('../../../../common/constants');
 const NetworkFunc = require('../../../../common/NetworkFunc').default;
 const LocaleManager = require('../../../../common/LocaleManager').default;
 
-// const ArticlePreviewer = require('../../../widgets/ArticlePreviewer').default;
 import ArticlePreviewer from '../../../widgets/ArticlePreviewer';
 
 import 'mermaid/dist/mermaid.min.js';
@@ -88,7 +87,9 @@ class Detail extends React.Component {
   componentDidMount() {
     const sceneRef = this;
     const props = sceneRef.props;
-    if (null !== sceneRef.state.rootElementSize) return;
+    if (null != sceneRef.state.rootElementSize) {
+      return;
+    }
     const rootElementSize = getRootElementSize();
     sceneRef.setState({
       rootElementSize: rootElementSize,
@@ -118,7 +119,9 @@ class Detail extends React.Component {
         if (!c) return;
         const newSize = getRenderedComponentSize(c);
         const oldSize = sceneRef.state.topbarSize;
-        if (null !== oldSize && oldSize.width == newSize.width && oldSize.height == newSize.height) return;
+        if (null != oldSize && oldSize.width == newSize.width && oldSize.height == newSize.height) {
+          return;
+        }
         sceneRef.setState({
           topbarSize: newSize, 
         });
@@ -135,8 +138,8 @@ class Detail extends React.Component {
       </Topbar>
     );
 
-    const shouldWaitForCachedArticle = (null === sceneRef.state.cachedArticle);
-    if (shouldWaitForCachedArticle) {
+    const shouldWaitForCachedArticle = (null == sceneRef.state.cachedArticle);
+    if (true == shouldWaitForCachedArticle) {
       return (
         <View>
           {topbar}
