@@ -392,16 +392,32 @@ exports.WEB_FRONTEND_COOKIE_INT_AUTH_TOKEN_KEY = "IntAuthToken";
 exports.WEB_FRONTEND_LOCAL_STORAGE_LOGGED_IN_ROLE_KEY = "LoggedInRole";
 
 exports.ATTACHMENT = {
+  ORIGINAL: {
+    LITERAL: "original",
+  }, 
+  TRANSCODED_PREFIX: {
+    LITERAL: "transcoded_",
+  },
   STATE: {
-    CREATED: 0,
-    SOLIDIFED_PENDING_TRANSCODING: 1,
-    SOLIDIFED_TRANSCODED: 2,
-    SOLIDIFED_TRANSCODING_FAILED: 3,
-  /*
-  * For each "attachment" record, it could be "deleted softly" during any state, including "SOLIDIFED_PENDING_TRANSCODING".
-  *
-  * -- YFLu, 2020-03-03
-  */
+    /*
+    * For each "attachment" record, it could be "deleted softly" during any state, including "SOLIDIFIED_PENDING_TRANSCODING".
+    *
+    * -- YFLu, 2020-03-03
+    */
+
+    /* Of the original file. */
+    CREATED_UNSOLIDIFIED: 0,
+    SOLIDIFIED: 1,
+    SOLIDIFIED_TRANSCODING_COPIES: 2,
+    TRANSCODED_COPIES_ALL_COMPLETED: 3,
+    TRANSCODED_COPIES_PARTIALLY_COMPLETED: 4,
+    TRANSCODED_COPIES_ALL_FAILED: 5,
+
+    /* Of each transcoding/transcoded copy. */
+    CREATED_TRANSCODING_COPY_UNSOLIDIFIED: 50,
+    TRANSCODED_COPY_SUCCESSFUL: 51,
+    TRANSCODED_COPY_ERROR_TIMED_OUT: 52,
+    TRANSCODED_COPY_ERROR_PAYLOAD: 53,
   },
 
   META_TYPE: {

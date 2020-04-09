@@ -253,7 +253,8 @@ const Text = createReactClass({
 const Image = createReactClass({
   getInitialState: function() {
     return {
-      src: null
+      src: null,
+      srcset: null,
     };
   },
   changeSrc: function(newSrc) {
@@ -261,12 +262,19 @@ const Image = createReactClass({
       src: newSrc
     });
   },
+  changeSrcset: function(newSrcset) {
+    this.setState({
+      srcset: newSrcset
+    });
+  },
   render: function() {
-    const {src, ...other} = this.props;
-    const finalizedSrc = (null === this.state.src ? src : this.state.src);
+    const {src, srcset, ...other} = this.props;
+    const finalizedSrc = (null == this.state.src ? src : this.state.src);
+    const finalizedSrcset = (null == this.state.srcset ? srcset : this.state.srcset);
     return (
       <img
       src={finalizedSrc}
+      srcset={finalizedSrcset}
       {...other}
       >
         {this.props.children}

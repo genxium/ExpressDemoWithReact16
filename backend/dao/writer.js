@@ -50,6 +50,7 @@ function queryReadableArticleAsync(articleId, writerId, trx) {
       const keywordList = JSON.parse(doc.keyword_list);
       Object.assign(jsonIns, {
         keywordList: keywordList,
+        authorSuspendedReason: doc.author_suspended_reason,
       });
       return jsonIns;
     });
@@ -133,7 +134,7 @@ const saveNewArticleAsync = function(writerId, bundle, trx) {
       }
 
       articleId = newArticle.id;
-      return sharedDao.stepToTranscodedManyAttachments(constants.ATTACHMENT.META_TYPE.ARTICLE, articleId, constants.ATTACHMENT.OWNER_META_TYPE.WRITER, writerId, bundle.ossFilepathList, trx);
+      return sharedDao.solidifyManyAttachments(constants.ATTACHMENT.META_TYPE.ARTICLE, articleId, constants.ATTACHMENT.OWNER_META_TYPE.WRITER, writerId, bundle.ossFilepathList, trx);
     })
     .then(function(affectedRowsCount) {
       if (bundle.ossFilepathList.length != affectedRowsCount) {
@@ -205,7 +206,7 @@ const overwriteArticleAsync = function(articleId, writerId, bundle, trx) {
         throw new signals.GeneralFailure();
       }
 
-      return sharedDao.stepToTranscodedManyAttachments(constants.ATTACHMENT.META_TYPE.ARTICLE, articleId, constants.ATTACHMENT.OWNER_META_TYPE.WRITER, writerId, toInsertAttachmentOssFilepathList, trx);
+      return sharedDao.solidifyManyAttachments(constants.ATTACHMENT.META_TYPE.ARTICLE, articleId, constants.ATTACHMENT.OWNER_META_TYPE.WRITER, writerId, toInsertAttachmentOssFilepathList, trx);
     })
     .then(function(affectedRowsCount) {
       if (toInsertAttachmentOssFilepathList.length != affectedRowsCount) {
@@ -213,7 +214,7 @@ const overwriteArticleAsync = function(articleId, writerId, bundle, trx) {
         throw new signals.GeneralFailure();
       }
 
-      return sharedDao.unsolidifyManyAttachments(constants.ATTACHMENT.META_TYPE.ARTICLE, articleId, constants.ATTACHMENT.OWNER_META_TYPE.WRITER, writerId, toDeleteAttachmentOssFilepathList, trx);
+      return sharedDao.softlyDeleteManyAttachments(constants.ATTACHMENT.META_TYPE.ARTICLE, articleId, constants.ATTACHMENT.OWNER_META_TYPE.WRITER, writerId, toDeleteAttachmentOssFilepathList, trx);
     })
     .then(function(affectedRowsCount) {
       if (toDeleteAttachmentOssFilepathList.length != affectedRowsCount) {

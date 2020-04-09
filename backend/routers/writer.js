@@ -302,7 +302,7 @@ const uptokenFetchApi = function(req, res) {
   }
 
   let expectedMimetype = req.query.expectedMimetype;
-  remoteName = "w_" + loggedInRole.id.toString() + "_" + currentMillis + "/original";
+  remoteName = "w_" + loggedInRole.id.toString() + "_" + currentMillis + "/" + constants.ATTACHMENT.ORIGINAL.LITERAL;
 
   // Only if a valid "expectedMimetype" were specified should the "" be handled. -- YFLu, 2020-04-07
   if (
@@ -331,7 +331,7 @@ const uptokenFetchApi = function(req, res) {
   };
 
   const replacementSetObject = {
-    state: constants.ATTACHMENT.STATE.CREATED,
+    state: constants.ATTACHMENT.STATE.CREATED_UNSOLIDIFIED,
     transcoding_failure_count: 0,
     max_transcoding_failure_count: 3,
 

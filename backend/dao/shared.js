@@ -13,6 +13,8 @@ const QiniuServerUtil = require('../utils/QiniuServerUtil').default;
 const SequelizeOp = require('sequelize').Op;
 const Promise = require("bluebird");
 
+const path = require('path');
+
 exports.getExclusiveAttachmentOssFilepathListInFirstOperand = function(firstOperandList, secondOperandList) {
   let secondSet = new Set();
   secondOperandList.map(function(ossFilepath) {
@@ -27,7 +29,7 @@ exports.getExclusiveAttachmentOssFilepathListInFirstOperand = function(firstOper
 };
 
 exports.softlyDeleteManyAttachments = function(forMetaType, forMetaId, forOwnerMetaType, forOwnerMetaId, toDeleteAttachmentOssFilepathList, trx) {
-  if (false == toDeleteAttachmentOssFilepathList || 0 == toDeleteAttachmentOssFilepathList.length) {
+  if (null == toDeleteAttachmentOssFilepathList || 0 == toDeleteAttachmentOssFilepathList.length) {
     return new Promise((resolve, reject) => {
       return resolve(0);
 
@@ -45,40 +47,15 @@ exports.softlyDeleteManyAttachments = function(forMetaType, forMetaId, forOwnerM
       owner_meta_id: forOwnerMetaId,
       owner_meta_type: forOwnerMetaType,
 
-      deleted_at: null,
-
       oss_filepath: toDeleteAttachmentOssFilepathList,
+
+      deleted_at: null,
     },
     transaction: trx
   });
 };
 
 exports.solidifyManyAttachments = function(forMetaType, forMetaId, forOwnerMetaType, forOwnerMetaId, toBindOssFilepathList, trx) {
-  if (false == toBindOssFilepathList || 0 == toBindOssFilepathList.length) {
-    return new Promise((resolve, reject) => {
-      return resolve(0);
-    })
-  }
-  const currentMillis = Time.currentMillis();
-  return AttachmentTable.update({
-    state: constants.ATTACHMENT.STATE.SOLIDIFED_PENDING_TRANSCODING,
-    updated_at: currentMillis,
-
-    meta_id: forMetaId,
-    meta_type: forMetaType,
-  }, {
-    where: {
-      deleted_at: null,
-      state: constants.ATTACHMENT.STATE.CREATED,
-      oss_filepath: toBindOssFilepathList,
-      owner_meta_id: forOwnerMetaId,
-      owner_meta_type: forOwnerMetaType,
-    },
-    transaction: trx,
-  });
-};
-
-exports.stepToTranscodedManyAttachments = function(forMetaType, forMetaId, forOwnerMetaType, forOwnerMetaId, toBindOssFilepathList, trx) {
   if (null == toBindOssFilepathList || 0 == toBindOssFilepathList.length) {
     return new Promise((resolve, reject) => {
       return resolve(0);
@@ -93,7 +70,7 @@ exports.stepToTranscodedManyAttachments = function(forMetaType, forMetaId, forOw
     .then(function(stat) {
       // logger.info("Returned stat for bucket == ", bucket, ", ossFilepath == ", ossFilepath, " is\n", stat);
       const replacementSetObject = {
-        state: constants.ATTACHMENT.STATE.SOLIDIFED_TRANSCODED,
+        state: constants.ATTACHMENT.STATE.SOLIDIFIED,
         updated_at: currentMillis,
 
         meta_id: forMetaId,
@@ -106,25 +83,22 @@ exports.stepToTranscodedManyAttachments = function(forMetaType, forMetaId, forOw
       }
       return AttachmentTable.update(replacementSetObject, {
         where: {
-          deleted_at: null,
-          state: [
-            constants.ATTACHMENT.STATE.CREATED,
-            constants.ATTACHMENT.STATE.SOLIDIFED_PENDING_TRANSCODING,
-            constants.ATTACHMENT.STATE.SOLIDIFED_TRANSCODING_FAILED
-          ],
+          state: constants.ATTACHMENT.STATE.CREATED_UNSOLIDIFIED,
           oss_filepath: ossFilepath,
           owner_meta_id: forOwnerMetaId,
           owner_meta_type: forOwnerMetaType,
+
+          deleted_at: null,
         },
         transaction: trx,
       });
     })
     .then(function(affectedRows) {
       const affectedRowsCount = affectedRows[0];
-      // logger.info("Successfully ran one round of `stepToTranscodedManyAttachments` for ossFilepath == ", ossFilepath, ", affectedRowsCount == ", affectedRowsCount);
+      // logger.info("Successfully ran one round of `solidifyManyAttachments` for ossFilepath == ", ossFilepath, ", affectedRowsCount == ", affectedRowsCount);
       return (total + affectedRowsCount);
     }, function(err) {
-      logger.error("Error occurred when invoking `stepToTranscodedManyAttachments`", err);
+      logger.error("Error occurred when invoking `solidifyManyAttachments`", err);
       return total;
     });
   }, 0)
@@ -133,54 +107,30 @@ exports.stepToTranscodedManyAttachments = function(forMetaType, forMetaId, forOw
   });
 };
 
-exports.unsolidifyManyAttachments = function(forMetaType, forMetaId, forOwnerMetaType, forOwnerMetaId, toUnbindOssFilepathList, trx) {
-  if (false == toUnbindOssFilepathList || 0 == toUnbindOssFilepathList.length) {
-    return new Promise((resolve, reject) => {
-      return resolve(0);
-    })
-  }
-  const currentMillis = Time.currentMillis();
-  return AttachmentTable.update({
-    state: constants.ATTACHMENT.STATE.CREATED,
-    updated_at: currentMillis,
-  }, {
-    where: {
-      deleted_at: null,
-      state: [
-        constants.ATTACHMENT.STATE.SOLIDIFED_PENDING_TRANSCODING,
-        constants.ATTACHMENT.STATE.SOLIDIFED_TRANSCODED,
-        constants.ATTACHMENT.STATE.SOLIDIFED_TRANSCODING_FAILED,
-      ],
-      oss_filepath: toUnbindOssFilepathList,
-      owner_meta_id: forOwnerMetaId,
-      owner_meta_type: forOwnerMetaType,
-      meta_id: forMetaId,
-      meta_type: forMetaType,
-    },
-    transaction: trx,
-  })
-  .then(function(affectedRows) {
-    const affectedRowsCount = affectedRows[0];
-    return affectedRowsCount;
-  });
-};
-
 const queryImageListForArticleAsync = function(article, trx) {
   const whereCondition = {
-    state: constants.ATTACHMENT.STATE.SOLIDIFED_TRANSCODED,
+    state: [
+      constants.ATTACHMENT.STATE.SOLIDIFIED,
+      constants.ATTACHMENT.STATE.SOLIDIFIED_TRANSCODING_COPIES,
+      constants.ATTACHMENT.STATE.TRANSCODED_COPIES_ALL_COMPLETED,
+      constants.ATTACHMENT.STATE.TRANSCODED_COPIES_PARTIALLY_COMPLETED,
+      constants.ATTACHMENT.STATE.TRANSCODED_COPIES_ALL_FAILED,
+
+
+      constants.ATTACHMENT.STATE.TRANSCODED_COPY_SUCCESSFUL,
+    ],
 
     meta_type: constants.ATTACHMENT.META_TYPE.ARTICLE,
     meta_id: article.id,
 
     owner_meta_type: constants.ATTACHMENT.OWNER_META_TYPE.WRITER,
     owner_meta_id: article.writer_id,
+    
+    mime_type: {
+      [SequelizeOp.like]: "%" + constants.ATTACHMENT.IMAGE.LITERAL + "%"
+    }, 
 
-  /*
-  // Temporarily omitted for filtering. -- YFLu, 2020-04-05
-  mime_type: {
-    [SequelizeOp.like]: "%" + constants.ATTACHMENT.IMAGE.LITERAL + "%"
-  }, 
-  */
+    deleted_at: null,
   };
   return AttachmentTable.findAndCountAll({
     where: whereCondition,
@@ -201,15 +151,41 @@ exports.queryImageListForArticleAsync = queryImageListForArticleAsync;
 const appendImageListForArticleAsync = function(article, trx) {
   return queryImageListForArticleAsync(article, trx)
     .then(function(imageList) {
+      /*
+      * Aggregate "imageList" to "imageSrcsetDict" keyed by the "prefix of ossFilepath".
+      */ 
+      let imageSrcsetDict = {};
       for (let i in imageList) {
-        Object.assign(imageList[i], {
-          downloadEndpoint: QiniuServerUtil.instance.config.imageDownloadEndpoint,
-          ossFilepath: imageList[i].oss_filepath,
-        });
+        const ossFilepath = imageList[i].oss_filepath;
+        const ossFilepathPrefix = path.dirname(ossFilepath);
+        if (null == imageSrcsetDict[ossFilepathPrefix]) {
+          imageSrcsetDict[ossFilepathPrefix] = [];
+        }
+        imageSrcsetDict[ossFilepathPrefix].push(imageList[i]);
       }
+
       Object.assign(article, {
-        imageList: imageList,
+        imageList: []
       });
+
+      for (let prefix in imageSrcsetDict) {
+        const imageSrcset = imageSrcsetDict[prefix]; 
+        const clientImageData = {
+          srcset: []
+        };
+        for (let i in imageSrcset) {
+          Object.assign(imageSrcset[i], {
+            downloadEndpoint: QiniuServerUtil.instance.config.imageDownloadEndpoint,
+            ossFilepath: imageSrcset[i].oss_filepath,
+          }); 
+          clientImageData.srcset.push(imageSrcset[i]);
+
+          if (null == clientImageData.downloadEndpoint || null == clientImageData.ossFilepath) {
+            Object.assign(clientImageData, imageSrcset[i]); 
+          }  
+        } 
+        article.imageList.push(clientImageData);
+      }
       return article;
     });
 };
