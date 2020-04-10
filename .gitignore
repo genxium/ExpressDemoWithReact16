@@ -1,3 +1,18 @@
+backend/transcoding_buffer/downloads/*/*.jpg
+backend/transcoding_buffer/downloads/*/*.jpeg
+backend/transcoding_buffer/downloads/*/*.png
+backend/transcoding_buffer/downloads/*/*.gif
+
+backend/transcoding_buffer/downloads/*/*.mp4
+backend/transcoding_buffer/downloads/*/*.mov
+
+backend/transcoding_buffer/results/*/*.png
+backend/transcoding_buffer/results/*/*.gif
+
+backend/transcoding_buffer/results/*/*.m3u8
+backend/transcoding_buffer/results/*/*.ts
+backend/transcoding_buffer/results/*/*/*.ts
+
 .skeema
 */.skeema
 
