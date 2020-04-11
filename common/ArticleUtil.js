@@ -92,6 +92,29 @@ class ArticleUtil {
     const instance = this;
     return (-1 != instance.editableStateList().indexOf(article.state));
   }
+
+  clientAccessibleMimeTypes() {
+    return constants.ATTACHMENT.IMAGE.POLICY.ALLOWED_MIME_TYPES.concat(constants.ATTACHMENT.VIDEO.POLICY.ALLOWED_MIME_TYPES);
+  }
+
+  shuffleAttachments(attachmentList) {
+    let imageList = [];
+    let videoList = [];
+    for (let i = 0; i < attachmentList.length; ++i) {
+      const attachment = attachmentList[i];
+      if (-1 != constants.ATTACHMENT.IMAGE.POLICY.ALLOWED_MIME_TYPES.indexOf(attachment.mime_type)) {
+        imageList.push(attachment);
+      }
+
+      if (-1 != constants.ATTACHMENT.VIDEO.POLICY.ALLOWED_MIME_TYPES.indexOf(attachment.mime_type)) {
+        videoList.push(attachment);
+      }
+    }
+    return {
+      imageList: imageList,
+      videoList: videoList, 
+    };
+  }
 }
 
 // Use "CommonJs `require`" syntax to import for both NodeJsBackend and React16Frontend to guarantee compatibility.

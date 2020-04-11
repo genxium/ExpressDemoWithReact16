@@ -341,6 +341,11 @@ const ZH_CN = {
   LIVECHAT_CONSOLE: "咨询管理控制台",
 
   CURRENCY_DICT: {},
+
+  HINT: {
+    IMAGE_REQUIREMENT: "输入图片不符合要求",
+    VIDEO_REQUIREMENT: "输入视频不符合要求",
+  }
 };
 
 ZH_CN.CURRENCY_DICT[CURRENCY.RMB] = {
@@ -449,15 +454,15 @@ exports.ATTACHMENT = {
       N_PER_ARTICLE: 1,
       SINGLE_SIZE_LIMIT_BYTES: (1 << 29), // 512 MB
       ALLOWED_MIME_TYPES: [
-        // "video/x-flv", // .flv
+        "video/x-flv", // .flv
         "video/mp4", // .mp4
         "video/quicktime", // .mov 
-        // "video/x-msvideo", // .avi 
-        // "video/x-ms-wmv", // .wmv 
+        "video/x-msvideo", // .avi 
+        "video/x-ms-wmv", // .wmv 
 
         // HLS mimetype Reference, https://developer.apple.com/library/archive/documentation/NetworkingInternet/Conceptual/StreamingMediaGuide/DeployingHTTPLiveStreaming/DeployingHTTPLiveStreaming.html
-        // "application/x-mpegURL", // .m3u8 
-        // "video/MP2T", // .ts 
+        "application/x-mpegURL", // .m3u8 
+        "video/MP2T", // .ts 
       ],
     },
   },

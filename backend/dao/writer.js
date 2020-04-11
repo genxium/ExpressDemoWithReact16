@@ -158,10 +158,12 @@ const overwriteArticleAsync = function(articleId, writerId, bundle, trx) {
       if (false == trueOrFalse) {
         throw new signals.GeneralFailure();
       }
-      return sharedDao.queryImageListForArticleAsync({
+      return sharedDao.queryAttachmentListForArticleAsync({
         id: articleId,
-        writer_id: writerId
-      }, trx);
+        writer_id: writerId,
+      }, 
+      ArticleUtil.instance.clientAccessibleMimeTypes(), 
+      trx);
     })
     .then(function(existingAttachmentList) {
       if (null == existingAttachmentList || 0 == existingAttachmentList.length) {
@@ -169,8 +171,8 @@ const overwriteArticleAsync = function(articleId, writerId, bundle, trx) {
         toDeleteAttachmentOssFilepathList = [];
       } else {
         const existingAttachmentOssFilepathList = [];
-        existingAttachmentList.map(function(image) {
-          existingAttachmentOssFilepathList.push(image.oss_filepath);
+        existingAttachmentList.map(function(attachment) {
+          existingAttachmentOssFilepathList.push(attachment.oss_filepath);
         });
         toInsertAttachmentOssFilepathList = sharedDao.getExclusiveAttachmentOssFilepathListInFirstOperand(bundle.ossFilepathList, existingAttachmentOssFilepathList);
         toDeleteAttachmentOssFilepathList = sharedDao.getExclusiveAttachmentOssFilepathListInFirstOperand(existingAttachmentOssFilepathList, bundle.ossFilepathList);

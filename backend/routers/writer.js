@@ -18,6 +18,8 @@ const AbstractAuthRouterCollection = require('./AbstractAuthRouterCollection').d
 const NamedGatewayManager = require('../utils/NamedGatewayManager').default;
 
 const MySQLManager = require('../utils/MySQLManager');
+const ArticleUtil = require('../../common/ArticleUtil').default;
+
 const Logger = require('../utils/Logger');
 const logger = Logger.instance.getLogger(__filename);
 
@@ -157,7 +159,7 @@ const articleDetailApi = function(req, res) {
           throw new signals.GeneralFailure();
         }
         article = doc;
-        return sharedDao.appendImageListForArticleAsync(article, t);
+        return sharedDao.appendAttachmentListForArticleAsync(article, ArticleUtil.instance.clientAccessibleMimeTypes(), t);
       })
   })
     .then(function(doc) {
@@ -215,7 +217,7 @@ const articleSaveApi = function(req, res) {
           throw new signals.GeneralFailure();
         }
         article = doc;
-        return sharedDao.appendImageListForArticleAsync(doc, t);
+        return sharedDao.appendAttachmentListForArticleAsync(doc, ArticleUtil.instance.clientAccessibleMimeTypes(), t);
       });
   })
     .then(function(doc) {

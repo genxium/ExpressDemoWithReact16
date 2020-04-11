@@ -8,12 +8,12 @@ import MarkdownEditor from '../../../widgets/MarkdownEditor';
 import MarkdownRenderer from '../../../widgets/MarkdownRenderer';
 import ClipartAddImage from '../../../widgets/ClipartAddImage';
 
-import { SINGLE_UPLOADER_STATE, BATCH_UPLOADER_STATE, SingleImageSelectorBundleListManager, StatelessMultiImageSelector, } from 'crimson-react-widgets';
+import { SINGLE_UPLOADER_STATE, BATCH_UPLOADER_STATE, SingleImageSelectorBundle, SingleImageSelectorBundleListManager, StatelessMultiImageSelector, StatelessSingleVideoSelector } from 'crimson-react-widgets';
 
 import KeywordListView from '../../../widgets/KeywordListView';
 import createReactClass from 'create-react-class';
 
-import { View, Topbar, Image, Text, Input, NavItem, DropdownPicker, PickerItem, Button, pushNewScene, replaceNewScene, changeSceneTitle, HyperLink, goBack, topbarHeightPx, ModalPopup, queryNamedGatewayInfoDictSync, } from '../../../widgets/WebCommonRouteProps';
+import { View, Topbar, Image, Video, Text, Input, NavItem, DropdownPicker, PickerItem, Button, pushNewScene, replaceNewScene, changeSceneTitle, HyperLink, goBack, topbarHeightPx, ModalPopup, queryNamedGatewayInfoDictSync, } from '../../../widgets/WebCommonRouteProps';
 
 const LocaleManager = require('../../../../common/LocaleManager').default;
 const NetworkFunc = require('../../../../common/NetworkFunc').default;
@@ -98,6 +98,7 @@ class Edit extends Component {
     const sceneRef = this;
 
     this._initialized = false;
+    this._singleVideoSelectorRef = null;
     this._multiSelectorRef = null;
     this._imagePreviewerRef = null;
     this._mdEditorRef = null;
@@ -111,6 +112,9 @@ class Edit extends Component {
       savable: false,
       submittable: false,
       previewable: false,
+
+      videoBundle: new SingleImageSelectorBundle(),
+      cachedVideoOssFilepath: null,
 
       bundleListManager: new SingleImageSelectorBundleListManager(),
       cachedImageOssFilepathDict: {},
@@ -242,7 +246,7 @@ class Edit extends Component {
   suspend(reason) {
     const sceneRef = this;
     const params = sceneRef.props.match.params;
-    const {goBack, location, basename, ...other} = sceneRef.props;
+    const {location, basename, ...other} = sceneRef.props;
     sceneRef.setState({
       disabled: true,
       submittable: false,
@@ -322,10 +326,29 @@ class Edit extends Component {
 
   refreshView(cachedArticle) {
     const sceneRef = this;
+
+    const shuffledDict = ArticleUtil.instance.shuffleAttachments(cachedArticle.attachmentList);
+    let imageList = shuffledDict.imageList;
+    let videoList = shuffledDict.videoList;
+
+    const theOnlyVideo = (0 < videoList.length ? null : videoList[0]);
+    let newVideoBundle = new SingleImageSelectorBundle();
+    if (null != theOnlyVideo) {
+      newVideoBundle.reset({
+        uploaderState: SINGLE_UPLOADER_STATE.UPLOADED,
+        remoteName: theOnlyVideo.ossFilepath,
+        effectiveImgSrc: (theOnlyVideo.downloadEndpoint + '/' + theOnlyVideo.ossFilepath),
+        progressPercentage: 100.0,
+        extUploader: new PlupLoad.Uploader({
+          key: theOnlyVideo.ossFilepath,
+        }),
+      });
+    }
+
     // NOTE: The `translation` below is unnecessary, but for correctness ensurance it's still used.
     let newBundleListManager = new SingleImageSelectorBundleListManager();
-    for (let i = 0; i < cachedArticle.imageList.length; ++i) {
-      const singleRecord = cachedArticle.imageList[i];
+    for (let i = 0; i < imageList.length; ++i) {
+      const singleRecord = imageList[i];
       const uploader = new PlupLoad.Uploader({
         key: singleRecord.ossFilepath,
       });
@@ -345,16 +368,17 @@ class Edit extends Component {
       newBundleListManager.pushNew();
     }
 
-    const cachedKeywordList = (undefined === cachedArticle.keywordList || null === cachedArticle.keywordList ? [] : cachedArticle.keywordList);
+    const cachedKeywordList = (null == cachedArticle.keywordList ? [] : cachedArticle.keywordList);
 
     sceneRef.setState({
       savable: false,
       submittable: true,
       previewable: true,
+      videoBundle: newVideoBundle,
       bundleListManager: newBundleListManager,
       cachedArticle: cachedArticle,
-      cachedTitle: (undefined === cachedArticle.title ? "" : cachedArticle.title),
-      cachedCategory: (undefined === cachedArticle.category ? constants.ARTICLE.CATEGORY.INFORMATION : parseInt(cachedArticle.category)),
+      cachedTitle: (null == cachedArticle.title ? "" : cachedArticle.title),
+      cachedCategory: (null == cachedArticle.category ? constants.ARTICLE.CATEGORY.INFORMATION : parseInt(cachedArticle.category)),
       cachedContent: cachedArticle.content,
       cachedKeywordList: cachedKeywordList,
     }, function() {
@@ -381,12 +405,12 @@ class Edit extends Component {
       return;
     }
 
-    const validationResult = sceneRef._multiSelectorRef.getBatchUploaderStateSync();
-    if ((BATCH_UPLOADER_STATE.SOME_UPLOADING & validationResult) > 0) {
+    const imageBatchUploaderState = sceneRef._multiSelectorRef.getBatchUploaderStateSync();
+    if ((BATCH_UPLOADER_STATE.SOME_UPLOADING & imageBatchUploaderState) > 0) {
       sceneRef.setState({
         bundleListManager: newBundleListManager,
       });
-    } else if ((BATCH_UPLOADER_STATE.SOME_LOCALLY_PREVIEWING & validationResult) > 0) {
+    } else if ((BATCH_UPLOADER_STATE.SOME_LOCALLY_PREVIEWING & imageBatchUploaderState) > 0) {
       sceneRef.setState({
         disabled: false,
         bundleListManager: newBundleListManager,
@@ -417,27 +441,90 @@ class Edit extends Component {
       return;
     }
 
-    const validationResult = sceneRef._multiSelectorRef.getBatchUploaderStateSync();
+    sceneRef.saveIfAllUploaded(sceneRef.state.videoBundle, sceneRef.state.cachedVideoOssFilepath, newBundleListManager, newImageOssFilepathDict);
+  }
 
-    if ((BATCH_UPLOADER_STATE.SOME_CREATED & validationResult) > 0 || (BATCH_UPLOADER_STATE.SOME_UPLOADING & validationResult) > 0) {
+  onVideoUploadError() {
+    const newVideoBundle = sceneRef.state.videoBundle;
+    newVideoBundle.assign({
+      progressPercentage: 0.0,
+      uploaderState: SINGLE_UPLOADER_STATE.LOCALLY_PREVIEWING,
+    });
+
+    --sceneRef._toUploadCount;
+    if (0 != sceneRef._toUploadCount) {
       sceneRef.setState({
-        bundleListManager: newBundleListManager,
+        videoBundle: newVideoBundle,
+      });
+      return;
+    }
+
+    sceneRef.setState({
+      disabled: false,
+      videoBundle: newVideoBundle,
+    });
+  }
+
+  onVideoUploaded() {
+    const sceneRef = this;
+    const newVideoBundle = sceneRef.state.videoBundle;
+    newVideoBundle.assign({
+      progressPercentage: 100.0,
+      uploaderState: SINGLE_UPLOADER_STATE.UPLOADED,
+    });
+    const newVideoOssFilepath = newVideoBundle.extUploader.getOption(constants.KEY);
+    --sceneRef._toUploadCount;
+    if (0 != sceneRef._toUploadCount) {
+      sceneRef.setState({
+        videoBundle: newVideoBundle,
+        cachedVideoOssFilepath: newVideoOssFilepath,
+      });
+      return;
+    }
+
+    sceneRef.saveIfAllUploaded(newVideoBundle, newVideoOssFilepath, sceneRef.state.bundleListManager, sceneRef.state.cachedImageOssFilepathDict);
+  }
+
+  saveIfAllUploaded(newVideoBundle, newVideoOssFilepath, newImageBundleListManager, newImageOssFilepathDict) {
+    const sceneRef = this;
+
+    const newState = {};
+    if (null != newVideoBundle && null != newVideoOssFilepath) {
+      Object.assign(newState, {
+        videoBundle: newVideoBundle,
+        cachedVideoOssFilepath: newVideoOssFilepath,
+      });
+    }
+    if (null != newImageBundleListManager && null != newImageOssFilepathDict) {
+      Object.assign(newState, {
+        bundleListManager: newImageBundleListManager,
         cachedImageOssFilepathDict: newImageOssFilepathDict,
       });
-    } else if ((BATCH_UPLOADER_STATE.SOME_LOCALLY_PREVIEWING & validationResult) > 0) {
-      sceneRef.setState({
+    }
+
+    const imageBatchUploaderState = sceneRef._multiSelectorRef.getBatchUploaderStateSync();
+    if ((BATCH_UPLOADER_STATE.SOME_CREATED & imageBatchUploaderState) > 0 || (BATCH_UPLOADER_STATE.SOME_UPLOADING & imageBatchUploaderState) > 0) {
+      sceneRef.setState(newState);
+    } else if ((BATCH_UPLOADER_STATE.SOME_LOCALLY_PREVIEWING & imageBatchUploaderState) > 0) {
+      Object.assign(newState, {
         disabled: false,
-        bundleListManager: newBundleListManager,
-        cachedImageOssFilepathDict: newImageOssFilepathDict,
       });
+      sceneRef.setState(newState);
     } else {
-      // SOME_INITIALIZED or ALL_UPLOADED.
-      sceneRef.setState({
-        bundleListManager: newBundleListManager,
-        cachedImageOssFilepathDict: newImageOssFilepathDict,
-      }, function() {
-        sceneRef.save();
-      });
+      // The `imageBatchUploaderState` has "SOME_INITIALIZED" or is "ALL_UPLOADED".
+
+      const videoUploaderState = newVideoBundle.uploaderState;
+      switch (videoUploaderState) {
+        case SINGLE_UPLOADER_STATE.INITIALIZED:
+        case SINGLE_UPLOADER_STATE.UPLOADED:
+          sceneRef.setState(newState, function() {
+            sceneRef.save();
+          });
+          break;
+        default:
+          break;
+      }
+
     }
   }
 
@@ -463,6 +550,109 @@ class Edit extends Component {
     const currentMomentObj = Time.currentMomentObj();
     let articleId = params.articleId;
 
+    const genQueryAndSetSingleBundleExtUploaderCredentialsAsync = (mimeTypeGroup) => {
+      const toRetFunc = function(pluploadUploader) {
+        const cookieToken = WebFunc.getCookie(constants.WEB_FRONTEND_COOKIE_INT_AUTH_TOKEN_KEY);
+        const paramsDict = {
+          mimeTypeGroup: mimeTypeGroup,
+          token: cookieToken,
+        };
+        const url = basename + constants.ROUTE_PATHS.API_V1 + constants.ROUTE_PATHS.UPTOKEN + constants.ROUTE_PATHS.FETCH;
+        return NetworkFunc.get(url, paramsDict)
+          .then(function(response) {
+            return response.json();
+          })
+          .then(function(responseData) {
+            console.log("Getting resp from ", url, " == ", responseData);
+            if (constants.RET_CODE.OK !== responseData.ret) {
+              return null;
+            } else {
+              pluploadUploader.setOption({
+                url: responseData.uphost + '/',
+                chunk_size: undefined,
+                multipart: true,
+                multipart_params: {
+                  token: responseData.uptoken,
+                  key: responseData.ossFilepath,
+                },
+                key: responseData.ossFilepath, // For later `getOption` shortcut usage. 
+              });
+              return pluploadUploader;
+            }
+          });
+      };
+      return toRetFunc;
+    };
+
+    const singleVideoSelector = (
+    <StatelessSingleVideoSelector
+    ref={ (c) => {
+      if (!c) return;
+      sceneRef._singleVideoSelectorRef = c;
+    }}
+    style={{
+      backgroundColor: constants.THEME.MAIN.WHITE,
+      width: '100%',
+      padding: 5,
+    }}
+    View={View}
+    Video={Video}
+    uploadedMark={'✅'}
+    sizePx={{
+      w: 163,
+      h: 154
+    }}
+    shouldDisable={ () => {
+      return sceneRef.state.disabled;
+    }}
+    showFileRequirementHint={() => {
+      alert(LocaleManager.instance.effectivePack().HINT.VIDEO_REQUIREMENT);
+    }}
+    progressBarColor={constants.THEME.MAIN.BLUE}
+    BrowserButtonComponent={ClipartAddImage}
+    bundle={sceneRef.state.videoBundle}
+    queryAndSetSingleBundleExtUploaderCredentialsAsync={ genQueryAndSetSingleBundleExtUploaderCredentialsAsync(constants.ATTACHMENT.VIDEO.LITERAL) }
+    onNewBundleInitializedBridge={ (idx, props) => {
+      const newVideoBundle = sceneRef.state.videoBundle;
+      newVideoBundle.reset(props);
+      sceneRef.setState({
+        videoBundle: newVideoBundle,
+      });
+    }}
+    onProgressBridge = {(idx, props) => {
+      const newVideoBundle = sceneRef.state.videoBundle;
+      newVideoBundle.assignAtIndex(idx, props);
+      sceneRef.setState({
+        videoBundle: newVideoBundle,
+      });
+    }}
+    onUploadedBridge={ (idx, successOrFailure) => {
+      if (successOrFailure) sceneRef.onVideoUploaded();
+      else sceneRef.onVideoUploadError();
+    }}
+    onLocalVideoAddedBridge={ (idx, props) => {
+      const newVideoBundle = sceneRef.state.videoBundle;
+      newVideoBundle.assign(props);
+
+      sceneRef.setState({
+        savable: sceneRef.isContentValid(sceneRef.state.cachedContent),
+        submittable: false,
+        videoBundle: newVideoBundle,
+      }, function() {
+        sceneRef.setState({
+          disabled: false,
+        }, function() {
+          // TODO: Insert video at "cursor of _mdEditorRef"? -- YFLu, 2020-04-10
+        });
+      });
+    }}
+    onVideoEditorTriggeredBridge={ (idx) => {
+      // This is the "onClick" callback, deliberately left blank. 
+    }}
+    >
+    </StatelessSingleVideoSelector>
+    );
+
     const multiImageSelector = (
     <StatelessMultiImageSelector
     ref={ (c) => {
@@ -485,44 +675,14 @@ class Edit extends Component {
       return sceneRef.state.disabled;
     }}
     showFileRequirementHint={() => {
-      alert(LocaleManager.instance.effectivePack().HINT.FOOD_PREVIEW_IMAGE_REQUIREMENT);
+      alert(LocaleManager.instance.effectivePack().HINT.IMAGE_REQUIREMENT);
     }}
     singleFileSizeLimitBytes={constants.ATTACHMENT.IMAGE.POLICY.SINGLE_SIZE_LIMIT_BYTES}
     allowedMimeList={constants.ATTACHMENT.IMAGE.POLICY.ALLOWED_MIME_TYPES}
     uploadedMark={'✅'}
     progressBarColor={constants.THEME.MAIN.BLUE}
     BrowserButtonComponent={ClipartAddImage}
-    queryAndSetSingleBundleExtUploaderCredentialsAsync={ (pluploadUploader) => {
-      return new Promise(function(resolve, reject) {
-        const cookieToken = WebFunc.getCookie(constants.WEB_FRONTEND_COOKIE_INT_AUTH_TOKEN_KEY);
-        const paramsDict = {
-          token: cookieToken,
-        };
-        const url = basename + constants.ROUTE_PATHS.API_V1 + constants.ROUTE_PATHS.UPTOKEN + constants.ROUTE_PATHS.FETCH;
-        NetworkFunc.get(url, paramsDict)
-          .then(function(response) {
-            return response.json();
-          })
-          .then(function(responseData) {
-            console.log("Getting resp from ", url, " == ", responseData);
-            if (constants.RET_CODE.OK !== responseData.ret) {
-              resolve(null);
-            } else {
-              pluploadUploader.setOption({
-                url: responseData.uphost + '/',
-                chunk_size: undefined,
-                multipart: true,
-                multipart_params: {
-                  token: responseData.uptoken,
-                  key: responseData.ossFilepath,
-                },
-                key: responseData.ossFilepath, // For later `getOption` shortcut usage. 
-              });
-              resolve(pluploadUploader);
-            }
-          });
-      });
-    }}
+    queryAndSetSingleBundleExtUploaderCredentialsAsync={ genQueryAndSetSingleBundleExtUploaderCredentialsAsync(constants.ATTACHMENT.IMAGE.LITERAL) }
     onSingleLocalImageAddedBridge={ (idx, props) => {
       const newBundleListManager = sceneRef.state.bundleListManager;
       newBundleListManager.assignAtIndex(idx, props);
@@ -971,6 +1131,7 @@ class Edit extends Component {
       }}>
         {topbar}
         {negativeReason}
+        {singleVideoSelector}
         {multiImageSelector}
         {titleEditor}
         {keywordListView}

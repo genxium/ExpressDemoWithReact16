@@ -274,11 +274,25 @@ const Image = createReactClass({
     return (
       <img
       src={finalizedSrc}
-      srcset={finalizedSrcset}
+      srcSet={finalizedSrcset}
       {...other}
       >
         {this.props.children}
       </img>
+    );
+  }
+});
+
+const Video = createReactClass({
+  getInitialState: function() {
+    return {};
+  },
+  render: function() {
+    const props = this.props;
+    return (
+      <video
+      {...props}
+      />
     );
   }
 });
@@ -411,4 +425,4 @@ const queryWeChatPubsrvWebLoginInfoDictSync = function() {
 /*
 Don't "export default {a JSObject}", which prohibits further partial imports.
 */
-export { View, Text, Image, Input, StatelessTopbar as Topbar, NavItem, HyperLink, DropdownPicker, PickerItem, StyleSheet, getRootElementSize, getRenderedComponentSize, Button, goBack, pushNewScene, replaceNewScene, ModalPopup, dialPhoneNumber, changeSceneTitle, queryWeChatPubsrvWebLoginInfoDictSync, queryNamedGatewayInfoDictSync, topbarHeightPx, };
+export { View, Text, Image, Video, Input, StatelessTopbar as Topbar, NavItem, HyperLink, DropdownPicker, PickerItem, StyleSheet, getRootElementSize, getRenderedComponentSize, Button, goBack, pushNewScene, replaceNewScene, ModalPopup, dialPhoneNumber, changeSceneTitle, queryWeChatPubsrvWebLoginInfoDictSync, queryNamedGatewayInfoDictSync, topbarHeightPx, };

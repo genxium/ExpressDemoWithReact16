@@ -5,6 +5,7 @@ import MarkdownRenderer from './MarkdownRenderer';
 import KeywordListView from './KeywordListView';
 
 const constants = require('../../common/constants');
+const ArticleUtil = require('../../common/ArticleUtil').default;
 
 class ArticlePreviewer extends React.Component {
 
@@ -42,9 +43,14 @@ class ArticlePreviewer extends React.Component {
     />
     );
 
+    const shuffledDict = ArticleUtil.instance.shuffleAttachments(data.attachmentList);
+    let imageList = shuffledDict.imageList;
+    let videoList = shuffledDict.videoList;
+
     let previewableImageList = [];
-    if (undefined !== data.imageList && null !== data.imageList) {
-      data.imageList.map(function(single) {
+  
+    if (null != imageList) {
+      imageList.map(function(single) {
         const effectiveImgSrc = (single.downloadEndpoint + "/" + single.ossFilepath);
         previewableImageList.push({
           src: effectiveImgSrc,
@@ -53,8 +59,8 @@ class ArticlePreviewer extends React.Component {
     }
 
     let previewableVideoList = [];
-    if (undefined !== data.videoList && null !== data.videoList) {
-      data.videoList.map(function(single) {
+    if (null != videoList) {
+      videoList.map(function(single) {
         const effectiveVideoSrc = (single.downloadEndpoint + "/" + single.ossFilepath);
         previewableVideoList.push({
           src: effectiveVideoSrc,

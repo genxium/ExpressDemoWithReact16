@@ -29,6 +29,13 @@ exports.getExclusiveAttachmentOssFilepathListInFirstOperand = function(firstOper
 };
 
 exports.softlyDeleteManyAttachments = function(forMetaType, forMetaId, forOwnerMetaType, forOwnerMetaId, toDeleteAttachmentOssFilepathList, trx) {
+  /*
+  * [TODO] 
+  *
+  * If the "original attachment" is deleted softly, all the transcoded copies should be deleted softly as well. 
+  *
+  * -- YFLu, 2020-04-10
+  */
   if (null == toDeleteAttachmentOssFilepathList || 0 == toDeleteAttachmentOssFilepathList.length) {
     return new Promise((resolve, reject) => {
       return resolve(0);
@@ -107,7 +114,7 @@ exports.solidifyManyAttachments = function(forMetaType, forMetaId, forOwnerMetaT
   });
 };
 
-const queryImageListForArticleAsync = function(article, trx) {
+const queryAttachmentListForArticleAsync = function(article, allowedMimeTypeList, trx) {
   const whereCondition = {
     state: [
       constants.ATTACHMENT.STATE.SOLIDIFIED,
@@ -115,7 +122,6 @@ const queryImageListForArticleAsync = function(article, trx) {
       constants.ATTACHMENT.STATE.TRANSCODED_COPIES_ALL_COMPLETED,
       constants.ATTACHMENT.STATE.TRANSCODED_COPIES_PARTIALLY_COMPLETED,
       constants.ATTACHMENT.STATE.TRANSCODED_COPIES_ALL_FAILED,
-
 
       constants.ATTACHMENT.STATE.TRANSCODED_COPY_SUCCESSFUL,
     ],
@@ -126,71 +132,90 @@ const queryImageListForArticleAsync = function(article, trx) {
     owner_meta_type: constants.ATTACHMENT.OWNER_META_TYPE.WRITER,
     owner_meta_id: article.writer_id,
     
-    mime_type: {
-      [SequelizeOp.like]: "%" + constants.ATTACHMENT.IMAGE.LITERAL + "%"
-    }, 
-
     deleted_at: null,
   };
+
+  if (null != allowedMimeTypeList && 0 < allowedMimeTypeList.length) {
+    if (1 == allowedMimeTypeList.length) {
+      Object.assign(whereCondition, {
+        mime_type: allowedMimeTypeList[0], 
+      });
+    } else {
+      Object.assign(whereCondition, {
+        mime_type: allowedMimeTypeList, 
+      });
+    } 
+  }
+
   return AttachmentTable.findAndCountAll({
     where: whereCondition,
     transaction: trx,
   })
     .then(function(result) {
-      const imageList = result.rows;
+      const attachmentList = result.rows;
       let toRet = [];
-      for (let i in imageList) {
-        toRet.push(imageList[i].dataValues);
+      for (let i in attachmentList) {
+        const attachment = attachmentList[i]; 
+        toRet.push(attachment.dataValues);
       }
       return toRet;
     });
 };
 
-exports.queryImageListForArticleAsync = queryImageListForArticleAsync;
+exports.queryAttachmentListForArticleAsync = queryAttachmentListForArticleAsync;
 
-const appendImageListForArticleAsync = function(article, trx) {
-  return queryImageListForArticleAsync(article, trx)
-    .then(function(imageList) {
+const appendAttachmentListForArticleAsync = function(article, allowedMimeTypeList, trx) {
+  return queryAttachmentListForArticleAsync(article, allowedMimeTypeList, trx)
+    .then(function(attachmentList) {
       /*
-      * Aggregate "imageList" to "imageSrcsetDict" keyed by the "prefix of ossFilepath".
+      * Aggregate "attachmentList" to "attachmentSrcsetDict" keyed by the "prefix of ossFilepath".
       */ 
-      let imageSrcsetDict = {};
-      for (let i in imageList) {
-        const ossFilepath = imageList[i].oss_filepath;
+      let attachmentSrcsetDict = {};
+      for (let i in attachmentList) {
+        const ossFilepath = attachmentList[i].oss_filepath;
         const ossFilepathPrefix = path.dirname(ossFilepath);
-        if (null == imageSrcsetDict[ossFilepathPrefix]) {
-          imageSrcsetDict[ossFilepathPrefix] = [];
+        if (null == attachmentSrcsetDict[ossFilepathPrefix]) {
+          attachmentSrcsetDict[ossFilepathPrefix] = [];
         }
-        imageSrcsetDict[ossFilepathPrefix].push(imageList[i]);
+        attachmentSrcsetDict[ossFilepathPrefix].push(attachmentList[i]);
       }
 
       Object.assign(article, {
-        imageList: []
+        attachmentList: []
       });
 
-      for (let prefix in imageSrcsetDict) {
-        const imageSrcset = imageSrcsetDict[prefix]; 
-        const clientImageData = {
+      for (let prefix in attachmentSrcsetDict) {
+        const attachmentSrcset = attachmentSrcsetDict[prefix]; 
+        const clientAttachmentData = {
           srcset: []
         };
-        for (let i in imageSrcset) {
-          Object.assign(imageSrcset[i], {
-            downloadEndpoint: QiniuServerUtil.instance.config.imageDownloadEndpoint,
-            ossFilepath: imageSrcset[i].oss_filepath,
-          }); 
-          clientImageData.srcset.push(imageSrcset[i]);
+        for (let i in attachmentSrcset) {
+          let targetDownloadEndpoint = null;
+          if (-1 != constants.ATTACHMENT.IMAGE.POLICY.ALLOWED_MIME_TYPES.indexOf(attachmentSrcset[i].mime_type)) {
+             targetDownloadEndpoint = QiniuServerUtil.instance.config.imageDownloadEndpoint;
+          } 
 
-          if (null == clientImageData.downloadEndpoint || null == clientImageData.ossFilepath) {
-            Object.assign(clientImageData, imageSrcset[i]); 
+          if (-1 != constants.ATTACHMENT.VIDEO.POLICY.ALLOWED_MIME_TYPES.indexOf(attachmentSrcset[i].mime_type)) {
+            targetDownloadEndpoint = QiniuServerUtil.instance.config.videoDownloadEndpoint;
+          }
+          Object.assign(attachmentSrcset[i], {
+            downloadEndpoint: targetDownloadEndpoint,
+            ossFilepath: attachmentSrcset[i].oss_filepath,
+            mimeType: attachmentSrcset[i].mime_type,
+          }); 
+          clientAttachmentData.srcset.push(attachmentSrcset[i]);
+
+          if (null == clientAttachmentData.downloadEndpoint || null == clientAttachmentData.ossFilepath) {
+            Object.assign(clientAttachmentData, attachmentSrcset[i]); 
           }  
         } 
-        article.imageList.push(clientImageData);
+        article.attachmentList.push(clientAttachmentData);
       }
       return article;
     });
 };
 
-exports.appendImageListForArticleAsync = appendImageListForArticleAsync;
+exports.appendAttachmentListForArticleAsync = appendAttachmentListForArticleAsync;
 
 const queryAuthorForArticleAsync = function(article, trx) {
   if (null == article) {

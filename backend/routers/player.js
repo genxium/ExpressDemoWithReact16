@@ -8,6 +8,7 @@ const LocaleManager = require('../../common/LocaleManager').default;
 
 const NamedGatewayManager = require('../utils/NamedGatewayManager').default;
 const MySQLManager = require('../utils/MySQLManager');
+const ArticleUtil = require('../../common/ArticleUtil').default;
 
 const RoleLoginCacheCollection = require('../RoleLoginCacheCollection').default;
 
@@ -39,7 +40,7 @@ const articleDetailApi = function(req, res) {
     return playerDao.queryReadableArticleAsync(articleId, t)
       .then(function(doc) {
         article = doc;
-        return sharedDao.appendImageListForArticleAsync(article, t);
+        return sharedDao.appendAttachmentListForArticleAsync(article, ArticleUtil.instance.clientAccessibleMimeTypes(), t);
       })
       .then(function(doc) {
         return sharedDao.appendAuthorForArticleAsync(article, t);
