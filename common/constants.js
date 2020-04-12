@@ -454,6 +454,7 @@ exports.ATTACHMENT = {
       N_PER_ARTICLE: 1,
       SINGLE_SIZE_LIMIT_BYTES: (1 << 29), // 512 MB
       ALLOWED_MIME_TYPES: [
+        "video/webm", // .webm
         "video/x-flv", // .flv
         "video/mp4", // .mp4
         "video/quicktime", // .mov 

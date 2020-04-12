@@ -599,12 +599,14 @@ class Edit extends Component {
     Video={Video}
     uploadedMark={'✅'}
     sizePx={{
-      w: 163,
-      h: 154
+      w: 360,
+      h: 240,
     }}
     shouldDisable={ () => {
       return sceneRef.state.disabled;
     }}
+    singleFileSizeLimitBytes={constants.ATTACHMENT.VIDEO.POLICY.SINGLE_SIZE_LIMIT_BYTES}
+    allowedMimeList={constants.ATTACHMENT.VIDEO.POLICY.ALLOWED_MIME_TYPES}
     showFileRequirementHint={() => {
       alert(LocaleManager.instance.effectivePack().HINT.VIDEO_REQUIREMENT);
     }}
