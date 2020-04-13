@@ -1,5 +1,7 @@
 'use-strict';
 
+const singleVideoSelectorContainerKeyPrefix = 'whateverhelikes-';
+
 import React, { Component } from 'react';
 
 import ImagePreviewer from '../../../widgets/ImagePreviewer';
@@ -286,9 +288,12 @@ class Edit extends Component {
     const isNewArticle = (null == params.articleId);
 
     if (true == isNewArticle) {
+      let newVideoBundle = state.state.videoBundle;
+
       let newBundleListManager = sceneRef.state.bundleListManager;
       newBundleListManager.pushNew();
       sceneRef.setState({
+        videoBundle: newVideoBundle,
         bundleListManager: newBundleListManager,
       }, function() {
         sceneRef.setState({
@@ -332,6 +337,7 @@ class Edit extends Component {
     let videoList = shuffledDict.videoList;
 
     const theOnlyVideo = (0 < videoList.length ? null : videoList[0]);
+
     // Unlike "SingleImageSelectorBundleListManager", the instance of "videoBundle" should be constructed exactly once to ensure that "the <input /> section of a SingleImageSelectorBundle.extUploader" is only created once (upon "videoBundle.uploaderState: SINGLE_UPLOADER_STATE.CREATED -> SINGLE_UPLOADER_STATE.INITIALIZED"), thus won't leak any "touch/click blocker" unexpectedly.
     let newVideoBundle = sceneRef.state.videoBundle;
     if (null != theOnlyVideo) {
@@ -585,107 +591,120 @@ class Edit extends Component {
       return toRetFunc;
     };
 
-    const videoSelectorSizePx = {
-      w: 360,
-      h: 240,
-    };
-    const shouldDisableVideoEditing = (!sceneRef.state.videoBundle.isOccupied() || sceneRef.state.disabled);
-
-    const singleVideoSelector = (
-    <StatelessSingleVideoSelector
-    ref={ (c) => {
-      if (!c) return;
-      sceneRef._singleVideoSelectorRef = c;
-    }}
-    style={{
-      backgroundColor: constants.THEME.MAIN.WHITE,
-      width: '100%',
-      padding: 2,
-    }}
-    View={View}
-    Video={Video}
-    controls={true}
-    uploadedMark={'✅'}
-    sizePx={videoSelectorSizePx}
-    shouldDisable={ () => {
-      return sceneRef.state.disabled;
-    }}
-    singleFileSizeLimitBytes={constants.ATTACHMENT.VIDEO.POLICY.SINGLE_SIZE_LIMIT_BYTES}
-    allowedMimeList={constants.ATTACHMENT.VIDEO.POLICY.WRITE_ALLOWED_MIME_TYPES}
-    showFileRequirementHint={() => {
-      alert(LocaleManager.instance.effectivePack().HINT.VIDEO_REQUIREMENT);
-    }}
-    progressBarColor={constants.THEME.MAIN.BLUE}
-    BrowseButtonComponent={ClipartAddImage}
-    bundle={sceneRef.state.videoBundle}
-    queryAndSetSingleBundleExtUploaderCredentialsAsync={ genQueryAndSetSingleBundleExtUploaderCredentialsAsync(constants.ATTACHMENT.VIDEO.LITERAL) }
-    onNewBundleInitializedBridge={ (idx, props) => {
-      const newVideoBundle = sceneRef.state.videoBundle;
-      newVideoBundle.reset(props);
-      sceneRef.setState({
-        videoBundle: newVideoBundle,
-      });
-    }}
-    onProgressBridge = {(idx, props) => {
-      const newVideoBundle = sceneRef.state.videoBundle;
-      newVideoBundle.assignAtIndex(idx, props);
-      sceneRef.setState({
-        videoBundle: newVideoBundle,
-      });
-    }}
-    onUploadedBridge={ (idx, successOrFailure) => {
-      if (successOrFailure) sceneRef.onVideoUploaded();
-      else sceneRef.onVideoUploadError();
-    }}
-    onLocalVideoAddedBridge={ (idx, props) => {
-      const newVideoBundle = sceneRef.state.videoBundle;
-      newVideoBundle.assign(props);
-
-      sceneRef.setState({
-        savable: sceneRef.isContentValid(sceneRef.state.cachedContent),
-        submittable: false,
-        videoBundle: newVideoBundle,
-      }, function() {
-        sceneRef.setState({
-          disabled: false,
-        }, function() {
-          // TODO: Insert video at "cursor of _mdEditorRef"? -- YFLu, 2020-04-10
-        });
-      });
-    }}
-    onVideoEditorTriggeredBridge={ (idx) => {
-      // This is the "onClick" callback, deliberately left blank. 
-    }}
-    >
-    </StatelessSingleVideoSelector>
+    let singleVideoSelectorRow = (
+      <View /> 
     );
+    if (null != sceneRef.state.videoBundle) {
+      const videoSelectorSizePx = {
+        w: 360,
+        h: 240,
+      };
+      const shouldDisableVideoEditing = (false == sceneRef.state.videoBundle.isOccupied() || sceneRef.state.disabled);
 
-    const singleVideoDeleteSoftlyButton = React.createElement(Button, {
-      onPress: function() {
-        console.log('singleVideoDeleteSoftlyButton clicked'); 
-      },
-      style: {
-        display: (false == shouldDisableVideoEditing ? "inline-block" : "none"), 
-        position: "absolute",
-        left: (videoSelectorSizePx.w * 1.1),
-        top: videoSelectorSizePx.h,
-        padding: 0,
-        margin: 0,
-      },
-    }, '❌');
-
-    const singleVideoSelectorRow = (
-      <View
+      const singleVideoSelector = (
+      <StatelessSingleVideoSelector
+      ref={ (c) => {
+        if (!c) return;
+        sceneRef._singleVideoSelectorRef = c;
+      }}
       style={{
-        display: "block", 
-        padding: 0,
-        margin: 0,
+        backgroundColor: constants.THEME.MAIN.WHITE,
+        width: '100%',
+        padding: 2,
+      }}
+      View={View}
+      Video={Video}
+      controls={true}
+      uploadedMark={'✅'}
+      sizePx={videoSelectorSizePx}
+      shouldDisable={ () => {
+        return sceneRef.state.disabled;
+      }}
+      singleFileSizeLimitBytes={constants.ATTACHMENT.VIDEO.POLICY.SINGLE_SIZE_LIMIT_BYTES}
+      allowedMimeList={constants.ATTACHMENT.VIDEO.POLICY.WRITE_ALLOWED_MIME_TYPES}
+      showFileRequirementHint={() => {
+        alert(LocaleManager.instance.effectivePack().HINT.VIDEO_REQUIREMENT);
+      }}
+      progressBarColor={constants.THEME.MAIN.BLUE}
+      BrowseButtonComponent={ClipartAddImage}
+      bundle={sceneRef.state.videoBundle}
+      queryAndSetSingleBundleExtUploaderCredentialsAsync={ genQueryAndSetSingleBundleExtUploaderCredentialsAsync(constants.ATTACHMENT.VIDEO.LITERAL) }
+      onNewBundleInitializedBridge={ (idx, props) => {
+        const newVideoBundle = sceneRef.state.videoBundle;
+        newVideoBundle.reset(props);
+        sceneRef.setState({
+          videoBundle: newVideoBundle,
+        });
+      }}
+      onProgressBridge = {(idx, props) => {
+        const newVideoBundle = sceneRef.state.videoBundle;
+        newVideoBundle.assignAtIndex(idx, props);
+        sceneRef.setState({
+          videoBundle: newVideoBundle,
+        });
+      }}
+      onUploadedBridge={ (idx, successOrFailure) => {
+        if (successOrFailure) sceneRef.onVideoUploaded();
+        else sceneRef.onVideoUploadError();
+      }}
+      onLocalVideoAddedBridge={ (idx, props) => {
+        const newVideoBundle = sceneRef.state.videoBundle;
+        newVideoBundle.assign(props);
+
+        sceneRef.setState({
+          savable: sceneRef.isContentValid(sceneRef.state.cachedContent),
+          submittable: false,
+          videoBundle: newVideoBundle,
+        }, function() {
+          sceneRef.setState({
+            disabled: false,
+          }, function() {
+            // TODO: Insert video at "cursor of _mdEditorRef"? -- YFLu, 2020-04-10
+          });
+        });
+      }}
+      onVideoEditorTriggeredBridge={ (idx) => {
+        // This is the "onClick" callback, deliberately left blank. 
       }}
       >
-        {singleVideoSelector}
-        {singleVideoDeleteSoftlyButton}
-      </View> 
-    );
+      </StatelessSingleVideoSelector>
+      );
+
+      const singleVideoDeleteSoftlyButton = React.createElement(Button, {
+        onPress: function() {
+          sceneRef.state.videoBundle.reset();
+          const newVideoBundle = new SingleImageSelectorBundle(); 
+          sceneRef.setState({
+            savable: sceneRef.isContentValid(sceneRef.state.cachedContent),
+            submittable: false,
+            videoBundle: newVideoBundle,
+            cachedVideoOssFilepath: null,
+          });
+        },
+        style: {
+          display: (false == shouldDisableVideoEditing ? "inline-block" : "none"), 
+          position: "absolute",
+          left: (videoSelectorSizePx.w * 1.1),
+          top: videoSelectorSizePx.h,
+          padding: 0,
+          margin: 0,
+        },
+      }, '❌');
+
+      singleVideoSelectorRow = (
+        <View
+        key={singleVideoSelectorContainerKeyPrefix + sceneRef.state.videoBundle.id} // [WARNING] We rely on the update of this "key" to actually remove the "<input /> DOM" of the obsolete "sceneRef.state.videoBundle.extUploader". 
+        style={{
+          display: "block", 
+          padding: 0,
+          margin: 0,
+        }}
+        >
+          {singleVideoSelector}
+          {singleVideoDeleteSoftlyButton}
+        </View> 
+      );
+    }
 
     const multiImageSelector = (
     <StatelessMultiImageSelector
