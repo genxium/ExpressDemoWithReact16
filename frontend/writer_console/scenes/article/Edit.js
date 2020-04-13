@@ -167,6 +167,10 @@ class Edit extends Component {
 
     const bundleList = sceneRef.state.bundleListManager.bundleList;
     let ossFilepathList = [];
+    if (null != sceneRef.state.cachedVideoOssFilepath) {
+      ossFilepathList.push(sceneRef.state.cachedVideoOssFilepath);
+    }    
+
     for (let k in sceneRef.state.cachedImageOssFilepathDict) {
       ossFilepathList.push(sceneRef.state.cachedImageOssFilepathDict[k]);
     }
@@ -336,7 +340,7 @@ class Edit extends Component {
     let imageList = shuffledDict.imageList;
     let videoList = shuffledDict.videoList;
 
-    const theOnlyVideo = (0 < videoList.length ? null : videoList[0]);
+    const theOnlyVideo = (0 < videoList.length ? videoList[0] : null);
 
     // Unlike "SingleImageSelectorBundleListManager", the instance of "videoBundle" should be constructed exactly once to ensure that "the <input /> section of a SingleImageSelectorBundle.extUploader" is only created once (upon "videoBundle.uploaderState: SINGLE_UPLOADER_STATE.CREATED -> SINGLE_UPLOADER_STATE.INITIALIZED"), thus won't leak any "touch/click blocker" unexpectedly.
     let newVideoBundle = sceneRef.state.videoBundle;
@@ -638,7 +642,7 @@ class Edit extends Component {
       }}
       onProgressBridge = {(idx, props) => {
         const newVideoBundle = sceneRef.state.videoBundle;
-        newVideoBundle.assignAtIndex(idx, props);
+        newVideoBundle.assign(props);
         sceneRef.setState({
           videoBundle: newVideoBundle,
         });
@@ -944,11 +948,20 @@ class Edit extends Component {
         previewable: false,
         disabled: true,
       }, function() {
-        sceneRef._toUploadCount = sceneRef.state.bundleListManager.occupiedCount();
+        const toUploadImageCount = sceneRef.state.bundleListManager.occupiedCount();
+        const toUploadVideoCount = (
+          null == sceneRef.state.videoBundle 
+          ? 
+          0 
+          : 
+          (sceneRef.state.videoBundle.isOccupied() ? 1 : 0)
+        );
+        sceneRef._toUploadCount = (toUploadImageCount + toUploadVideoCount);
         if (0 == sceneRef._toUploadCount) {
           sceneRef.save();
         } else {
           sceneRef._multiSelectorRef.startUpload();
+          sceneRef._singleVideoSelectorRef.startUpload();
         }
       });
     }}
