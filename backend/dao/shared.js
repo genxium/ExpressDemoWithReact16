@@ -191,11 +191,11 @@ const appendAttachmentListForArticleAsync = function(article, allowedMimeTypeLis
         };
         for (let i in attachmentSrcset) {
           let targetDownloadEndpoint = null;
-          if (-1 != constants.ATTACHMENT.IMAGE.POLICY.ALLOWED_MIME_TYPES.indexOf(attachmentSrcset[i].mime_type)) {
+          if (-1 != constants.ATTACHMENT.IMAGE.POLICY.READ_ALLOWED_MIME_TYPES.indexOf(attachmentSrcset[i].mime_type)) {
              targetDownloadEndpoint = QiniuServerUtil.instance.config.imageDownloadEndpoint;
           } 
 
-          if (-1 != constants.ATTACHMENT.VIDEO.POLICY.ALLOWED_MIME_TYPES.indexOf(attachmentSrcset[i].mime_type)) {
+          if (-1 != constants.ATTACHMENT.VIDEO.POLICY.READ_ALLOWED_MIME_TYPES.indexOf(attachmentSrcset[i].mime_type)) {
             targetDownloadEndpoint = QiniuServerUtil.instance.config.videoDownloadEndpoint;
           }
           Object.assign(attachmentSrcset[i], {

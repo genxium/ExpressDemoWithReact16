@@ -157,6 +157,7 @@ exports.RET_CODE = {
   NONEXISTENT_WRITER: 2018,
   NONEXISTENT_ARTICLE: 2019,
   NEW_ARTICLE_LIMIT_EXCEEDED: 2020,
+  UPTOKEN_INVALID_MIME_TYPE_GROUP: 2021,
 
   PASSWORD_RESET_CODE_GENERATION_PER_EMAIL_TOO_FREQUENTLY: 4000,
   CAPTCHA_GENERATION_PER_PHONE_TOO_FREQUENTLY: 4001,
@@ -440,10 +441,14 @@ exports.ATTACHMENT = {
     POLICY: {
       N_PER_ARTICLE: 3,
       SINGLE_SIZE_LIMIT_BYTES: (1 << 21), // 2 MB
-      ALLOWED_MIME_TYPES: [
+      WRITE_ALLOWED_MIME_TYPES: [
         "image/jpeg",
         "image/png",
-        "image/gif"
+      ],
+      READ_ALLOWED_MIME_TYPES: [
+        "image/jpeg",
+        "image/png",
+        "image/gif",
       ],
     },
   },
@@ -453,13 +458,21 @@ exports.ATTACHMENT = {
     POLICY: {
       N_PER_ARTICLE: 1,
       SINGLE_SIZE_LIMIT_BYTES: (1 << 29), // 512 MB
-      ALLOWED_MIME_TYPES: [
+      WRITE_ALLOWED_MIME_TYPES: [
         "video/webm", // .webm
-        "video/x-flv", // .flv
         "video/mp4", // .mp4
         "video/quicktime", // .mov 
         "video/x-msvideo", // .avi 
         "video/x-ms-wmv", // .wmv 
+      ],
+      READ_ALLOWED_MIME_TYPES: [
+        "video/webm", // .webm
+        "video/mp4", // .mp4
+        "video/quicktime", // .mov 
+        "video/x-msvideo", // .avi 
+        "video/x-ms-wmv", // .wmv 
+
+        "video/x-flv", // .flv
 
         // HLS mimetype Reference, https://developer.apple.com/library/archive/documentation/NetworkingInternet/Conceptual/StreamingMediaGuide/DeployingHTTPLiveStreaming/DeployingHTTPLiveStreaming.html
         "application/x-mpegURL", // .m3u8 

@@ -288,9 +288,27 @@ const articleSuspendApi = function(req, res) {
 const uptokenFetchApi = function(req, res) {
   const instance = this;
 
-  // Hardcoded temporarily. -- YFLu, 2020-04-05
-  const downloadEndpoint = QiniuServerUtil.instance.config.imageDownloadEndpoint;
-  const policyRoot = constants.ATTACHMENT.IMAGE.POLICY;
+  const mimeTypeGroup = req.query.mimeTypeGroup;
+  let downloadEndpoint = null;
+  let policyRoot = null;
+    
+  switch (mimeTypeGroup) {
+  case constants.ATTACHMENT.IMAGE.LITERAL:
+    downloadEndpoint = QiniuServerUtil.instance.config.imageDownloadEndpoint;
+    policyRoot = constants.ATTACHMENT.IMAGE.POLICY;
+  break;
+  case constants.ATTACHMENT.VIDEO.LITERAL:
+    downloadEndpoint = QiniuServerUtil.instance.config.videoDownloadEndpoint;
+    policyRoot = constants.ATTACHMENT.VIDEO.POLICY;
+  break;
+  default:
+  break;
+  }
+
+  if (null == downloadEndpoint || null == policyRoot) {
+    instance.respondWithError(res, new signals.GeneralFailure(constants.RET_CODE.UPTOKEN_INVALID_MIME_TYPE_GROUP));
+    return;
+  }
 
   let remoteName = null;
   const currentMillis = Time.currentMillis();
@@ -382,7 +400,7 @@ const uptokenFetchApi = function(req, res) {
         const rawPutPolicyDict = {
           scope: bucket + ':' + remoteName,
           fsizeLimit: policyRoot.SINGLE_SIZE_LIMIT_BYTES,
-          mimeLimit: policyRoot.ALLOWED_MIME_TYPES.join(';')
+          mimeLimit: policyRoot.WRITE_ALLOWED_MIME_TYPES.join(';')
         };
         return QiniuServerUtil.instance.createUptokenAsync(rawPutPolicyDict);
       });

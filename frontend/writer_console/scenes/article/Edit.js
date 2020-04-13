@@ -585,6 +585,12 @@ class Edit extends Component {
       return toRetFunc;
     };
 
+    const videoSelectorSizePx = {
+      w: 360,
+      h: 240,
+    };
+    const shouldDisableVideoEditing = (!sceneRef.state.videoBundle.isOccupied() || sceneRef.state.disabled);
+
     const singleVideoSelector = (
     <StatelessSingleVideoSelector
     ref={ (c) => {
@@ -594,21 +600,18 @@ class Edit extends Component {
     style={{
       backgroundColor: constants.THEME.MAIN.WHITE,
       width: '100%',
-      padding: 5,
+      padding: 2,
     }}
     View={View}
     Video={Video}
     controls={true}
     uploadedMark={'✅'}
-    sizePx={{
-      w: 360,
-      h: 240,
-    }}
+    sizePx={videoSelectorSizePx}
     shouldDisable={ () => {
       return sceneRef.state.disabled;
     }}
     singleFileSizeLimitBytes={constants.ATTACHMENT.VIDEO.POLICY.SINGLE_SIZE_LIMIT_BYTES}
-    allowedMimeList={constants.ATTACHMENT.VIDEO.POLICY.ALLOWED_MIME_TYPES}
+    allowedMimeList={constants.ATTACHMENT.VIDEO.POLICY.WRITE_ALLOWED_MIME_TYPES}
     showFileRequirementHint={() => {
       alert(LocaleManager.instance.effectivePack().HINT.VIDEO_REQUIREMENT);
     }}
@@ -652,10 +655,36 @@ class Edit extends Component {
     }}
     onVideoEditorTriggeredBridge={ (idx) => {
       // This is the "onClick" callback, deliberately left blank. 
-      console.log("onVideoEditorTriggeredBridge");
     }}
     >
     </StatelessSingleVideoSelector>
+    );
+
+    const singleVideoDeleteSoftlyButton = React.createElement(Button, {
+      onPress: function() {
+        console.log('singleVideoDeleteSoftlyButton clicked'); 
+      },
+      style: {
+        display: (false == shouldDisableVideoEditing ? "inline-block" : "none"), 
+        position: "absolute",
+        left: (videoSelectorSizePx.w * 1.1),
+        top: videoSelectorSizePx.h,
+        padding: 0,
+        margin: 0,
+      },
+    }, '❌');
+
+    const singleVideoSelectorRow = (
+      <View
+      style={{
+        display: "block", 
+        padding: 0,
+        margin: 0,
+      }}
+      >
+        {singleVideoSelector}
+        {singleVideoDeleteSoftlyButton}
+      </View> 
     );
 
     const multiImageSelector = (
@@ -683,7 +712,7 @@ class Edit extends Component {
       alert(LocaleManager.instance.effectivePack().HINT.IMAGE_REQUIREMENT);
     }}
     singleFileSizeLimitBytes={constants.ATTACHMENT.IMAGE.POLICY.SINGLE_SIZE_LIMIT_BYTES}
-    allowedMimeList={constants.ATTACHMENT.IMAGE.POLICY.ALLOWED_MIME_TYPES}
+    allowedMimeList={constants.ATTACHMENT.IMAGE.POLICY.WRITE_ALLOWED_MIME_TYPES}
     uploadedMark={'✅'}
     progressBarColor={constants.THEME.MAIN.BLUE}
     BrowseButtonComponent={ClipartAddImage}
@@ -1136,7 +1165,7 @@ class Edit extends Component {
       }}>
         {topbar}
         {negativeReason}
-        {singleVideoSelector}
+        {singleVideoSelectorRow}
         {multiImageSelector}
         {titleEditor}
         {keywordListView}

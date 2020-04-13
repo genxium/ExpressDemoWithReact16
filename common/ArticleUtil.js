@@ -94,7 +94,7 @@ class ArticleUtil {
   }
 
   clientAccessibleMimeTypes() {
-    return constants.ATTACHMENT.IMAGE.POLICY.ALLOWED_MIME_TYPES.concat(constants.ATTACHMENT.VIDEO.POLICY.ALLOWED_MIME_TYPES);
+    return constants.ATTACHMENT.IMAGE.POLICY.READ_ALLOWED_MIME_TYPES.concat(constants.ATTACHMENT.VIDEO.POLICY.READ_ALLOWED_MIME_TYPES);
   }
 
   shuffleAttachments(attachmentList) {
@@ -102,11 +102,11 @@ class ArticleUtil {
     let videoList = [];
     for (let i = 0; i < attachmentList.length; ++i) {
       const attachment = attachmentList[i];
-      if (-1 != constants.ATTACHMENT.IMAGE.POLICY.ALLOWED_MIME_TYPES.indexOf(attachment.mime_type)) {
+      if (-1 != constants.ATTACHMENT.IMAGE.POLICY.READ_ALLOWED_MIME_TYPES.indexOf(attachment.mime_type)) {
         imageList.push(attachment);
       }
 
-      if (-1 != constants.ATTACHMENT.VIDEO.POLICY.ALLOWED_MIME_TYPES.indexOf(attachment.mime_type)) {
+      if (-1 != constants.ATTACHMENT.VIDEO.POLICY.READ_ALLOWED_MIME_TYPES.indexOf(attachment.mime_type)) {
         videoList.push(attachment);
       }
     }
