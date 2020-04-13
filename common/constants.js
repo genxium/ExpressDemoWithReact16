@@ -438,7 +438,7 @@ exports.ATTACHMENT = {
   IMAGE: {
     LITERAL: "image",
     POLICY: {
-      N_PER_ARTICLE: 10,
+      N_PER_ARTICLE: 3,
       SINGLE_SIZE_LIMIT_BYTES: (1 << 21), // 2 MB
       ALLOWED_MIME_TYPES: [
         "image/jpeg",

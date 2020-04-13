@@ -9,7 +9,7 @@
   "dependencies": {
     "bootstrap": "^4.4.1",
     "create-react-class": "^15.6.3",
-    "crimson-react-widgets": "https://github.com/genxium/crimson-react-16-widgets",
+    "crimson-react-widgets": "git+https://github.com/genxium/crimson-react-16-widgets.git",
     "crypto-js": "^3.1.8",
     "js-cookie": "^2.2.1",
     "mermaid": "^8.4.6",

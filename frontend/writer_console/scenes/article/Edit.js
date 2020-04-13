@@ -113,7 +113,7 @@ class Edit extends Component {
       submittable: false,
       previewable: false,
 
-      videoBundle: new SingleImageSelectorBundle(),
+      videoBundle: new SingleImageSelectorBundle(),  
       cachedVideoOssFilepath: null,
 
       bundleListManager: new SingleImageSelectorBundleListManager(),
@@ -332,12 +332,13 @@ class Edit extends Component {
     let videoList = shuffledDict.videoList;
 
     const theOnlyVideo = (0 < videoList.length ? null : videoList[0]);
-    let newVideoBundle = new SingleImageSelectorBundle();
+    // Unlike "SingleImageSelectorBundleListManager", the instance of "videoBundle" should be constructed exactly once to ensure that "the <input /> section of a SingleImageSelectorBundle.extUploader" is only created once (upon "videoBundle.uploaderState: SINGLE_UPLOADER_STATE.CREATED -> SINGLE_UPLOADER_STATE.INITIALIZED"), thus won't leak any "touch/click blocker" unexpectedly.
+    let newVideoBundle = sceneRef.state.videoBundle;
     if (null != theOnlyVideo) {
       newVideoBundle.reset({
         uploaderState: SINGLE_UPLOADER_STATE.UPLOADED,
         remoteName: theOnlyVideo.ossFilepath,
-        effectiveImgSrc: (theOnlyVideo.downloadEndpoint + '/' + theOnlyVideo.ossFilepath),
+        effectiveVideoSrc: (theOnlyVideo.downloadEndpoint + '/' + theOnlyVideo.ossFilepath),
         progressPercentage: 100.0,
         extUploader: new PlupLoad.Uploader({
           key: theOnlyVideo.ossFilepath,
@@ -597,6 +598,7 @@ class Edit extends Component {
     }}
     View={View}
     Video={Video}
+    controls={true}
     uploadedMark={'✅'}
     sizePx={{
       w: 360,
@@ -611,7 +613,7 @@ class Edit extends Component {
       alert(LocaleManager.instance.effectivePack().HINT.VIDEO_REQUIREMENT);
     }}
     progressBarColor={constants.THEME.MAIN.BLUE}
-    BrowserButtonComponent={ClipartAddImage}
+    BrowseButtonComponent={ClipartAddImage}
     bundle={sceneRef.state.videoBundle}
     queryAndSetSingleBundleExtUploaderCredentialsAsync={ genQueryAndSetSingleBundleExtUploaderCredentialsAsync(constants.ATTACHMENT.VIDEO.LITERAL) }
     onNewBundleInitializedBridge={ (idx, props) => {
@@ -650,6 +652,7 @@ class Edit extends Component {
     }}
     onVideoEditorTriggeredBridge={ (idx) => {
       // This is the "onClick" callback, deliberately left blank. 
+      console.log("onVideoEditorTriggeredBridge");
     }}
     >
     </StatelessSingleVideoSelector>
@@ -683,7 +686,7 @@ class Edit extends Component {
     allowedMimeList={constants.ATTACHMENT.IMAGE.POLICY.ALLOWED_MIME_TYPES}
     uploadedMark={'✅'}
     progressBarColor={constants.THEME.MAIN.BLUE}
-    BrowserButtonComponent={ClipartAddImage}
+    BrowseButtonComponent={ClipartAddImage}
     queryAndSetSingleBundleExtUploaderCredentialsAsync={ genQueryAndSetSingleBundleExtUploaderCredentialsAsync(constants.ATTACHMENT.IMAGE.LITERAL) }
     onSingleLocalImageAddedBridge={ (idx, props) => {
       const newBundleListManager = sceneRef.state.bundleListManager;
