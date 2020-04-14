@@ -3,7 +3,6 @@
 import React from 'react';
 import { KeywordListView as KeywordListViewWidget, } from 'crimson-react-widgets';
 
-const NetworkFunc = require('../../common/NetworkFunc').default;
 const constants = require('../../common/constants');
 const LocaleManager = require('../../common/LocaleManager').default;
 

@@ -4,7 +4,6 @@ import React from 'react';
 import ClipartClose from './ClipartClose';
 import ClipartDelete from './ClipartDelete';
 
-const NetworkFunc = require('../../common/NetworkFunc').default;
 const constants = require('../../common/constants');
 
 class ImagePreviewer extends React.Component {
@@ -25,7 +24,7 @@ class ImagePreviewer extends React.Component {
     const {Button, ModalPopup, Text, View, Image, onDeleteImageAtActiveIndexBridge, cachedImageList, activeIndex, onHide, shouldDisable, shouldShow, hasDeleteButton, ...other} = widgetRef.props;
     const styles = widgetRef.styles;
 
-    const shouldHideDeleteButton = (undefined !== hasDeleteButton && null !== hasDeleteButton && true == hasDeleteButton);
+    const shouldHideDeleteButton = (null != hasDeleteButton && true == hasDeleteButton);
     const closeButton = (
     <View
     disabled={shouldDisable()}

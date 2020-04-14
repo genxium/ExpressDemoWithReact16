@@ -491,4 +491,14 @@ exports.OSS_DELETION_RESULT_CODE = {
 
 exports.KEY = "key";
 
+exports.YAMD = {
+  TAG: {
+    IMAGE: 'iimag',
+    VIDEO: 'pvd',
+    KATEX: 'katex',
+    MERMAID: 'mermaid',
+    ALIGN_CENTER: 'algctr',
+  }
+};
+
 // Use "CommonJs `require`" syntax to import for both NodeJsBackend and React16Frontend to guarantee compatibility.

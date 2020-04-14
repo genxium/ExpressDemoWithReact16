@@ -7,8 +7,8 @@ import React, { Component } from 'react';
 import ImagePreviewer from '../../../widgets/ImagePreviewer';
 
 import MarkdownEditor from '../../../widgets/MarkdownEditor';
-import MarkdownRenderer from '../../../widgets/MarkdownRenderer';
 import ClipartAddImage from '../../../widgets/ClipartAddImage';
+import WholeArticlePreviewer from '../../../widgets/WholeArticlePreviewer';
 
 import { SINGLE_UPLOADER_STATE, BATCH_UPLOADER_STATE, SingleImageSelectorBundle, SingleImageSelectorBundleListManager, StatelessMultiImageSelector, StatelessSingleVideoSelector } from 'crimson-react-widgets';
 
@@ -23,6 +23,9 @@ const Time = require('../../../../common/Time').default;
 const constants = require('../../../../common/constants');
 const ArticleUtil = require('../../../../common/ArticleUtil').default;
 const categoryChoiceList = ArticleUtil.instance.categoryChoiceList();
+
+const AttachmentUtil = require('../../../../common/AttachmentUtil').default;
+
 const PlupLoad = require('plupload');
 
 const WebFunc = require('../../../utils/WebFunc').default;
@@ -103,6 +106,7 @@ class Edit extends Component {
     this._singleVideoSelectorRef = null;
     this._multiSelectorRef = null;
     this._imagePreviewerRef = null;
+    this._wholeArticlePreviewerRef = null;
     this._mdEditorRef = null;
     this._toUploadCount = null;
 
@@ -120,6 +124,8 @@ class Edit extends Component {
 
       bundleListManager: new SingleImageSelectorBundleListManager(),
       cachedImageOssFilepathDict: {},
+
+      showWholeArticlePreviewer: false,
 
       showImagePreviewer: false,
       imagePreviewerActiveIndex: null,
@@ -336,7 +342,7 @@ class Edit extends Component {
   refreshView(cachedArticle) {
     const sceneRef = this;
 
-    const shuffledDict = ArticleUtil.instance.shuffleAttachments(cachedArticle.attachmentList);
+    const shuffledDict = AttachmentUtil.instance.shuffleAttachments(cachedArticle.attachmentList);
     let imageList = shuffledDict.imageList;
     let videoList = shuffledDict.videoList;
 
@@ -456,6 +462,7 @@ class Edit extends Component {
   }
 
   onVideoUploadError() {
+    const sceneRef = this;
     const newVideoBundle = sceneRef.state.videoBundle;
     newVideoBundle.assign({
       progressPercentage: 0.0,
@@ -1002,8 +1009,6 @@ class Edit extends Component {
       </Button>
     );
 
-    const shouldDisablePreviewButton = (!sceneRef.state.previewable);
-
     const notApproved = (null === sceneRef.state.cachedArticle || (constants.ARTICLE.STATE.APPROVED != sceneRef.state.cachedArticle.state));
 
     let articleStateToDisplayStr = null;
@@ -1158,8 +1163,8 @@ class Edit extends Component {
       width: 128,
     }}
     >
-        {LocaleManager.instance.effectivePack().VIEW_AS_PLAYER}
-      </HyperLink>
+      {LocaleManager.instance.effectivePack().VIEW_AS_PLAYER}
+    </HyperLink>
     );
 
     const suspensionReasonBox = (
@@ -1188,6 +1193,58 @@ class Edit extends Component {
     />
     );
 
+    const previewWholeArticleBtn = (
+      <Button
+      disabled={sceneRef.state.disabled}
+      style={{
+      marginTop: 3,
+        fontSize: 14,
+      }}
+      onPress={ (evt) => {
+        sceneRef.setState({
+          showWholeArticlePreviewer: true,
+        });
+      }}
+      >
+        {LocaleManager.instance.effectivePack().PREVIEW}
+      </Button>
+    ); ;
+
+    let videoList = (
+                      null == sceneRef.state.videoBundle 
+                      ? 
+                      null 
+                      : 
+                      [
+                        { 
+                          src: sceneRef.state.videoBundle.effectiveVideoSrc
+                        }
+                      ]
+    );
+    const wholeArticlePreview = (
+      <WholeArticlePreviewer
+      shouldShow={ () => { 
+        return sceneRef.state.showWholeArticlePreviewer; 
+      }}
+      shouldDisable={ () => {
+        return sceneRef.state.disabled;
+      }}
+      onHide={ () => {
+        sceneRef.setState({
+          showWholeArticlePreviewer: false,
+        });
+      }}
+      previewableVideoList={videoList}
+      previewableImageList={imageList}
+      source={sceneRef.state.cachedContent}
+      ref={ (c) => {
+        if (!c) return;
+        sceneRef._wholeArticlePreviewerRef = c;
+      }}
+      >
+      </WholeArticlePreviewer>
+    );
+
     return (
       <View
       style={{
@@ -1209,6 +1266,8 @@ class Edit extends Component {
         {suspendButton}
         {viewAsPlayerEntry}
         {suspensionReasonBox}
+        {previewWholeArticleBtn}
+        {wholeArticlePreview}
       </View>
     );
   }

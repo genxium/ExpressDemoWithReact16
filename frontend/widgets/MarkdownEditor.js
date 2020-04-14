@@ -54,16 +54,15 @@ class MarkdownEditor extends React.Component {
       italicIcon: 'I',
       alignCenterIcon: '≡',
 
-      previewHint: LocaleManager.instance.effectivePack().PREVIEW,
       content: text,
       onContentChangedBridge: onTextChangedBridge,
       shouldDisable: shouldDisable,
 
-      imgTag: 'iimag',
-      videoTag: 'pvd',
-      ktxTag: 'katex',
-      mermaidTag: 'mermaid',
-      alignCenterTag: 'algctr',
+      videoTag: constants.YAMD.TAG.VIDEO,
+      imgTag: constants.YAMD.TAG.IMAGE,
+      ktxTag: constants.YAMD.TAG.KATEX,
+      mermaidTag: constants.YAMD.TAG.MERMAID,
+      alignCenterTag: constants.YAMD.TAG.ALIGN_CENTER,
 
       previewableImageList: previewableImageList,
       previewableVideoList: previewableVideoList,

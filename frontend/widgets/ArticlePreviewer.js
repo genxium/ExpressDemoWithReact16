@@ -5,7 +5,7 @@ import MarkdownRenderer from './MarkdownRenderer';
 import KeywordListView from './KeywordListView';
 
 const constants = require('../../common/constants');
-const ArticleUtil = require('../../common/ArticleUtil').default;
+const AttachmentUtil = require('../../common/AttachmentUtil').default;
 
 class ArticlePreviewer extends React.Component {
 
@@ -43,27 +43,25 @@ class ArticlePreviewer extends React.Component {
     />
     );
 
-    const shuffledDict = ArticleUtil.instance.shuffleAttachments(data.attachmentList);
-    let imageList = shuffledDict.imageList;
+    const shuffledDict = AttachmentUtil.instance.shuffleAttachments(data.attachmentList);
     let videoList = shuffledDict.videoList;
-
-    let previewableImageList = [];
-  
-    if (null != imageList) {
-      imageList.map(function(single) {
-        const effectiveImgSrc = (single.downloadEndpoint + "/" + single.ossFilepath);
-        previewableImageList.push({
-          src: effectiveImgSrc,
-        });
-      });
-    }
-
     let previewableVideoList = [];
     if (null != videoList) {
       videoList.map(function(single) {
         const effectiveVideoSrc = (single.downloadEndpoint + "/" + single.ossFilepath);
         previewableVideoList.push({
           src: effectiveVideoSrc,
+        });
+      });
+    }
+
+    let imageList = shuffledDict.imageList;
+    let previewableImageList = [];
+    if (null != imageList) {
+      imageList.map(function(single) {
+        const effectiveImgSrc = (single.downloadEndpoint + "/" + single.ossFilepath);
+        previewableImageList.push({
+          src: effectiveImgSrc,
         });
       });
     }
@@ -85,11 +83,11 @@ class ArticlePreviewer extends React.Component {
       );
     }
 
-    if (undefined !== data.content && null !== data.content) {
+    if (null != data.content) {
       contentWrapper = (
         <MarkdownRenderer
-        previewableImageList={previewableImageList}
         previewableVideoList={previewableVideoList}
+        previewableImageList={previewableImageList}
         source={data.content}
         />
       );
