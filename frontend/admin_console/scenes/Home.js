@@ -68,30 +68,40 @@ class Home extends Component {
     };
 
     const mainScene = (
-    <View>
+        <View>
         <Button
-    style={entryBtnStyle}
-    onPress={(evt) => {
-      const pathname = constants.ROUTE_PATHS.WRITER + constants.ROUTE_PATHS.LIST;
-      pushNewScene(sceneRef, pathname);
-    }}
-    >
-          {LocaleManager.instance.effectivePack().WRITER_LIST}
+        style={entryBtnStyle}
+        onPress={(evt) => {
+        const pathname = constants.ROUTE_PATHS.WRITER + constants.ROUTE_PATHS.LIST;
+        pushNewScene(sceneRef, pathname);
+        }}
+        >
+        {LocaleManager.instance.effectivePack().WRITER_LIST}
         </Button>
 
         <Button
-    style={logoutBtnStyle}
-    onPress={(evt) => {
-      RoleLoginSingleton.instance.logoutAsync(sceneRef)
-        .then(function(loggedOut) {
-          RoleLoginSingleton.instance.replaceRoleLoginScene(sceneRef);
-        });
-    }}
-    >
-          {LocaleManager.instance.effectivePack().LOGOUT}
+        style={entryBtnStyle}
+        onPress={(evt) => {
+        const pathname = constants.ROUTE_PATHS.ORG + constants.ROUTE_PATHS.LIST;
+        pushNewScene(sceneRef, pathname);
+        }}
+        >
+        {LocaleManager.instance.effectivePack().ORG_LIST}
         </Button>
-      </View>
-    );
+
+        <Button
+        style={logoutBtnStyle}
+        onPress={(evt) => {
+        RoleLoginSingleton.instance.logoutAsync(sceneRef)
+        .then(function(loggedOut) {
+            RoleLoginSingleton.instance.replaceRoleLoginScene(sceneRef);
+            });
+        }}
+        >
+        {LocaleManager.instance.effectivePack().LOGOUT}
+        </Button>
+          </View>
+          );
 
     return (
       <View

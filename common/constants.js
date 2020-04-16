@@ -100,6 +100,11 @@ const REGEX = {
   SEO_KEYWORD: /^.{2,50}$/,
   PASSWORD: /^.{6,50}$/,
 
+  ORG_HANDLE: /^.{4,50}$/,
+  ORG_DISPLAY_NAME: /^.{6,100}$/,
+
+  SUBORG_DISPLAY_NAME: /^.{4,100}$/,
+
   ADMIN_HANDLE: /^.{4,50}$/,
 
   WRITER_HANDLE: /^.{6,50}$/,
@@ -150,7 +155,7 @@ exports.RET_CODE = {
   INVALID_EMAIL_LITERAL: 2007,
   NO_ASSOCIATED_EMAIL: 2008,
   SEND_EMAIL_TIMEOUT: 2009,
-  NONEXISTENT_RESELLER: 2011,
+  NONEXISTENT_ORG: 2011,
   INSUFFICIENT_MEM_TO_ALLOCATE_CONNECTION: 2012,
   INVALID_TICKET_CONSUMPTION_TYPE: 2014,
   TICKET_CONSUMPTION_LIMIT_EXCEEDED: 2015,
@@ -181,6 +186,8 @@ const ROUTE_PATHS = {
   ADMIN: "/Admin",
   WRITER: "/Writer",
   PLAYER: "/Player",
+  ORG: "/Org",
+  SUBORG: "/Suborg",
 
   ARTICLE: "/Article",
 
@@ -229,7 +236,7 @@ exports.ROUTE_PATHS = ROUTE_PATHS;
 
 const ROUTE_PARAMS = {
   API_VER: "/Api/:version",
-  RESELLER_ID: "/:resellerId",
+  ORG_ID: "/:orgId",
   SKU_ID: "/:skuId",
 
   WRITER_ID: "/:writerId",
@@ -289,10 +296,10 @@ const ZH_CN = {
   ADD_ARTICLE: "新增文章",
   EDIT_ARTICLE: "编辑文章",
 
-  RESELLER_HANDLE: "代理商名",
-  RESELLER_LIST: "代理商列表",
-  ADD_RESELLER: "添加代理商",
-  EDIT_RESELLER: "编辑代理商",
+  ORG_HANDLE: "组织机构名",
+  ORG_LIST: "组织机构列表",
+  ADD_ORG: "添加组织机构",
+  EDIT_ORG: "编辑组织机构",
 
   SKU_LIST: "SKU列表",
   ADD_SKU: "添加SKU",
@@ -396,6 +403,13 @@ exports.ROLE_NAME = {
 
 exports.WEB_FRONTEND_COOKIE_INT_AUTH_TOKEN_KEY = "IntAuthToken";
 exports.WEB_FRONTEND_LOCAL_STORAGE_LOGGED_IN_ROLE_KEY = "LoggedInRole";
+
+exports.SUBORG = {
+  TYPE: {
+    MODERATOR: 0,
+    EMPLOYEE: 1,
+  }
+};
 
 exports.ATTACHMENT = {
   ORIGINAL: {

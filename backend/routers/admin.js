@@ -11,6 +11,10 @@ const LocaleManager = require('../../common/LocaleManager').default;
 const WriterManager = require('../utils/WriterManager').default;
 const WriterTable = require('../models/Writer');
 
+const OrgTable = require('../models/Org');
+const SuborgTable = require('../models/Suborg');
+const WriterSuborgBindingTable = require('../models/WriterSuborgBinding');
+
 const MySQLManager = require('../utils/MySQLManager');
 
 const RoleLoginCacheCollection = require('../RoleLoginCacheCollection').default;
@@ -37,10 +41,14 @@ const createPageRouter = function() {
   router.get(constants.ROUTE_PATHS.WRITER + constants.ROUTE_PATHS.ADD, instance.spa);
   router.get(constants.ROUTE_PATHS.WRITER + constants.ROUTE_PARAMS.WRITER_ID + constants.ROUTE_PATHS.EDIT, instance.spa);
 
+  router.get(constants.ROUTE_PATHS.ORG + constants.ROUTE_PATHS.LIST, instance.spa);
+  router.get(constants.ROUTE_PATHS.ORG + constants.ROUTE_PATHS.ADD, instance.spa);
+  router.get(constants.ROUTE_PATHS.ORG + constants.ROUTE_PARAMS.ORG_ID + constants.ROUTE_PATHS.EDIT, instance.spa);
+
   return router;
 };
 
-//---writer APIs begin---
+//---writer APIs begins---
 
 const writerPaginationListApi = function(req, res) {
   const instance = this;
@@ -309,7 +317,217 @@ const writerDeleteApi = function(req, res) {
   });
 };
 
-//---writer APIs end---
+//---writer APIs ends---
+
+//---org APIs begins---
+
+const orgPaginationListApi = function(req, res) {
+  const instance = this;
+  const requestNo = req.query.requestNo;
+  const page = parseInt(req.query.page);
+
+  const nPerPage = 10;
+  const orientation = constants.DESC;
+  const orderKey = constants.UPDATED_AT;
+
+  let searchKeyword = "";
+  if (null != req.query.searchKeyword) {
+    searchKeyword = req.query.searchKeyword;
+  }
+
+  let whereCondition = {
+    deleted_at: null
+  };
+
+  let orConditions = [];
+  if (null != searchKeyword && "" != searchKeyword) {
+    orConditions.push({
+      handle: {
+        [SequelizeOp.like]: '%' + searchKeyword + '%'
+      },
+    });
+    orConditions.push({
+      display_name: {
+        [SequelizeOp.like]: '%' + searchKeyword + '%'
+      },
+    });
+  }
+
+  if (0 < orConditions.length) {
+    Object.assign(whereCondition, {
+      [SequelizeOp.or]: orConditions
+    });
+  }
+
+  MySQLManager.instance.dbRef.transaction(t => {
+    return OrgTable.findAndCountAll({
+      where: whereCondition,
+      transaction: t,
+      order: [[orderKey, orientation]],
+      limit: nPerPage,
+      offset: (page - 1) * nPerPage
+    });
+  })
+    .then(function(result) {
+      if (null == result) {
+        throw new signals.GeneralFailure(constants.RET_CODE.FAILURE);
+      }
+      res.json({
+        ret: constants.RET_CODE.OK,
+        orgList: result.rows,
+        page: page,
+        nPerPage: nPerPage,
+        requestNo: requestNo,
+        totalCount: result.count,
+      });
+    })
+    .catch(function(err) {
+      instance.respondWithError(res, err);
+    });
+};
+
+const orgAddApi = function(req, res) {
+  const instance = this;
+  const handle = req.body.handle;
+  const displayName = req.body.displayName;
+
+  if (false == constants.REGEX.ORG_HANDLE.test(handle) || false == constants.REGEX.ORG_DISPLAY_NAME.test(displayName)) {
+    res.json({
+      ret: constants.RET_CODE.FAILURE,
+    });
+    return;
+  }
+
+  const newModeratorHandle = req.body.newModeratorHandle;
+  const newModeratorDisplayName = req.body.newModeratorDisplayName;
+  const newModeratorSha1HashedPassword = req.body.newModeratorPassword;
+
+  let newModeratorSalt = null;
+  let newModeratorObsuredPassword = null;
+  if (null != newModeratorSha1HashedPassword && "" != newModeratorSha1HashedPassword) {
+    newModeratorSalt = Crypto.sha1Sign(NetworkFunc.guid());
+    newModeratorObsuredPassword = WriterManager.instance.obscureWithSalt(newModeratorSha1HashedPassword, newModeratorSalt);
+  }
+
+  if (false == constants.REGEX.WRITER_HANDLE.test(newModeratorHandle) || false == constants.REGEX.WRITER_DISPLAY_NAME.test(newModeratorDisplayName)) {
+    res.json({
+      ret: constants.RET_CODE.FAILURE,
+    });
+    return;
+  }
+
+  let newOrg = null;
+  let newSuborg = null;
+  let newWriter = null;
+  let newWriterSuborgBinding = null;
+
+  MySQLManager.instance.dbRef.transaction(t => {
+    return OrgTable.findOne({
+      where: {
+        handle: handle,
+        deleted_at: null
+      },
+      transaction: t
+    })
+      .then(function(doc) {
+        if (null != doc) {
+          throw new signals.GeneralFailure(constants.RET_CODE.DUPLICATED);
+        }
+
+        const currentMillis = Time.currentMillis();
+        return OrgTable.create({
+          handle: handle,
+          display_name: displayName,
+          created_at: currentMillis,
+          updated_at: currentMillis,
+        }, {
+          transaction: t
+        });
+      })
+      .then(function(doc) {
+        if (null == doc) {
+          throw new signals.GeneralFailure();
+        }
+        newOrg = doc;
+        
+        return WriterTable.create({
+          handle: newModeratorHandle,
+          display_name: newModeratorDisplayName,
+          salt: newModeratorSalt,
+          password: newModeratorObsuredPassword,
+          created_at: currentMillis,
+          updated_at: currentMillis,
+        }, {
+          transaction: t
+        });
+      })
+      .then(function(doc) {
+        if (null == doc) {
+          throw new signals.GeneralFailure();
+        }
+        newWriter = doc;
+        
+        return SuborgTable.create({
+          org_id: newOrg.id,
+          parent_id: null,
+          type: constants.SUBORG.TYPE.MODERATOR,
+          created_at: currentMillis,
+          updated_at: currentMillis,
+        });
+      })
+      .then(function(doc) {
+        if (null == doc) {
+          throw new signals.GeneralFailure();
+        }
+        newSuborg = doc;
+
+        return WriterSuborgBindingTable.create({
+          writer_id: newWriter.id,
+          suborg_id: newSuborg.id,
+          org_id: newOrg.id,
+          created_at: currentMillis,
+          updated_at: currentMillis,
+        });
+      })
+      .then(function(doc) {
+        if (null == doc) {
+          throw new signals.GeneralFailure();
+        }
+        newWriterSuborgBinding = doc;
+
+        res.json({
+          ret: constants.RET_CODE.OK,
+          org: newOrg,
+          suborg: newSuborg,
+          moderator: newWriter,
+          writerSuborgBinding: newWriterSuborgBinding,
+        });
+      });
+  })
+    .catch(function(err) {
+      instance.respondWithError(res, err);
+    });
+};
+
+const orgSaveApi = function(req, res) {
+  res.json({
+    ret: constants.RET_CODE.NOT_IMPLEMENTED_YET,
+  });
+};
+
+const orgDetailApi = function(req, res) {
+  res.json({
+    ret: constants.RET_CODE.NOT_IMPLEMENTED_YET,
+  });
+};
+
+const orgDeleteApi = function(req, res) {
+  res.json({
+    ret: constants.RET_CODE.NOT_IMPLEMENTED_YET,
+  });
+};
+
+//---org APIs ends---
 
 const createAuthProtectedApiRouter = function() {
   const instance = this;
@@ -322,6 +540,12 @@ const createAuthProtectedApiRouter = function() {
   router.post(constants.ROUTE_PATHS.WRITER + constants.ROUTE_PARAMS.WRITER_ID + constants.ROUTE_PATHS.SAVE, writerSaveApi.bind(instance));
   router.get(constants.ROUTE_PATHS.WRITER + constants.ROUTE_PARAMS.WRITER_ID + constants.ROUTE_PATHS.DETAIL, writerDetailApi.bind(instance));
   router.post(constants.ROUTE_PATHS.WRITER + constants.ROUTE_PARAMS.WRITER_ID + constants.ROUTE_PATHS.DELETE, writerDeleteApi.bind(instance));
+
+  router.get(constants.ROUTE_PATHS.ORG + constants.ROUTE_PATHS.PAGINATION + constants.ROUTE_PATHS.LIST, orgPaginationListApi.bind(instance));
+  router.post(constants.ROUTE_PATHS.ORG + constants.ROUTE_PATHS.ADD, orgAddApi.bind(instance));
+  router.post(constants.ROUTE_PATHS.ORG + constants.ROUTE_PARAMS.ORG_ID + constants.ROUTE_PATHS.SAVE, orgSaveApi.bind(instance));
+  router.get(constants.ROUTE_PATHS.ORG + constants.ROUTE_PARAMS.ORG_ID + constants.ROUTE_PATHS.DETAIL, orgDetailApi.bind(instance));
+  router.post(constants.ROUTE_PATHS.ORG + constants.ROUTE_PARAMS.ORG_ID + constants.ROUTE_PATHS.DELETE, orgDeleteApi.bind(instance));
 
   return router;
 };

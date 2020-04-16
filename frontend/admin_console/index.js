@@ -49,6 +49,14 @@ const WriterEdit = withRouter(lazy(
   () => import("./scenes/writer/Edit")
 ));
 
+const OrgList = withRouter(lazy(
+  () => import("./scenes/org/List")
+));
+
+const OrgEdit = withRouter(lazy(
+  () => import("./scenes/org/Edit")
+));
+
 import Loading from '../shared_scenes/Loading';
 import AdminManager from './AdminManager';
 const commonRouteProps = { 
@@ -70,6 +78,7 @@ const routes = (
           <Route path={constants.ROUTE_PATHS.HOME} render={(routerProps) => (
             <Home {...commonRouteProps} />
           )} />
+
           <Route path={constants.ROUTE_PATHS.WRITER + constants.ROUTE_PATHS.LIST} render={(routerProps) => (
             <WriterList {...commonRouteProps} />
           )} />
@@ -79,6 +88,17 @@ const routes = (
           <Route path={constants.ROUTE_PATHS.WRITER + constants.ROUTE_PARAMS.WRITER_ID + constants.ROUTE_PATHS.EDIT} render={(routerProps) => (
             <WriterEdit {...commonRouteProps} />
           )} />
+
+          <Route path={constants.ROUTE_PATHS.ORG + constants.ROUTE_PATHS.LIST} render={(routerProps) => (
+            <OrgList {...commonRouteProps} />
+          )} />
+          <Route path={constants.ROUTE_PATHS.ORG + constants.ROUTE_PATHS.ADD} render={(routerProps) => (
+            <OrgEdit {...commonRouteProps} />
+          )} />
+          <Route path={constants.ROUTE_PATHS.ORG + constants.ROUTE_PARAMS.ORG_ID + constants.ROUTE_PATHS.EDIT} render={(routerProps) => (
+            <OrgEdit {...commonRouteProps} />
+          )} />
+
           <Route render={(routerProps) => (
             <Home {...commonRouteProps} />
           )} />
