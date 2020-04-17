@@ -7,6 +7,7 @@ const NetworkFunc = require('../../common/NetworkFunc').default;
 const Crypto = require('../../common/Crypto').default;
 const Time = require('../../common/Time').default;
 const LocaleManager = require('../../common/LocaleManager').default;
+const WriterUtil = require('../../common/WriterUtil').default;
 
 const WriterManager = require('../utils/WriterManager').default;
 const WriterTable = require('../models/Writer');
@@ -128,7 +129,10 @@ const writerAddApi = function(req, res) {
     newObsuredPassword = WriterManager.instance.obscureWithSalt(newSha1HashedPassword, newSalt);
   }
 
-  if (false == constants.REGEX.WRITER_HANDLE.test(handle) || false == constants.REGEX.WRITER_DISPLAY_NAME.test(displayName)) {
+  if (false == WriterUtil.instance.isFormValid({
+      handle: handle,
+      displayName: displayName,
+    })) {
     res.json({
       ret: constants.RET_CODE.FAILURE,
     });
@@ -190,14 +194,10 @@ const writerSaveApi = function(req, res) {
     newObsuredPassword = WriterManager.instance.obscureWithSalt(newSha1HashedPassword, newSalt);
   }
 
-  if (!constants.REGEX.WRITER_HANDLE.test(newHandle)) {
-    res.json({
-      ret: constants.RET_CODE.FAILURE,
-    });
-    return;
-  }
-
-  if (!constants.REGEX.WRITER_DISPLAY_NAME.test(newDisplayName)) {
+  if (false == WriterUtil.instance.isFormValid({
+      handle: newHandle,
+      displayName: newDisplayName,
+    })) {
     res.json({
       ret: constants.RET_CODE.FAILURE,
     });
@@ -391,7 +391,10 @@ const orgAddApi = function(req, res) {
   const handle = req.body.handle;
   const displayName = req.body.displayName;
 
-  if (false == constants.REGEX.ORG_HANDLE.test(handle) || false == constants.REGEX.ORG_DISPLAY_NAME.test(displayName)) {
+  if (false == OrgUtil.isOrgFormValid({
+    handle: handle,
+    displayName: displayName,
+  })) {
     res.json({
       ret: constants.RET_CODE.FAILURE,
     });
@@ -409,7 +412,10 @@ const orgAddApi = function(req, res) {
     newModeratorObsuredPassword = WriterManager.instance.obscureWithSalt(newModeratorSha1HashedPassword, newModeratorSalt);
   }
 
-  if (false == constants.REGEX.WRITER_HANDLE.test(newModeratorHandle) || false == constants.REGEX.WRITER_DISPLAY_NAME.test(newModeratorDisplayName)) {
+  if (false == WriterUtil.instance.isFormValid({
+      handle: newModeratorHandle,
+      displayName: newModeratorDisplayName,
+    })) {
     res.json({
       ret: constants.RET_CODE.FAILURE,
     });
@@ -449,6 +455,19 @@ const orgAddApi = function(req, res) {
           throw new signals.GeneralFailure();
         }
         newOrg = doc;
+
+        return WriterTable.findOne({
+          where: {
+            handle: handle,
+            deleted_at: null
+          },
+          transaction: t
+        });
+      })
+      .then(function(doc) {
+        if (null != doc) {
+          throw new signals.GeneralFailure(constants.RET_CODE.DUPLICATED);
+        }
 
         return WriterTable.create({
           handle: newModeratorHandle,

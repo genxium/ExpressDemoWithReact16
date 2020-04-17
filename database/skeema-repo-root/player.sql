@@ -4,5 +4,6 @@ CREATE TABLE `player` (
   `created_at` bigint unsigned NOT NULL,
   `deleted_at` bigint unsigned DEFAULT NULL,
   `updated_at` bigint unsigned DEFAULT NULL,
-  PRIMARY KEY (`id`)
+  PRIMARY KEY (`id`),
+  UNIQUE KEY uk_handle (`handle`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;

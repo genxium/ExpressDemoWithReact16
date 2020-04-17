@@ -9,6 +9,7 @@ const Crypto = require('../../../../common/Crypto').default;
 const WebFunc = require('../../../utils/WebFunc').default;
 
 const LocaleManager = require('../../../../common/LocaleManager').default;
+const WriterUtil = require('../../../../common/WriterUtil').default;
 
 import { Button, View, Topbar, Input, replaceNewScene, getRootElementSize, changeSceneTitle, queryNamedGatewayInfoDictSync, } from '../../../widgets/WebCommonRouteProps';
 
@@ -25,10 +26,10 @@ class Edit extends Component {
       savable: false,
       deletable: false,
       rootElementSize: null,
-      cachedRawPassword: "",
       cachedWriter: {
         handle: "",
-        displayName: ""
+        displayName: "",
+        rawPassword: "",
       },
     };
 
@@ -106,16 +107,10 @@ class Edit extends Component {
           cachedWriter: {
             handle: respData.writer.handle,
             displayName: respData.writer.display_name,
+            rawPassword: "",
           }
         });
       });
-  }
-
-  isFormValid(writer) {
-    const sceneRef = this;
-    if (!constants.REGEX.WRITER_HANDLE.test(writer.handle)) return false;
-    if (!constants.REGEX.WRITER_DISPLAY_NAME.test(writer.displayName)) return false;
-    return true;
   }
 
   save() {
@@ -136,9 +131,9 @@ class Edit extends Component {
         token: cookieToken,
       };
 
-      if (null != sceneRef.state.cachedRawPassword && "" != sceneRef.state.cachedRawPassword) {
+      if (null != sceneRef.state.cachedWriter.rawPassword && "" != sceneRef.state.cachedWriter.rawPassword) {
         Object.assign(paramDict, {
-          password: Crypto.sha1Sign(sceneRef.state.cachedRawPassword),
+          password: Crypto.sha1Sign(sceneRef.state.cachedWriter.rawPassword),
         });
       }
 
@@ -166,7 +161,7 @@ class Edit extends Component {
             alert(LocaleManager.instance.effectivePack().WRITER_HANDLE_DUPLICATED);
             sceneRef.setState({
               disabled: false,
-              savable: sceneRef.isFormValid(sceneRef.state.cachedWriter),
+              savable: WriterUtil.instance.isFormValid(sceneRef.state.cachedWriter),
               deletable: false,
             });
             return;
@@ -175,7 +170,7 @@ class Edit extends Component {
             alert(LocaleManager.instance.effectivePack().OOPS);
             sceneRef.setState({
               disabled: false,
-              savable: sceneRef.isFormValid(sceneRef.state.cachedWriter),
+              savable: WriterUtil.instance.isFormValid(sceneRef.state.cachedWriter),
               deletable: false,
             });
             return;
@@ -233,7 +228,7 @@ class Edit extends Component {
             alert(LocaleManager.instance.effectivePack().OOPS);
             sceneRef.setState({
               disabled: false,
-              savable: sceneRef.isFormValid(sceneRef.state.cachedWriter),
+              savable: WriterUtil.instance.isFormValid(sceneRef.state.cachedWriter),
               deletable: false,
             });
             return;
@@ -334,18 +329,23 @@ class Edit extends Component {
                                          handle: evt.target.value,
                                        });
                                        sceneRef.setState({
-                                         savable: sceneRef.isFormValid(newCachedWriter),
+                                         savable: WriterUtil.instance.isFormValid(newCachedWriter),
                                          deletable: false,
                                          cachedWriter: newCachedWriter,
                                        });
                                      } }
-              passwordValue={ sceneRef.state.cachedRawPassword }
+              passwordValue={ sceneRef.state.cachedWriter.rawPassword }
               passwordInputPlaceholder={ LocaleManager.instance.effectivePack().WRITER_PASSWORD_INPUT_HINT }
               onPasswordInputUpdated={ (evt) => {
+                                         const newCachedWriter = {};
+                                         Object.assign(newCachedWriter, sceneRef.state.cachedWriter);
+                                         Object.assign(newCachedWriter, {
+                                           rawPassword: evt.target.value,
+                                         });
                                          sceneRef.setState({
-                                           savable: sceneRef.isFormValid(sceneRef.state.cachedWriter),
+                                           savable: WriterUtil.instance.isFormValid(newCachedWriter),
                                            deletable: false,
-                                           cachedRawPassword: evt.target.value,
+                                           cachedWriter: newCachedWriter,
                                          });
                                        } }
               displayNameValue={ sceneRef.state.cachedWriter.displayName }
@@ -357,7 +357,7 @@ class Edit extends Component {
                                               displayName: evt.target.value,
                                             });
                                             sceneRef.setState({
-                                              savable: sceneRef.isFormValid(newCachedWriter),
+                                              savable: WriterUtil.instance.isFormValid(newCachedWriter),
                                               deletable: false,
                                               cachedWriter: newCachedWriter,
                                             });

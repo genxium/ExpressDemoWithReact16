@@ -9,6 +9,8 @@ const Crypto = require('../../../../common/Crypto').default;
 const WebFunc = require('../../../utils/WebFunc').default;
 
 const LocaleManager = require('../../../../common/LocaleManager').default;
+const WriterUtil = require('../../../../common/WriterUtil').default;
+const OrgUtil = require('../../../../common/OrgUtil').default;
 
 import { Button, View, Topbar, Input, replaceNewScene, getRootElementSize, changeSceneTitle, queryNamedGatewayInfoDictSync, } from '../../../widgets/WebCommonRouteProps';
 
@@ -115,13 +117,6 @@ class Edit extends Component {
       });
   }
 
-  isFormValid(writer) {
-    const sceneRef = this;
-    if (!constants.REGEX.WRITER_HANDLE.test(writer.handle)) return false;
-    if (!constants.REGEX.WRITER_DISPLAY_NAME.test(writer.displayName)) return false;
-    return true;
-  }
-
   save() {
     const sceneRef = this;
     const params = sceneRef.props.match.params;
@@ -174,7 +169,7 @@ class Edit extends Component {
             alert(LocaleManager.instance.effectivePack().ORG_OR_WRITER_HANDLE_DUPLICATED);
             sceneRef.setState({
               disabled: false,
-              savable: (sceneRef.isFormValid(sceneRef.state.cachedModerator) && sceneRef.isFormValid(sceneRef.state.cachedOrg)),
+              savable: (WriterUtil.instance.isFormValid(sceneRef.state.cachedModerator) && OrgUtil.instance.isFormValid(sceneRef.state.cachedOrg)),
               deletable: false,
             });
             return;
@@ -183,7 +178,7 @@ class Edit extends Component {
             alert(LocaleManager.instance.effectivePack().OOPS);
             sceneRef.setState({
               disabled: false,
-              savable: (sceneRef.isFormValid(sceneRef.state.cachedModerator) && sceneRef.isFormValid(sceneRef.state.cachedOrg)),
+              savable: (WriterUtil.instance.isFormValid(sceneRef.state.cachedModerator) && OrgUtil.instance.isFormValid(sceneRef.state.cachedOrg)),
               deletable: false,
             });
             return;
@@ -241,7 +236,7 @@ class Edit extends Component {
             alert(LocaleManager.instance.effectivePack().OOPS);
             sceneRef.setState({
               disabled: false,
-              savable: sceneRef.isFormValid(sceneRef.state.cachedModerator),
+              savable: WriterUtil.instance.isFormValid(sceneRef.state.cachedModerator) && OrgUtil.instance.isOrgFormValid(sceneRef.state.cachedOrg),
               deletable: false,
             });
             return;
@@ -333,7 +328,7 @@ class Edit extends Component {
     <AuthForm
               disabled={ sceneRef.state.disabled }
               sharedInputStyle={ sharedInputStyle }
-              handleValue={ sceneRef.state.cachedModerator.handle }
+              handleValue={ sceneRef.state.cachedOrg.handle }
               handleInputPlaceholder={ LocaleManager.instance.effectivePack().ORG_HANDLE }
               onHandleInputUpdated={ (evt) => {
                                        const newCachedOrg = {};
@@ -342,7 +337,7 @@ class Edit extends Component {
                                          handle: evt.target.value,
                                        });
                                        sceneRef.setState({
-                                         savable: sceneRef.isFormValid(newCachedOrg),
+                                         savable: WriterUtil.instance.isFormValid(sceneRef.state.cachedModerator) && OrgUtil.instance.isOrgFormValid(newCachedOrg),
                                          deletable: false,
                                          cachedOrg: newCachedOrg,
                                        });
@@ -357,7 +352,7 @@ class Edit extends Component {
                                               displayName: evt.target.value,
                                             });
                                             sceneRef.setState({
-                                              savable: sceneRef.isFormValid(newCachedOrg),
+                                              savable: WriterUtil.instance.isFormValid(sceneRef.state.cachedModerator) && OrgUtil.instance.isOrgFormValid(newCachedOrg),
                                               deletable: false,
                                               cachedOrg: newCachedOrg,
                                             });
@@ -393,7 +388,7 @@ class Edit extends Component {
                                          handle: evt.target.value,
                                        });
                                        sceneRef.setState({
-                                         savable: sceneRef.isFormValid(newCachedWriter) && sceneRef.isFormValid(sceneRef.state.cachedOrg),
+                                         savable: WriterUtil.instance.isFormValid(newCachedWriter) && OrgUtil.instance.isOrgFormValid(sceneRef.state.cachedOrg),
                                          deletable: false,
                                          cachedModerator: newCachedWriter,
                                        });
@@ -407,7 +402,7 @@ class Edit extends Component {
                                          rawPassword: evt.target.value,
                                        });
                                          sceneRef.setState({
-                                           savable: sceneRef.isFormValid(sceneRef.state.cachedModerator) && sceneRef.isFormValid(sceneRef.state.cachedOrg),
+                                           savable: WriterUtil.instance.isFormValid(newCachedWriter) && OrgUtil.instance.isOrgFormValid(sceneRef.state.cachedOrg),
                                            deletable: false,
                                            cachedModerator: newCachedWriter,
                                          });
@@ -421,7 +416,7 @@ class Edit extends Component {
                                               displayName: evt.target.value,
                                             });
                                             sceneRef.setState({
-                                              savable: sceneRef.isFormValid(newCachedWriter) && sceneRef.isFormValid(sceneRef.state.cachedOrg),
+                                              savable: WriterUtil.instance.isFormValid(newCachedWriter) && OrgUtil.instance.isOrgFormValid(sceneRef.state.cachedOrg),
                                               deletable: false,
                                               cachedModerator: newCachedWriter,
                                             });
