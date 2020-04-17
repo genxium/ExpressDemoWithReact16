@@ -12,6 +12,8 @@ const LocaleManager = require('../../../../common/LocaleManager').default;
 
 import { Button, View, Topbar, Input, replaceNewScene, getRootElementSize, changeSceneTitle, queryNamedGatewayInfoDictSync, } from '../../../widgets/WebCommonRouteProps';
 
+import AuthForm from '../../../widgets/AuthForm';
+
 class Edit extends Component {
 
   constructor(props) {
@@ -23,10 +25,14 @@ class Edit extends Component {
       savable: false,
       deletable: false,
       rootElementSize: null,
-      cachedRawPassword: "",
-      cachedWriter: {
+      cachedOrg: {
         handle: "",
-        displayName: ""
+        displayName: "",
+      },
+      cachedModerator: {
+        handle: "",
+        displayName: "",
+        rawPassword: "",
       },
     };
 
@@ -38,7 +44,7 @@ class Edit extends Component {
     const sceneRef = this;
     const params = sceneRef.props.match.params;
 
-    const isNew = (null == params.writerId);
+    const isNew = (null == params.orgId);
     if (isNew) {
       changeSceneTitle(sceneRef, LocaleManager.instance.effectivePack().ADD_ORG);
     } else {
@@ -64,7 +70,7 @@ class Edit extends Component {
     const {location, basename, ...other} = sceneRef.props;
     const params = sceneRef.props.match.params;
 
-    const isNew = (null == params.writerId);
+    const isNew = (null == params.orgId);
     if (isNew) {
       sceneRef.setState({
         disabled: false,
@@ -78,7 +84,7 @@ class Edit extends Component {
       token: cookieToken,
     };
     const namedGatewayInfo = queryNamedGatewayInfoDictSync().articleServer;
-    const url = namedGatewayInfo.protocol + "://" + namedGatewayInfo.apiGateway + basename + constants.ROUTE_PATHS.API_V1 + constants.ROUTE_PATHS.ORG + "/" + params.writerId + constants.ROUTE_PATHS.DETAIL;
+    const url = namedGatewayInfo.protocol + "://" + namedGatewayInfo.apiGateway + basename + constants.ROUTE_PATHS.API_V1 + constants.ROUTE_PATHS.WRITER + "/" + params.orgId + constants.ROUTE_PATHS.DETAIL;
     let respData = null;
     NetworkFunc.get(url, paramDict)
       .then(function(response) {
@@ -101,7 +107,7 @@ class Edit extends Component {
           savable: false,
           deletable: true,
           disabled: false,
-          cachedWriter: {
+          cachedModerator: {
             handle: respData.writer.handle,
             displayName: respData.writer.display_name,
           }
@@ -111,8 +117,8 @@ class Edit extends Component {
 
   isFormValid(writer) {
     const sceneRef = this;
-    if (!constants.REGEX.ORG_HANDLE.test(writer.handle)) return false;
-    if (!constants.REGEX.ORG_DISPLAY_NAME.test(writer.displayName)) return false;
+    if (!constants.REGEX.WRITER_HANDLE.test(writer.handle)) return false;
+    if (!constants.REGEX.WRITER_DISPLAY_NAME.test(writer.displayName)) return false;
     return true;
   }
 
@@ -121,7 +127,7 @@ class Edit extends Component {
     const params = sceneRef.props.match.params;
     const {location, basename, ...other} = sceneRef.props;
 
-    const isNew = (null == params.writerId);
+    const isNew = (null == params.orgId);
 
     const cookieToken = WebFunc.getCookie(constants.WEB_FRONTEND_COOKIE_INT_AUTH_TOKEN_KEY);
 
@@ -129,14 +135,18 @@ class Edit extends Component {
       disabled: true,
     }, function() {
       let paramDict = {
-        handle: sceneRef.state.cachedWriter.handle,
-        displayName: sceneRef.state.cachedWriter.displayName,
+        handle: sceneRef.state.cachedOrg.handle, 
+        displayName: sceneRef.state.cachedOrg.displayName, 
+        
+        newModeratorHandle: sceneRef.state.cachedModerator.handle,
+        newModeratorPassword: sceneRef.state.cachedModerator.rawPassword,
+        newModeratorDisplayName: sceneRef.state.cachedModerator.displayName,
         token: cookieToken,
       };
 
-      if (null != sceneRef.state.cachedRawPassword && "" != sceneRef.state.cachedRawPassword) {
+      if (null != sceneRef.state.cachedModerator.rawPassword && "" != sceneRef.state.cachedModerator.rawPassword) {
         Object.assign(paramDict, {
-          password: Crypto.sha1Sign(sceneRef.state.cachedRawPassword),
+          password: Crypto.sha1Sign(sceneRef.state.cachedModerator.rawPassword),
         });
       }
 
@@ -145,7 +155,7 @@ class Edit extends Component {
       if (isNew)
         url = namedGatewayInfo.protocol + "://" + namedGatewayInfo.apiGateway + basename + constants.ROUTE_PATHS.API_V1 + constants.ROUTE_PATHS.ORG + constants.ROUTE_PATHS.ADD;
       else
-        url = namedGatewayInfo.protocol + "://" + namedGatewayInfo.apiGateway + basename + constants.ROUTE_PATHS.API_V1 + constants.ROUTE_PATHS.ORG + "/" + params.writerId + constants.ROUTE_PATHS.SAVE;
+        url = namedGatewayInfo.protocol + "://" + namedGatewayInfo.apiGateway + basename + constants.ROUTE_PATHS.API_V1 + constants.ROUTE_PATHS.ORG + "/" + params.orgId + constants.ROUTE_PATHS.SAVE;
       let respData = null;
       NetworkFunc.post(url, paramDict)
         .then(function(response) {
@@ -161,10 +171,10 @@ class Edit extends Component {
             return;
           }
           if (constants.RET_CODE.DUPLICATED == respData.ret) {
-            alert(LocaleManager.instance.effectivePack().ORG_HANDLE_DUPLICATED);
+            alert(LocaleManager.instance.effectivePack().ORG_OR_WRITER_HANDLE_DUPLICATED);
             sceneRef.setState({
               disabled: false,
-              savable: sceneRef.isFormValid(sceneRef.state.cachedWriter),
+              savable: (sceneRef.isFormValid(sceneRef.state.cachedModerator) && sceneRef.isFormValid(sceneRef.state.cachedOrg)),
               deletable: false,
             });
             return;
@@ -173,7 +183,7 @@ class Edit extends Component {
             alert(LocaleManager.instance.effectivePack().OOPS);
             sceneRef.setState({
               disabled: false,
-              savable: sceneRef.isFormValid(sceneRef.state.cachedWriter),
+              savable: (sceneRef.isFormValid(sceneRef.state.cachedModerator) && sceneRef.isFormValid(sceneRef.state.cachedOrg)),
               deletable: false,
             });
             return;
@@ -186,7 +196,7 @@ class Edit extends Component {
               deletable: true,
             });
           } else {
-            const pathname = constants.ROUTE_PATHS.ORG + "/" + respData.writer.id + constants.ROUTE_PATHS.EDIT;
+            const pathname = constants.ROUTE_PATHS.ORG + "/" + respData.org.id + constants.ROUTE_PATHS.EDIT;
             replaceNewScene(sceneRef, pathname);
           }
         });
@@ -199,7 +209,7 @@ class Edit extends Component {
     const params = sceneRef.props.match.params;
     const {location, basename, ...other} = sceneRef.props;
 
-    const isNew = (null == params.writerId);
+    const isNew = (null == params.orgId);
 
     if (isNew) return; // Invalid trigger.
 
@@ -212,7 +222,7 @@ class Edit extends Component {
         token: cookieToken,
       };
       const namedGatewayInfo = queryNamedGatewayInfoDictSync().articleServer;
-      const url = namedGatewayInfo.protocol + "://" + namedGatewayInfo.apiGateway + basename + constants.ROUTE_PATHS.API_V1 + constants.ROUTE_PATHS.ORG + "/" + params.writerId + constants.ROUTE_PATHS.DELETE;
+      const url = namedGatewayInfo.protocol + "://" + namedGatewayInfo.apiGateway + basename + constants.ROUTE_PATHS.API_V1 + constants.ROUTE_PATHS.WRITER + "/" + params.orgId + constants.ROUTE_PATHS.DELETE;
       let respData = null;
       NetworkFunc.post(url, paramDict)
         .then(function(response) {
@@ -231,7 +241,7 @@ class Edit extends Component {
             alert(LocaleManager.instance.effectivePack().OOPS);
             sceneRef.setState({
               disabled: false,
-              savable: sceneRef.isFormValid(sceneRef.state.cachedWriter),
+              savable: sceneRef.isFormValid(sceneRef.state.cachedModerator),
               deletable: false,
             });
             return;
@@ -247,7 +257,7 @@ class Edit extends Component {
     const {location, basename, ...other} = sceneRef.props;
     const styles = sceneRef.styles;
 
-    const isNew = (null == params.writerId);
+    const isNew = (null == params.orgId);
 
     const topbarProps = Object.assign({
       showLoginNav: false,
@@ -319,65 +329,104 @@ class Edit extends Component {
     </View>
     );
 
-    const mainScene = (
-    <View>
-      <View>
-        <Input
-               disabled={ sceneRef.state.disabled }
-               type="text"
-               style={ sharedInputStyle }
-               value={ sceneRef.state.cachedWriter.handle }
-               onUpdated={ (evt) => {
-                             const newCachedWriter = {};
-                             Object.assign(newCachedWriter, sceneRef.state.cachedWriter);
-                             Object.assign(newCachedWriter, {
-                               handle: evt.target.value,
-                             });
-                             sceneRef.setState({
-                               savable: sceneRef.isFormValid(newCachedWriter),
-                               deletable: false,
-                               cachedWriter: newCachedWriter,
-                             });
-                           } }
-               placeholder={ LocaleManager.instance.effectivePack().ORG_HANDLE } />
-      </View>
-      <View>
-        <Input
-               disabled={ sceneRef.state.disabled }
-               type="password"
-               style={ sharedInputStyle }
-               value={ sceneRef.state.cachedRawPassword }
-               onUpdated={ (evt) => {
-                             sceneRef.setState({
-                               savable: sceneRef.isFormValid(sceneRef.state.cachedWriter),
-                               deletable: false,
-                               cachedRawPassword: evt.target.value,
-                             });
-                           } }
-               placeholder={ LocaleManager.instance.effectivePack().WRITER_PASSWORD_INPUT_HINT } />
-      </View>
-      <View>
-        <Input
-               disabled={ sceneRef.state.disabled }
-               type="text"
-               style={ sharedInputStyle }
-               value={ sceneRef.state.cachedWriter.displayName }
-               onUpdated={ (evt) => {
-                             const newCachedWriter = {};
-                             Object.assign(newCachedWriter, sceneRef.state.cachedWriter);
-                             Object.assign(newCachedWriter, {
-                               displayName: evt.target.value,
-                             });
-                             sceneRef.setState({
-                               savable: sceneRef.isFormValid(newCachedWriter),
-                               deletable: false,
-                               cachedWriter: newCachedWriter,
-                             });
-                           } }
-               placeholder={ LocaleManager.instance.effectivePack().ORG_DISPLAY_NAME } />
-      </View>
-      { buttonsRow }
+    const orgAuthForm = (
+    <AuthForm
+              disabled={ sceneRef.state.disabled }
+              sharedInputStyle={ sharedInputStyle }
+              handleValue={ sceneRef.state.cachedModerator.handle }
+              handleInputPlaceholder={ LocaleManager.instance.effectivePack().ORG_HANDLE }
+              onHandleInputUpdated={ (evt) => {
+                                       const newCachedOrg = {};
+                                       Object.assign(newCachedOrg, sceneRef.state.cachedOrg);
+                                       Object.assign(newCachedOrg, {
+                                         handle: evt.target.value,
+                                       });
+                                       sceneRef.setState({
+                                         savable: sceneRef.isFormValid(newCachedOrg),
+                                         deletable: false,
+                                         cachedOrg: newCachedOrg,
+                                       });
+                                     } }
+              hidePasswordInput={ true }
+              displayNameValue={ sceneRef.state.cachedOrg.displayName }
+              displayNameInputPlaceholder={ LocaleManager.instance.effectivePack().ORG_DISPLAY_NAME }
+              onDisplayNameInputUpdated={ (evt) => {
+                                            const newCachedOrg = {};
+                                            Object.assign(newCachedOrg, sceneRef.state.cachedOrg);
+                                            Object.assign(newCachedOrg, {
+                                              displayName: evt.target.value,
+                                            });
+                                            sceneRef.setState({
+                                              savable: sceneRef.isFormValid(newCachedOrg),
+                                              deletable: false,
+                                              cachedOrg: newCachedOrg,
+                                            });
+                                          } }>
+    </AuthForm>
+    );
+
+    const separator = (
+    <View
+    style={{
+      display: 'block', 
+      position: 'relative', 
+      height: 1,
+      marginTop: 2,
+      marginBottom: 15,
+      width: sharedInputStyle.width,
+      backgroundColor: constants.THEME.MAIN.GREY,
+    }}
+    >
     </View>
+    );
+
+    const moderatorAuthForm = (
+    <AuthForm
+              disabled={ sceneRef.state.disabled }
+              sharedInputStyle={ sharedInputStyle }
+              handleValue={ sceneRef.state.cachedModerator.handle }
+              handleInputPlaceholder={ LocaleManager.instance.effectivePack().WRITER_HANDLE }
+              onHandleInputUpdated={ (evt) => {
+                                       const newCachedWriter = {};
+                                       Object.assign(newCachedWriter, sceneRef.state.cachedModerator);
+                                       Object.assign(newCachedWriter, {
+                                         handle: evt.target.value,
+                                       });
+                                       sceneRef.setState({
+                                         savable: sceneRef.isFormValid(newCachedWriter) && sceneRef.isFormValid(sceneRef.state.cachedOrg),
+                                         deletable: false,
+                                         cachedModerator: newCachedWriter,
+                                       });
+                                     } }
+              passwordValue={ sceneRef.state.cachedModerator.rawPassword }
+              passwordInputPlaceholder={ LocaleManager.instance.effectivePack().WRITER_PASSWORD_INPUT_HINT }
+              onPasswordInputUpdated={ (evt) => {
+                                       const newCachedWriter = {};
+                                       Object.assign(newCachedWriter, sceneRef.state.cachedModerator);
+                                       Object.assign(newCachedWriter, {
+                                         rawPassword: evt.target.value,
+                                       });
+                                         sceneRef.setState({
+                                           savable: sceneRef.isFormValid(sceneRef.state.cachedModerator) && sceneRef.isFormValid(sceneRef.state.cachedOrg),
+                                           deletable: false,
+                                           cachedModerator: newCachedWriter,
+                                         });
+                                       } }
+              displayNameValue={ sceneRef.state.cachedModerator.displayName }
+              displayNameInputPlaceholder={ LocaleManager.instance.effectivePack().WRITER_DISPLAY_NAME }
+              onDisplayNameInputUpdated={ (evt) => {
+                                            const newCachedWriter = {};
+                                            Object.assign(newCachedWriter, sceneRef.state.cachedModerator);
+                                            Object.assign(newCachedWriter, {
+                                              displayName: evt.target.value,
+                                            });
+                                            sceneRef.setState({
+                                              savable: sceneRef.isFormValid(newCachedWriter) && sceneRef.isFormValid(sceneRef.state.cachedOrg),
+                                              deletable: false,
+                                              cachedModerator: newCachedWriter,
+                                            });
+                                          } }>
+    </AuthForm>
     );
 
     return (
@@ -385,7 +434,10 @@ class Edit extends Component {
                 padding: 10
               } }>
         { topbar }
-        { mainScene }
+        { orgAuthForm }
+        { separator }
+        { moderatorAuthForm }
+        { buttonsRow }
       </View>
     );
   }

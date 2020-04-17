@@ -5,55 +5,73 @@ const Component = React.Component;
 
 import { View, Input, getRootElementSize, } from './WebCommonRouteProps';
 
+import { Form, } from 'react-bootstrap';
+
 class AuthForm extends Component {
 
   render() {
     const sceneRef = this;
-    const {disabled, sharedInputStyle, handleValue, handleInputHint, handleInputPlaceholder, onHandleInputUpdated, passwordValue, passwordInputHint, passwordInputPlaceholder, onPasswordInputUpdated, displayNameValue, displayNameInputHint, displayNameInputPlaceholder, onDisplayNameInputUpdated, ...other} = sceneRef.props;
+    const {disabled, hideHandleInput, hidePasswordInput, hideDisplayNameInput, sharedInputStyle, handleValue, handleInputHint, handleInputPlaceholder, onHandleInputUpdated, passwordValue, passwordInputHint, passwordInputPlaceholder, onPasswordInputUpdated, displayNameValue, displayNameInputHint, displayNameInputPlaceholder, onDisplayNameInputUpdated, ...other} = sceneRef.props;
 
-    const handleInput = (
-    <View>
-      <Input
-             disabled={ disabled }
-             style={ sharedInputStyle }
-             type="text"
-             value={ handleValue }
-             onUpdated={ onHandleInputUpdated }
-             placeholder={ handleInputPlaceholder } />
-    </View>
-    );
+    let inputList = [];
+    let localKey = 0;
 
-    const passwordInput = (
-    <View>
-      <Input
-             disabled={ disabled }
-             style={ sharedInputStyle }
-             type="password"
-             value={ passwordValue }
-             onUpdated={ onPasswordInputUpdated }
-             placeholder={ passwordInputPlaceholder } />
-    </View>
-    );
+    if (true != hideHandleInput) {
+      const handleInput = (
+      <Form.Group
+      key={localKey++}
+      >
+        <Form.Control
+               disabled={ disabled }
+               style={ sharedInputStyle }
+               type="text"
+               value={ handleValue }
+               onChange={ onHandleInputUpdated }
+               placeholder={ handleInputPlaceholder } />
+      </Form.Group>
+      );
+      inputList.push(handleInput); 
+    }
 
-    const displayNameInput = (
-    <View>
-      <Input
-             disabled={ disabled }
-             style={ sharedInputStyle }
-             type="text"
-             value={ displayNameValue }
-             onUpdated={ onDisplayNameInputUpdated }
-             placeholder={ displayNameInputPlaceholder } />
-    </View>
-    );
+    if (true != hidePasswordInput) {
+      const passwordInput = (
+      <Form.Group
+      key={localKey++}
+      >
+        <Form.Control
+               disabled={ disabled }
+               style={ sharedInputStyle }
+               type="password"
+               value={ passwordValue }
+               onChange={ onPasswordInputUpdated }
+               placeholder={ passwordInputPlaceholder } />
+      </Form.Group>
+      );
+      inputList.push(passwordInput); 
+    }
+
+    if (true != hideDisplayNameInput) {
+      const displayNameInput = (
+      <Form.Group   
+      key={localKey++}
+      >
+        <Form.Control
+               disabled={ disabled }
+               style={ sharedInputStyle }
+               type="text"
+               value={ displayNameValue }
+               onChange={ onDisplayNameInputUpdated }
+               placeholder={ displayNameInputPlaceholder } />
+      </Form.Group>
+      );
+      inputList.push(displayNameInput);
+    }
 
     const form = (
-    <View>
-      { handleInput }
-      { passwordInput }
-      { displayNameInput }
+    <Form>
+      { inputList }
       { sceneRef.props.children }
-    </View>
+    </Form>
     );
 
     return form;

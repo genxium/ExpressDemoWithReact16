@@ -98,16 +98,17 @@ const REGEX = {
   ADDRESS_META: /^.{5,100}$/,
   LNG_LAT_TEXT: /^[0-9]+(\.[0-9]{4,6})$/,
   SEO_KEYWORD: /^.{2,50}$/,
-  PASSWORD: /^.{6,50}$/,
 
-  ORG_HANDLE: /^.{4,50}$/,
+  PASSWORD: /^[a-zA-Z0-9]{6,50}$/,
+
+  ORG_HANDLE: /^[a-zA-Z0-9]{4,50}$/,
   ORG_DISPLAY_NAME: /^.{6,100}$/,
 
   SUBORG_DISPLAY_NAME: /^.{4,100}$/,
 
-  ADMIN_HANDLE: /^.{4,50}$/,
+  ADMIN_HANDLE: /^[a-zA-Z0-9]{4,50}$/,
 
-  WRITER_HANDLE: /^.{6,50}$/,
+  WRITER_HANDLE: /^[a-zA-Z0-9]{6,50}$/,
   WRITER_DISPLAY_NAME: /^.{3,100}$/,
 
   PRICE_CURRENCY: /^[0-9]{1}$/,
@@ -284,7 +285,7 @@ const ZH_CN = {
   NONEXISTENT_HANDLE: "账户名不存在",
   INCORRECT_PASSWORD: "密码不正确",
 
-  WRITER_HANDLE: "作者ID",
+  WRITER_HANDLE: "作者代号(仅包含英文字母及数字)",
   WRITER_LIST: "作者列表",
   WRITER_DISPLAY_NAME: "作者名字",
   WRITER_PASSWORD_INPUT_HINT: "作者密码，不输入默认为不更新",
@@ -296,9 +297,10 @@ const ZH_CN = {
   ADD_ARTICLE: "新增文章",
   EDIT_ARTICLE: "编辑文章",
 
-  ORG_HANDLE: "组织机构名",
+  ORG_HANDLE: "组织机构代号(仅包含英文字母及数字)",
   ORG_LIST: "组织机构列表",
-  ADD_ORG: "添加组织机构",
+  ORG_DISPLAY_NAME: "组织架构名字",
+  ADD_ORG: "新增组织机构",
   EDIT_ORG: "编辑组织机构",
 
   SKU_LIST: "SKU列表",
@@ -345,6 +347,9 @@ const ZH_CN = {
 
   APP_NAME: "Demo",
   ABSTACT: "Internal Training Project",
+
+  WRITER_HANDLE_DUPLICATED: "作者代号已被使用",
+  ORG_OR_WRITER_HANDLE_DUPLICATED: "组织架构代号或作者代号已被使用",
 
   LIVECHAT_CONSOLE: "咨询管理控制台",
 
