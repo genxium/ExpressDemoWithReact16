@@ -22,25 +22,24 @@ class ArticlePreviewer extends React.Component {
 
     const keywordWrapper = (
     <KeywordListView
-    style={{
-      display: 'block',
-      width: '95%',
-      overflow: 'hidden',
-      whiteSpace: 'nowrap',
-      verticalAlign: 'middle',
-      textAlign: 'left',
-    }}
-    keywordList={data.keywordList}
-    shouldDisable={ () => {
-      return true;
-    }}
-    maxCount={constants.ARTICLE.CREATION_LIMIT.N_KEYWORDS}
-    cachedNewKeyword= {""}
-    onSingleKeywordDeleteTriggeredBridge= {() => {}}
-    onNewKeywordAddTriggeredBridge= {() => {}}
-    onTextChangedBridge= {() => {}}
-    {...widgetRef.props}
-    />
+                     style={ {
+                               display: 'block',
+                               width: '95%',
+                               overflow: 'hidden',
+                               whiteSpace: 'nowrap',
+                               verticalAlign: 'middle',
+                               textAlign: 'left',
+                             } }
+                     keywordList={ data.keywordList }
+                     shouldDisable={ () => {
+                                       return true;
+                                     } }
+                     maxCount={ constants.ARTICLE.CREATION_LIMIT.N_KEYWORDS }
+                     cachedNewKeyword={ "" }
+                     onSingleKeywordDeleteTriggeredBridge={ () => {} }
+                     onNewKeywordAddTriggeredBridge={ () => {} }
+                     onTextChangedBridge={ () => {} }
+                     {...widgetRef.props} />
     );
 
     const shuffledDict = AttachmentUtil.instance.shuffleAttachments(data.attachmentList);
@@ -69,16 +68,14 @@ class ArticlePreviewer extends React.Component {
     let titleWrapper = null;
     if (undefined !== data.title && null !== data.title) {
       titleWrapper = (
-        <View
-        style={{
-          width: '100%',
-          fontSize: 23,
-          paddingTop: 10,
-          fontWeight: 'bold',
-          textAlign: 'center'
-        }}
-        >
-          {data.title}
+        <View style={ {
+                width: '100%',
+                fontSize: 23,
+                paddingTop: 10,
+                fontWeight: 'bold',
+                textAlign: 'center'
+              } }>
+          { data.title }
         </View>
       );
     }
@@ -86,18 +83,17 @@ class ArticlePreviewer extends React.Component {
     if (null != data.content) {
       contentWrapper = (
         <MarkdownRenderer
-        previewableVideoList={previewableVideoList}
-        previewableImageList={previewableImageList}
-        source={data.content}
-        />
+                          previewableVideoList={ previewableVideoList }
+                          previewableImageList={ previewableImageList }
+                          source={ data.content } />
       );
     }
 
     return (
-      <View style={widgetRef.props.styles}>
-        {titleWrapper}
-        {keywordWrapper}
-        {contentWrapper}
+      <View style={ widgetRef.props.styles }>
+        { titleWrapper }
+        { keywordWrapper }
+        { contentWrapper }
       </View>
     );
   }

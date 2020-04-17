@@ -43,9 +43,7 @@ class KeywordListView extends React.Component {
     };
 
     return (
-      <KeywordListViewWidget
-      {...subProps}
-      />
+      <KeywordListViewWidget {...subProps} />
     );
   }
 }

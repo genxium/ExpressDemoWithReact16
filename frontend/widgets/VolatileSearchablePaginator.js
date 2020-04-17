@@ -78,64 +78,62 @@ class VolatileSearchablePaginator extends React.Component {
     // Search widget building.
     const searchInput = (
     <Input
-    key='search-input'
-    style={{
-      height: 23,
-      width: 146,
-      padding: 3,
-      border: 'none',
-      color: constants.THEME.MAIN.BLACK,
-      borderRadius: '4px',
-    }}
-    value={widgetRef.state.searchKeyword}
-    onUpdated={(evt) => {
-      widgetRef.setState({
-        searchKeyword: evt.target.value
-      });
-    }}
-    onKeyDown={(evt) => {
-      if (evt.keyCode != constants.KEYBOARD_CODE.RETURN) return;
-      widgetRef.triggerSearch();
-    }}
-    >
-      </Input>
+           key='search-input'
+           style={ {
+                     height: 23,
+                     width: 146,
+                     padding: 3,
+                     border: 'none',
+                     color: constants.THEME.MAIN.BLACK,
+                     borderRadius: '4px',
+                   } }
+           value={ widgetRef.state.searchKeyword }
+           onUpdated={ (evt) => {
+                         widgetRef.setState({
+                           searchKeyword: evt.target.value
+                         });
+                       } }
+           onKeyDown={ (evt) => {
+                         if (evt.keyCode != constants.KEYBOARD_CODE.RETURN) return;
+                         widgetRef.triggerSearch();
+                       } }>
+    </Input>
     );
 
     const searchButton = (
     <View
-    key='search-button'
-    style={{
-      display: 'inline-block',
-      width: 18,
-      marginLeft: 10,
-      position: 'absolute',
-    }}
-    onClick={(evt) => {
-      widgetRef.triggerSearch();
-    }}
-    >
-        <ClipartSearch />
-      </View>
+          key='search-button'
+          style={ {
+                    display: 'inline-block',
+                    width: 18,
+                    marginLeft: 10,
+                    position: 'absolute',
+                  } }
+          onClick={ (evt) => {
+                      widgetRef.triggerSearch();
+                    } }>
+      <ClipartSearch />
+    </View>
     );
 
     const searchEntry = (
     <NavItem
-    style={{
-      lineHeight: 1,
-      display: 'block',
-      position: 'absolute',
-      left: '15%',
-      height: 45,
-      paddingTop: 11,
-      paddingBottom: 11,
-      width: '70%',
-      textAlign: 'center',
-      marginLeft: 10,
-    }}
-    key='search-entry-nav'>
-        {searchInput}
-        {searchButton}
-      </NavItem>
+             style={ {
+                       lineHeight: 1,
+                       display: 'block',
+                       position: 'absolute',
+                       left: '15%',
+                       height: 45,
+                       paddingTop: 11,
+                       paddingBottom: 11,
+                       width: '70%',
+                       textAlign: 'center',
+                       marginLeft: 10,
+                     } }
+             key='search-entry-nav'>
+      { searchInput }
+      { searchButton }
+    </NavItem>
     );
 
     const searchBarProps = Object.assign({
@@ -156,13 +154,12 @@ class VolatileSearchablePaginator extends React.Component {
     const searchBarChildren = [searchEntry];
     const searchBar = (
     <Topbar
-    style={{
-      width: totSizePx.width,
-    }}
-    {...searchBarProps}
-    >
-        {searchBarChildren}
-      </Topbar>
+            style={ {
+                      width: totSizePx.width,
+                    } }
+            {...searchBarProps}>
+      { searchBarChildren }
+    </Topbar>
     );
 
     const listViewProps = Object.assign({
@@ -205,22 +202,21 @@ class VolatileSearchablePaginator extends React.Component {
 
     const listview = (
     <Paginator
-    style={{
-      width: totSizePx.width,
-      clear: 'both'
-    }}
-    ref={(c) => {
-      if (!c) return;
-      widgetRef._listviewRef = c;
-    }}
-    {...listViewProps}
-    />
+               style={ {
+                         width: totSizePx.width,
+                         clear: 'both'
+                       } }
+               ref={ (c) => {
+                       if (!c) return;
+                       widgetRef._listviewRef = c;
+                     } }
+               {...listViewProps} />
     );
 
     return (
       <View>
-        {searchBar}
-        {listview}
+        { searchBar }
+        { listview }
       </View>
     );
   }

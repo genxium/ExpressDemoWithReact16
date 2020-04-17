@@ -16,7 +16,7 @@ const page = 1; // It's safe to just keep it always 0 along with the recurring i
 MySQLManager.instance.dbRef.transaction(t => {
   return AttachmentTable.findAndCountAll({
     where: {
-      state: constants.ATTACHMENT.STATE.SOLIDIFIED, 
+      state: constants.ATTACHMENT.STATE.SOLIDIFIED,
       deleted_at: null,
     },
     transaction: t,
@@ -25,12 +25,12 @@ MySQLManager.instance.dbRef.transaction(t => {
     offset: (page - 1) * nPerPage
   })
 })
-.then(function(result) {
-  for (let i in result.rows) {
-    const attachmentOriginalToTranscode = result.rows[i];
-    logger.info("An attachmentOriginalToTranscode is ", attachmentOriginalToTranscode.dataValues);
-  }
-})
-.catch(function(err) {
-  logger.error("An error occurred ", err);
-});
+  .then(function(result) {
+    for (let i in result.rows) {
+      const attachmentOriginalToTranscode = result.rows[i];
+      logger.info("An attachmentOriginalToTranscode is ", attachmentOriginalToTranscode.dataValues);
+    }
+  })
+  .catch(function(err) {
+    logger.error("An error occurred ", err);
+  });

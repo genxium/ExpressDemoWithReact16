@@ -243,18 +243,18 @@ const articleSubmitApi = function(req, res) {
 
   MySQLManager.instance.dbRef.transaction(t => {
     return writerDao.submitArticleAsync(articleId, loggedInRole.id, t)
-    .then(function(affectedRowsCount) {
-      if (1 != affectedRowsCount) {
-        throw new signals.GeneralFailure();
-      }
-      res.json({
-        ret: constants.RET_CODE.OK,
-      });
-    })
+      .then(function(affectedRowsCount) {
+        if (1 != affectedRowsCount) {
+          throw new signals.GeneralFailure();
+        }
+        res.json({
+          ret: constants.RET_CODE.OK,
+        });
+      })
   })
-  .catch(function(err) {
-    instance.respondWithError(res, err);
-  });
+    .catch(function(err) {
+      instance.respondWithError(res, err);
+    });
 };
 
 const articleSuspendApi = function(req, res) {
@@ -271,18 +271,18 @@ const articleSuspendApi = function(req, res) {
 
   MySQLManager.instance.dbRef.transaction(t => {
     return writerDao.suspendArticleAsync(articleId, loggedInRole.id, reason, t)
-    .then(function(affectedRowsCount) {
-      if (1 != affectedRowsCount) {
-        throw new signals.GeneralFailure();
-      }
-      res.json({
-        ret: constants.RET_CODE.OK,
-      });
-    })
+      .then(function(affectedRowsCount) {
+        if (1 != affectedRowsCount) {
+          throw new signals.GeneralFailure();
+        }
+        res.json({
+          ret: constants.RET_CODE.OK,
+        });
+      })
   })
-  .catch(function(err) {
-    instance.respondWithError(res, err);
-  });
+    .catch(function(err) {
+      instance.respondWithError(res, err);
+    });
 };
 
 const uptokenFetchApi = function(req, res) {
@@ -291,18 +291,18 @@ const uptokenFetchApi = function(req, res) {
   const mimeTypeGroup = req.query.mimeTypeGroup;
   let downloadEndpoint = null;
   let policyRoot = null;
-    
+
   switch (mimeTypeGroup) {
-  case constants.ATTACHMENT.IMAGE.LITERAL:
-    downloadEndpoint = QiniuServerUtil.instance.config.imageDownloadEndpoint;
-    policyRoot = constants.ATTACHMENT.IMAGE.POLICY;
-  break;
-  case constants.ATTACHMENT.VIDEO.LITERAL:
-    downloadEndpoint = QiniuServerUtil.instance.config.videoDownloadEndpoint;
-    policyRoot = constants.ATTACHMENT.VIDEO.POLICY;
-  break;
-  default:
-  break;
+    case constants.ATTACHMENT.IMAGE.LITERAL:
+      downloadEndpoint = QiniuServerUtil.instance.config.imageDownloadEndpoint;
+      policyRoot = constants.ATTACHMENT.IMAGE.POLICY;
+      break;
+    case constants.ATTACHMENT.VIDEO.LITERAL:
+      downloadEndpoint = QiniuServerUtil.instance.config.videoDownloadEndpoint;
+      policyRoot = constants.ATTACHMENT.VIDEO.POLICY;
+      break;
+    default:
+      break;
   }
 
   if (null == downloadEndpoint || null == policyRoot) {
@@ -326,14 +326,14 @@ const uptokenFetchApi = function(req, res) {
 
   // Only if a valid "expectedMimetype" were specified should the "" be handled. -- YFLu, 2020-04-07
   if (
-      null != expectedMimetype 
-      && 
-      (
-        -1 != constants.ATTACHMENT.IMAGE.indexOf(expectedMimetype) 
-        || 
-        -1 != constants.ATTACHMENT.VIDEO.indexOf(expectedMimetype)
-      )
-    ) {
+    null != expectedMimetype
+    &&
+    (
+    -1 != constants.ATTACHMENT.IMAGE.indexOf(expectedMimetype)
+    ||
+    -1 != constants.ATTACHMENT.VIDEO.indexOf(expectedMimetype)
+    )
+  ) {
     const expectedExtension = mime.getExtension(expectedMimetype);
     if (null != expectedExtension) {
       remoteName += ("." + expectedExtension);

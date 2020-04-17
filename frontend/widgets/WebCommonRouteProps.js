@@ -83,9 +83,8 @@ class StatelessTopbar extends React.Component {
 
     // NOTE: Returning.
     return (
-      <div
-      style={outerMostStyle}>
-        {children}
+      <div style={ outerMostStyle }>
+        { children }
       </div>
     );
   }
@@ -124,13 +123,10 @@ class ModalPopup extends React.Component {
   render() {
     const {onHide, isStatic, title, show, children, footer, style, ...other} = this.props;
     let header = (
-    <h3
-    style={{
-      padding: '5px',
-      textAlign: 'center'
-    }}>
-        {title}
-      </h3>
+    <h3 style={ {
+              padding: '5px',
+              textAlign: 'center'
+            } }>{ title }</h3>
     );
 
     if (null == title || "" == title) {
@@ -149,14 +145,13 @@ class ModalPopup extends React.Component {
 
     return (
       <Modal
-      style={modalStyle}
-      isOpen={show}
-      onRequestClose={onHide}
-      shouldCloseOnOverlayClick={!isStatic}
-      >
-        {header}
-        {children}
-        {footer}
+             style={ modalStyle }
+             isOpen={ show }
+             onRequestClose={ onHide }
+             shouldCloseOnOverlayClick={ !isStatic }>
+        { header }
+        { children }
+        { footer }
       </Modal>
     );
   }
@@ -189,17 +184,16 @@ class Input extends React.Component {
     const {onUpdated, ...other} = widgetRef.props;
     return (
       <input
-      onChange={ (evt) => {
-        onUpdated(evt);
-      }}
-      onCut={ (evt) => {
-        onUpdated(evt);
-      }}
-      onPaste={ (evt) => {
-        onUpdated(evt);
-      }}
-      {...other}
-      />
+             onChange={ (evt) => {
+                          onUpdated(evt);
+                        } }
+             onCut={ (evt) => {
+                       onUpdated(evt);
+                     } }
+             onPaste={ (evt) => {
+                         onUpdated(evt);
+                       } }
+             {...other} />
     );
   }
 }
@@ -216,10 +210,9 @@ const NavItem = createReactClass({
     }, style);
     return (
       <div
-      style={outerMostStyle}
-      onClick={onClick}
-      >
-        {children}
+           style={ outerMostStyle }
+           onClick={ onClick }>
+        { children }
       </div>
     );
   }
@@ -229,10 +222,8 @@ const View = createReactClass({
   render: function() {
     const {idx, ...other} = this.props;
     return (
-      <div
-      {...other}
-      >
-        {this.props.children}
+      <div {...other}>
+        { this.props.children }
       </div>
     );
   }
@@ -241,11 +232,7 @@ const View = createReactClass({
 const Text = createReactClass({
   render: function() {
     return (
-      <span
-      {...this.props}
-      >
-        {this.props.children}
-      </span>
+      <span {...this.props}>{ this.props.children }</span>
     );
   }
 });
@@ -273,12 +260,9 @@ const Image = createReactClass({
     const finalizedSrcset = (null == this.state.srcset ? srcset : this.state.srcset);
     return (
       <img
-      src={finalizedSrc}
-      srcSet={finalizedSrcset}
-      {...other}
-      >
-        {this.props.children}
-      </img>
+           src={ finalizedSrc }
+           srcSet={ finalizedSrcset }
+           {...other}>{ this.props.children }</img>
     );
   }
 });
@@ -290,9 +274,7 @@ const Video = createReactClass({
   render: function() {
     const props = this.props;
     return (
-      <video
-      {...props}
-      />
+      <video {...props} />
     );
   }
 });
@@ -302,10 +284,9 @@ const HyperLink = createReactClass({
     const {idx, href, ...other} = this.props;
     return (
       <a
-      href={href}
-      {...other}
-      >
-        {this.props.children}
+         href={ href }
+         {...other}>
+        { this.props.children }
       </a>
     );
   }
@@ -316,12 +297,11 @@ const DropdownPicker = createReactClass({
     const {id, title, children, style, ...other} = this.props;
     return (
       <DropdownButton
-      id={id}
-      title={title}
-      style={style}
-      {...other}
-      >
-        {children}
+                      id={ id }
+                      title={ title }
+                      style={ style }
+                      {...other}>
+        { children }
       </DropdownButton>
     );
   }
@@ -331,10 +311,8 @@ const PickerItem = createReactClass({
   render: function() {
     const {children, ...other} = this.props;
     return (
-      <MenuItem
-      {...other}
-      >
-        {children}
+      <MenuItem {...other}>
+        { children }
       </MenuItem>
     );
   }
@@ -357,11 +335,10 @@ const Button = createReactClass({
   render: function() {
     return (
       <button
-      onClick={this.props.onPress}
-      style={this.props.style}
-      disabled={this.props.disabled}
-      >
-        {this.props.children}
+              onClick={ this.props.onPress }
+              style={ this.props.style }
+              disabled={ this.props.disabled }>
+        { this.props.children }
       </button>
     );
   }

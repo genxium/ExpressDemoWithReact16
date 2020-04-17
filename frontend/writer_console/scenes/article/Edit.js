@@ -1,9 +1,6 @@
-'use-strict';
-
-const singleVideoSelectorContainerKeyPrefix = 'whateverhelikes-';
+'use strict';
 
 import React, { Component } from 'react';
-
 import ImagePreviewer from '../../../widgets/ImagePreviewer';
 
 import MarkdownEditor from '../../../widgets/MarkdownEditor';
@@ -29,6 +26,8 @@ const AttachmentUtil = require('../../../../common/AttachmentUtil').default;
 const PlupLoad = require('plupload');
 
 const WebFunc = require('../../../utils/WebFunc').default;
+
+const singleVideoSelectorContainerKeyPrefix = "whateverhelikes-";
 
 const ConfirmBox = createReactClass({
   getInitialState: function() {
@@ -119,7 +118,7 @@ class Edit extends Component {
       submittable: false,
       previewable: false,
 
-      videoBundle: new SingleImageSelectorBundle(),  
+      videoBundle: new SingleImageSelectorBundle(),
       cachedVideoOssFilepath: null,
 
       bundleListManager: new SingleImageSelectorBundleListManager(),
@@ -175,7 +174,7 @@ class Edit extends Component {
     let ossFilepathList = [];
     if (null != sceneRef.state.cachedVideoOssFilepath) {
       ossFilepathList.push(sceneRef.state.cachedVideoOssFilepath);
-    }    
+    }
 
     for (let k in sceneRef.state.cachedImageOssFilepathDict) {
       ossFilepathList.push(sceneRef.state.cachedImageOssFilepathDict[k]);
@@ -603,7 +602,7 @@ class Edit extends Component {
     };
 
     let singleVideoSelectorRow = (
-      <View /> 
+    <View />
     );
     if (null != sceneRef.state.videoBundle) {
       const videoSelectorSizePx = {
@@ -614,77 +613,76 @@ class Edit extends Component {
 
       const singleVideoSelector = (
       <StatelessSingleVideoSelector
-      ref={ (c) => {
-        if (!c) return;
-        sceneRef._singleVideoSelectorRef = c;
-      }}
-      style={{
-        backgroundColor: constants.THEME.MAIN.WHITE,
-        width: '100%',
-        padding: 2,
-      }}
-      View={View}
-      Video={Video}
-      controls={true}
-      uploadedMark={'✅'}
-      sizePx={videoSelectorSizePx}
-      shouldDisable={ () => {
-        return sceneRef.state.disabled;
-      }}
-      singleFileSizeLimitBytes={constants.ATTACHMENT.VIDEO.POLICY.SINGLE_SIZE_LIMIT_BYTES}
-      allowedMimeList={constants.ATTACHMENT.VIDEO.POLICY.WRITE_ALLOWED_MIME_TYPES}
-      showFileRequirementHint={() => {
-        alert(LocaleManager.instance.effectivePack().HINT.VIDEO_REQUIREMENT);
-      }}
-      progressBarColor={constants.THEME.MAIN.BLUE}
-      BrowseButtonComponent={ClipartAddImage}
-      bundle={sceneRef.state.videoBundle}
-      queryAndSetSingleBundleExtUploaderCredentialsAsync={ genQueryAndSetSingleBundleExtUploaderCredentialsAsync(constants.ATTACHMENT.VIDEO.LITERAL) }
-      onNewBundleInitializedBridge={ (idx, props) => {
-        const newVideoBundle = sceneRef.state.videoBundle;
-        newVideoBundle.reset(props);
-        sceneRef.setState({
-          videoBundle: newVideoBundle,
-        });
-      }}
-      onProgressBridge = {(idx, props) => {
-        const newVideoBundle = sceneRef.state.videoBundle;
-        newVideoBundle.assign(props);
-        sceneRef.setState({
-          videoBundle: newVideoBundle,
-        });
-      }}
-      onUploadedBridge={ (idx, successOrFailure) => {
-        if (successOrFailure) sceneRef.onVideoUploaded();
-        else sceneRef.onVideoUploadError();
-      }}
-      onLocalVideoAddedBridge={ (idx, props) => {
-        const newVideoBundle = sceneRef.state.videoBundle;
-        newVideoBundle.assign(props);
-
-        sceneRef.setState({
-          savable: sceneRef.isContentValid(sceneRef.state.cachedContent),
-          submittable: false,
-          videoBundle: newVideoBundle,
-        }, function() {
-          sceneRef.setState({
-            disabled: false,
-          }, function() {
-            // TODO: Insert video at "cursor of _mdEditorRef"? -- YFLu, 2020-04-10
-          });
-        });
-      }}
-      onVideoEditorTriggeredBridge={ (idx) => {
-        // This is the "onClick" callback, deliberately left blank. 
-      }}
-      >
+                                    ref={ (c) => {
+                                            if (!c) return;
+                                            sceneRef._singleVideoSelectorRef = c;
+                                          } }
+                                    style={ {
+                                              backgroundColor: constants.THEME.MAIN.WHITE,
+                                              width: '100%',
+                                              padding: 2,
+                                            } }
+                                    View={ View }
+                                    Video={ Video }
+                                    controls={ true }
+                                    uploadedMark={ '✅' }
+                                    sizePx={ videoSelectorSizePx }
+                                    shouldDisable={ () => {
+                                                      return sceneRef.state.disabled;
+                                                    } }
+                                    singleFileSizeLimitBytes={ constants.ATTACHMENT.VIDEO.POLICY.SINGLE_SIZE_LIMIT_BYTES }
+                                    allowedMimeList={ constants.ATTACHMENT.VIDEO.POLICY.WRITE_ALLOWED_MIME_TYPES }
+                                    showFileRequirementHint={ () => {
+                                                                alert(LocaleManager.instance.effectivePack().HINT.VIDEO_REQUIREMENT);
+                                                              } }
+                                    progressBarColor={ constants.THEME.MAIN.BLUE }
+                                    BrowseButtonComponent={ ClipartAddImage }
+                                    bundle={ sceneRef.state.videoBundle }
+                                    queryAndSetSingleBundleExtUploaderCredentialsAsync={ genQueryAndSetSingleBundleExtUploaderCredentialsAsync(constants.ATTACHMENT.VIDEO.LITERAL) }
+                                    onNewBundleInitializedBridge={ (idx, props) => {
+                                                                     const newVideoBundle = sceneRef.state.videoBundle;
+                                                                     newVideoBundle.reset(props);
+                                                                     sceneRef.setState({
+                                                                       videoBundle: newVideoBundle,
+                                                                     });
+                                                                   } }
+                                    onProgressBridge={ (idx, props) => {
+                                                         const newVideoBundle = sceneRef.state.videoBundle;
+                                                         newVideoBundle.assign(props);
+                                                         sceneRef.setState({
+                                                           videoBundle: newVideoBundle,
+                                                         });
+                                                       } }
+                                    onUploadedBridge={ (idx, successOrFailure) => {
+                                                         if (successOrFailure) sceneRef.onVideoUploaded();
+                                                         else sceneRef.onVideoUploadError();
+                                                       } }
+                                    onLocalVideoAddedBridge={ (idx, props) => {
+                                                                const newVideoBundle = sceneRef.state.videoBundle;
+                                                                newVideoBundle.assign(props);
+                                                              
+                                                                sceneRef.setState({
+                                                                  savable: sceneRef.isContentValid(sceneRef.state.cachedContent),
+                                                                  submittable: false,
+                                                                  videoBundle: newVideoBundle,
+                                                                }, function() {
+                                                                  sceneRef.setState({
+                                                                    disabled: false,
+                                                                  }, function() {
+                                                                    // TODO: Insert video at "cursor of _mdEditorRef"? -- YFLu, 2020-04-10
+                                                                  });
+                                                                });
+                                                              } }
+                                    onVideoEditorTriggeredBridge={ (idx) => {
+                                                                     // This is the "onClick" callback, deliberately left blank. 
+                                                                   } }>
       </StatelessSingleVideoSelector>
       );
 
       const singleVideoDeleteSoftlyButton = React.createElement(Button, {
         onPress: function() {
           sceneRef.state.videoBundle.reset();
-          const newVideoBundle = new SingleImageSelectorBundle(); 
+          const newVideoBundle = new SingleImageSelectorBundle();
           sceneRef.setState({
             savable: sceneRef.isContentValid(sceneRef.state.cachedContent),
             submittable: false,
@@ -693,7 +691,7 @@ class Edit extends Component {
           });
         },
         style: {
-          display: (false == shouldDisableVideoEditing ? "inline-block" : "none"), 
+          display: (false == shouldDisableVideoEditing ? "inline-block" : "none"),
           position: "absolute",
           left: (videoSelectorSizePx.w * 1.1),
           top: videoSelectorSizePx.h,
@@ -702,238 +700,233 @@ class Edit extends Component {
         },
       }, '❌');
 
+      const singleVideoSelectorRowKey = (singleVideoSelectorContainerKeyPrefix + sceneRef.state.videoBundle.id); // [WARNING] We rely on the update of this "key" to actually remove the "<input /> DOM" of the obsolete "sceneRef.state.videoBundle.extUploader". Moreover, comments are deliberately put outside of any JSX tag to avoid esformatting error.
       singleVideoSelectorRow = (
         <View
-        key={singleVideoSelectorContainerKeyPrefix + sceneRef.state.videoBundle.id} // [WARNING] We rely on the update of this "key" to actually remove the "<input /> DOM" of the obsolete "sceneRef.state.videoBundle.extUploader". 
-        style={{
-          display: "block", 
-          padding: 0,
-          margin: 0,
-        }}
-        >
-          {singleVideoSelector}
-          {singleVideoDeleteSoftlyButton}
-        </View> 
+              key={ singleVideoSelectorRowKey }
+              style={ {
+                        display: "block",
+                        padding: 0,
+                        margin: 0,
+                      } }>
+          { singleVideoSelector }
+          { singleVideoDeleteSoftlyButton }
+        </View>
       );
     }
 
     const multiImageSelector = (
     <StatelessMultiImageSelector
-    ref={ (c) => {
-      if (!c) return;
-      sceneRef._multiSelectorRef = c;
-    }}
-    View={View}
-    Image={Image}
-    style={{
-      backgroundColor: constants.THEME.MAIN.WHITE,
-      width: '100%',
-      padding: 5,
-    }}
-    singleImageSelectorSize={{
-      w: 163,
-      h: 154
-    }}
-    bundleListManager={sceneRef.state.bundleListManager}
-    shouldDisable={ () => {
-      return sceneRef.state.disabled;
-    }}
-    showFileRequirementHint={() => {
-      alert(LocaleManager.instance.effectivePack().HINT.IMAGE_REQUIREMENT);
-    }}
-    singleFileSizeLimitBytes={constants.ATTACHMENT.IMAGE.POLICY.SINGLE_SIZE_LIMIT_BYTES}
-    allowedMimeList={constants.ATTACHMENT.IMAGE.POLICY.WRITE_ALLOWED_MIME_TYPES}
-    uploadedMark={'✅'}
-    progressBarColor={constants.THEME.MAIN.BLUE}
-    BrowseButtonComponent={ClipartAddImage}
-    queryAndSetSingleBundleExtUploaderCredentialsAsync={ genQueryAndSetSingleBundleExtUploaderCredentialsAsync(constants.ATTACHMENT.IMAGE.LITERAL) }
-    onSingleLocalImageAddedBridge={ (idx, props) => {
-      const newBundleListManager = sceneRef.state.bundleListManager;
-      newBundleListManager.assignAtIndex(idx, props);
-
-      const bundleList = newBundleListManager.bundleList;
-      if (newBundleListManager.allOccupied() && bundleList.length < constants.ATTACHMENT.IMAGE.POLICY.N_PER_ARTICLE) {
-        newBundleListManager.pushNew();
-      }
-      sceneRef.setState({
-        savable: sceneRef.isContentValid(sceneRef.state.cachedContent),
-        submittable: false,
-        bundleListManager: newBundleListManager,
-      }, function() {
-        sceneRef.setState({
-          disabled: false,
-        }, function() {
-          if (!sceneRef._mdEditorRef) return;
-          sceneRef._mdEditorRef.insertImageAtCursor(idx);
-        });
-      });
-    }}
-    onSingleUploadedBridge={ (idx, successOrFailure) => {
-      if (successOrFailure) sceneRef.onSingleImageUploaded(idx);
-      else sceneRef.onSingleImageUploadError(idx);
-    }}
-    onSingleNewBundleInitializedBridge={ (idx, props) => {
-      const newBundleListManager = sceneRef.state.bundleListManager;
-      newBundleListManager.resetAtIndex(idx, props);
-      sceneRef.setState({
-        bundleListManager: newBundleListManager,
-      });
-    }}
-    onSingleImageEditorTriggeredBridge={ (idx) => {
-      sceneRef.setState({
-        showImagePreviewer: true,
-        imagePreviewerActiveIndex: idx,
-      });
-    }}
-    onSingleProgressBridge={ (idx, props) => {
-      const newBundleListManager = sceneRef.state.bundleListManager;
-      newBundleListManager.assignAtIndex(idx, props);
-
-      sceneRef.setState({
-        bundleListManager: newBundleListManager,
-      });
-    }}
-    {...sceneRef.props}
-    />
+                                 ref={ (c) => {
+                                         if (!c) return;
+                                         sceneRef._multiSelectorRef = c;
+                                       } }
+                                 View={ View }
+                                 Image={ Image }
+                                 style={ {
+                                           backgroundColor: constants.THEME.MAIN.WHITE,
+                                           width: '100%',
+                                           padding: 5,
+                                         } }
+                                 singleImageSelectorSize={ {
+                                                             w: 163,
+                                                             h: 154
+                                                           } }
+                                 bundleListManager={ sceneRef.state.bundleListManager }
+                                 shouldDisable={ () => {
+                                                   return sceneRef.state.disabled;
+                                                 } }
+                                 showFileRequirementHint={ () => {
+                                                             alert(LocaleManager.instance.effectivePack().HINT.IMAGE_REQUIREMENT);
+                                                           } }
+                                 singleFileSizeLimitBytes={ constants.ATTACHMENT.IMAGE.POLICY.SINGLE_SIZE_LIMIT_BYTES }
+                                 allowedMimeList={ constants.ATTACHMENT.IMAGE.POLICY.WRITE_ALLOWED_MIME_TYPES }
+                                 uploadedMark={ '✅' }
+                                 progressBarColor={ constants.THEME.MAIN.BLUE }
+                                 BrowseButtonComponent={ ClipartAddImage }
+                                 queryAndSetSingleBundleExtUploaderCredentialsAsync={ genQueryAndSetSingleBundleExtUploaderCredentialsAsync(constants.ATTACHMENT.IMAGE.LITERAL) }
+                                 onSingleLocalImageAddedBridge={ (idx, props) => {
+                                                                   const newBundleListManager = sceneRef.state.bundleListManager;
+                                                                   newBundleListManager.assignAtIndex(idx, props);
+                                                                 
+                                                                   const bundleList = newBundleListManager.bundleList;
+                                                                   if (newBundleListManager.allOccupied() && bundleList.length < constants.ATTACHMENT.IMAGE.POLICY.N_PER_ARTICLE) {
+                                                                     newBundleListManager.pushNew();
+                                                                   }
+                                                                   sceneRef.setState({
+                                                                     savable: sceneRef.isContentValid(sceneRef.state.cachedContent),
+                                                                     submittable: false,
+                                                                     bundleListManager: newBundleListManager,
+                                                                   }, function() {
+                                                                     sceneRef.setState({
+                                                                       disabled: false,
+                                                                     }, function() {
+                                                                       if (!sceneRef._mdEditorRef) return;
+                                                                       sceneRef._mdEditorRef.insertImageAtCursor(idx);
+                                                                     });
+                                                                   });
+                                                                 } }
+                                 onSingleUploadedBridge={ (idx, successOrFailure) => {
+                                                            if (successOrFailure) sceneRef.onSingleImageUploaded(idx);
+                                                            else sceneRef.onSingleImageUploadError(idx);
+                                                          } }
+                                 onSingleNewBundleInitializedBridge={ (idx, props) => {
+                                                                        const newBundleListManager = sceneRef.state.bundleListManager;
+                                                                        newBundleListManager.resetAtIndex(idx, props);
+                                                                        sceneRef.setState({
+                                                                          bundleListManager: newBundleListManager,
+                                                                        });
+                                                                      } }
+                                 onSingleImageEditorTriggeredBridge={ (idx) => {
+                                                                        sceneRef.setState({
+                                                                          showImagePreviewer: true,
+                                                                          imagePreviewerActiveIndex: idx,
+                                                                        });
+                                                                      } }
+                                 onSingleProgressBridge={ (idx, props) => {
+                                                            const newBundleListManager = sceneRef.state.bundleListManager;
+                                                            newBundleListManager.assignAtIndex(idx, props);
+                                                          
+                                                            sceneRef.setState({
+                                                              bundleListManager: newBundleListManager,
+                                                            });
+                                                          } }
+                                 {...sceneRef.props} />
     );
 
     let imageList = (null == sceneRef._multiSelectorRef ? null : sceneRef._multiSelectorRef.getPreviewableImageList());
     const imagePreviewer = (
     <ImagePreviewer
-    ref={ (c) => {
-      if (!c) return;
-      sceneRef._imagePreviewerRef = c;
-    }}
-    View={View}
-    Button={Button}
-    ModalPopup={ModalPopup}
-    Text={Text}
-    Image={Image}
-    cachedImageList={imageList}
-    shouldShow={ () => {
-      return sceneRef.state.showImagePreviewer;
-    }}
-    onHide={ () => {
-      sceneRef.setState({
-        showImagePreviewer: false,
-      });
-    }}
-    activeIndex={ () => {
-      return sceneRef.state.imagePreviewerActiveIndex;
-    }}
-    onDeleteImageAtActiveIndexBridge={ () => {
-      const idx = sceneRef.state.imagePreviewerActiveIndex;
-      const newBundleListManager = sceneRef.state.bundleListManager;
-      const newImageOssFilepathDict = sceneRef.state.cachedImageOssFilepathDict;
-      delete newImageOssFilepathDict[idx];
-      newBundleListManager.removeAtIndex(idx);
-      if (newBundleListManager.allOccupied() && newBundleListManager.bundleList.length < constants.ATTACHMENT.IMAGE.POLICY.N_PER_ARTICLE) {
-        newBundleListManager.pushNew();
-      }
-      sceneRef.setState({
-        savable: sceneRef.isContentValid(sceneRef.state.cachedContent),
-        submittable: false,
-        showImagePreviewer: false,
-        imagePreviewerActiveIndex: null,
-        bundleListManager: newBundleListManager,
-        cachedImageOssFilepathDict: newImageOssFilepathDict,
-      });
-    }}
-    shouldDisable={ () => {
-      return sceneRef.state.disabled;
-    }}
-    {...sceneRef.props}
-    />
+                    ref={ (c) => {
+                            if (!c) return;
+                            sceneRef._imagePreviewerRef = c;
+                          } }
+                    View={ View }
+                    Button={ Button }
+                    ModalPopup={ ModalPopup }
+                    Text={ Text }
+                    Image={ Image }
+                    cachedImageList={ imageList }
+                    shouldShow={ () => {
+                                   return sceneRef.state.showImagePreviewer;
+                                 } }
+                    onHide={ () => {
+                               sceneRef.setState({
+                                 showImagePreviewer: false,
+                               });
+                             } }
+                    activeIndex={ () => {
+                                    return sceneRef.state.imagePreviewerActiveIndex;
+                                  } }
+                    onDeleteImageAtActiveIndexBridge={ () => {
+                                                         const idx = sceneRef.state.imagePreviewerActiveIndex;
+                                                         const newBundleListManager = sceneRef.state.bundleListManager;
+                                                         const newImageOssFilepathDict = sceneRef.state.cachedImageOssFilepathDict;
+                                                         delete newImageOssFilepathDict[idx];
+                                                         newBundleListManager.removeAtIndex(idx);
+                                                         if (newBundleListManager.allOccupied() && newBundleListManager.bundleList.length < constants.ATTACHMENT.IMAGE.POLICY.N_PER_ARTICLE) {
+                                                           newBundleListManager.pushNew();
+                                                         }
+                                                         sceneRef.setState({
+                                                           savable: sceneRef.isContentValid(sceneRef.state.cachedContent),
+                                                           submittable: false,
+                                                           showImagePreviewer: false,
+                                                           imagePreviewerActiveIndex: null,
+                                                           bundleListManager: newBundleListManager,
+                                                           cachedImageOssFilepathDict: newImageOssFilepathDict,
+                                                         });
+                                                       } }
+                    shouldDisable={ () => {
+                                      return sceneRef.state.disabled;
+                                    } }
+                    {...sceneRef.props} />
     );
 
     const titleEditor = (
     <Input
-    style={{
-      marginTop: 5,
-    }}
-    disabled={sceneRef.state.disabled}
-    key='title-input'
-    placeholder={LocaleManager.instance.effectivePack().PLEASE_INPUT_TITLE}
-    value={ sceneRef.state.cachedTitle }
-    onUpdated={ (evt) => {
-      sceneRef.onTitleChanged(evt.target.value);
-    }}
-    />
+           style={ {
+                     marginTop: 5,
+                   } }
+           disabled={ sceneRef.state.disabled }
+           key='title-input'
+           placeholder={ LocaleManager.instance.effectivePack().PLEASE_INPUT_TITLE }
+           value={ sceneRef.state.cachedTitle }
+           onUpdated={ (evt) => {
+                         sceneRef.onTitleChanged(evt.target.value);
+                       } } />
     );
 
     const keywordListView = (
     <KeywordListView
-    View={View}
-    Input={Input}
-    Button={Button}
-    keywordList={sceneRef.state.cachedKeywordList}
-    shouldDisable={ () => {
-      return sceneRef.state.disabled;
-    }}
-    maxCount={constants.ARTICLE.CREATION_LIMIT.N_KEYWORDS}
-    cachedNewKeyword={sceneRef.state.cachedNewKeyword}
-    onSingleKeywordDeleteTriggeredBridge={ (idx) => {
-      let newKeywordList = [];
-      for (let i = 0; i < sceneRef.state.cachedKeywordList.length; ++i) {
-        if (i == idx) continue;
-        newKeywordList.push(sceneRef.state.cachedKeywordList[i]);
-      }
-      sceneRef.setState({
-        cachedKeywordList: newKeywordList,
-        savable: true,
-        submittable: false,
-        previewable: false,
-      });
-    }}
-    onNewKeywordAddTriggeredBridge={ (addedNewKeyword) => {
-      let newKeywordList = [];
-      for (let i = 0; i < sceneRef.state.cachedKeywordList.length; ++i) {
-        newKeywordList.push(sceneRef.state.cachedKeywordList[i]);
-      }
-      newKeywordList.push(addedNewKeyword);
-      sceneRef.setState({
-        cachedKeywordList: newKeywordList,
-        cachedNewKeyword: "",
-        savable: true,
-        submittable: false,
-        previewable: false,
-      });
-    }}
-    onTextChangedBridge={ (cachedNewKeyword) => {
-      sceneRef.setState({
-        cachedNewKeyword: cachedNewKeyword,
-      });
-    }}
-    {...sceneRef.props}
-    />
+                     View={ View }
+                     Input={ Input }
+                     Button={ Button }
+                     keywordList={ sceneRef.state.cachedKeywordList }
+                     shouldDisable={ () => {
+                                       return sceneRef.state.disabled;
+                                     } }
+                     maxCount={ constants.ARTICLE.CREATION_LIMIT.N_KEYWORDS }
+                     cachedNewKeyword={ sceneRef.state.cachedNewKeyword }
+                     onSingleKeywordDeleteTriggeredBridge={ (idx) => {
+                                                              let newKeywordList = [];
+                                                              for (let i = 0; i < sceneRef.state.cachedKeywordList.length; ++i) {
+                                                                if (i == idx) continue;
+                                                                newKeywordList.push(sceneRef.state.cachedKeywordList[i]);
+                                                              }
+                                                              sceneRef.setState({
+                                                                cachedKeywordList: newKeywordList,
+                                                                savable: true,
+                                                                submittable: false,
+                                                                previewable: false,
+                                                              });
+                                                            } }
+                     onNewKeywordAddTriggeredBridge={ (addedNewKeyword) => {
+                                                        let newKeywordList = [];
+                                                        for (let i = 0; i < sceneRef.state.cachedKeywordList.length; ++i) {
+                                                          newKeywordList.push(sceneRef.state.cachedKeywordList[i]);
+                                                        }
+                                                        newKeywordList.push(addedNewKeyword);
+                                                        sceneRef.setState({
+                                                          cachedKeywordList: newKeywordList,
+                                                          cachedNewKeyword: "",
+                                                          savable: true,
+                                                          submittable: false,
+                                                          previewable: false,
+                                                        });
+                                                      } }
+                     onTextChangedBridge={ (cachedNewKeyword) => {
+                                             sceneRef.setState({
+                                               cachedNewKeyword: cachedNewKeyword,
+                                             });
+                                           } }
+                     {...sceneRef.props} />
     );
 
     const mdContentEditor = (
     <MarkdownEditor
-    key='md-editor'
-    style={{
-      width: '100%',
-    }}
-    previewableImageList={imageList}
-    shouldDisable={ () => {
-      return sceneRef.state.disabled;
-    }}
-    shouldHideShortcutBar={false}
-    text={ sceneRef.state.cachedContent }
-    onTextChangedBridge={ (content) => {
-      sceneRef.setState({
-        cachedContent: content,
-        savable: sceneRef.isContentValid(sceneRef.state.cachedTitle, sceneRef.state.cachedContent),
-        submittable: false,
-        previewable: false,
-      });
-    }}
-    ref={ function(c) {
-      if (!c) return;
-      sceneRef._mdEditorRef = c;
-    }}
-    {...sceneRef.props}
-    />
+                    key='md-editor'
+                    style={ {
+                              width: '100%',
+                            } }
+                    previewableImageList={ imageList }
+                    shouldDisable={ () => {
+                                      return sceneRef.state.disabled;
+                                    } }
+                    shouldHideShortcutBar={ false }
+                    text={ sceneRef.state.cachedContent }
+                    onTextChangedBridge={ (content) => {
+                                            sceneRef.setState({
+                                              cachedContent: content,
+                                              savable: sceneRef.isContentValid(sceneRef.state.cachedTitle, sceneRef.state.cachedContent),
+                                              submittable: false,
+                                              previewable: false,
+                                            });
+                                          } }
+                    ref={ function(c) {
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                 if (!c) return;
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                 sceneRef._mdEditorRef = c;
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                               } }
+                    {...sceneRef.props} />
     );
 
     let shouldHideSaveButton = (null !== sceneRef.state.cachedArticle &&
@@ -943,70 +936,67 @@ class Edit extends Component {
 
     const saveButton = (
     <Button
-    disabled={shouldDisableSaveButton}
-    style={{
-      display: (shouldHideSaveButton ? 'none' : 'block'),
-      margin: 5,
-    }}
-    onPress={ (evt) => {
-      sceneRef.setState({
-        savable: false,
-        submittable: false,
-        previewable: false,
-        disabled: true,
-      }, function() {
-        const toUploadImageCount = sceneRef.state.bundleListManager.occupiedCount();
-        const toUploadVideoCount = (
-          null == sceneRef.state.videoBundle 
-          ? 
-          0 
-          : 
-          (sceneRef.state.videoBundle.isOccupied() ? 1 : 0)
-        );
-        sceneRef._toUploadCount = (toUploadImageCount + toUploadVideoCount);
-        if (0 == sceneRef._toUploadCount) {
-          sceneRef.save();
-        } else {
-          sceneRef._multiSelectorRef.startUpload();
-          sceneRef._singleVideoSelectorRef.startUpload();
-        }
-      });
-    }}
-    >
-        {LocaleManager.instance.effectivePack().SAVE}
-      </Button>
+            disabled={ shouldDisableSaveButton }
+            style={ {
+                      display: (shouldHideSaveButton ? 'none' : 'block'),
+                      margin: 5,
+                    } }
+            onPress={ (evt) => {
+                        sceneRef.setState({
+                          savable: false,
+                          submittable: false,
+                          previewable: false,
+                          disabled: true,
+                        }, function() {
+                          const toUploadImageCount = sceneRef.state.bundleListManager.occupiedCount();
+                          const toUploadVideoCount = (
+                          null == sceneRef.state.videoBundle
+                            ?
+                            0
+                            :
+                            (sceneRef.state.videoBundle.isOccupied() ? 1 : 0)
+                          );
+                          sceneRef._toUploadCount = (toUploadImageCount + toUploadVideoCount);
+                          if (0 == sceneRef._toUploadCount) {
+                            sceneRef.save();
+                          } else {
+                            sceneRef._multiSelectorRef.startUpload();
+                            sceneRef._singleVideoSelectorRef.startUpload();
+                          }
+                        });
+                      } }>
+      { LocaleManager.instance.effectivePack().SAVE }
+    </Button>
     );
 
     const shouldDisableSubmitButton = (sceneRef.state.disabled || !sceneRef.state.submittable || isNewArticle);
     const submitButton = (
     <Button
-    style={{
-      display: (shouldDisableSubmitButton ? 'none' : 'inline-block'),
-      margin: 5,
-    }}
-    onPress={ (evt) => {
-      sceneRef.submit();
-    }}
-    >
-        {LocaleManager.instance.effectivePack().SUBMIT}
-      </Button>
+            style={ {
+                      display: (shouldDisableSubmitButton ? 'none' : 'inline-block'),
+                      margin: 5,
+                    } }
+            onPress={ (evt) => {
+                        sceneRef.submit();
+                      } }>
+      { LocaleManager.instance.effectivePack().SUBMIT }
+    </Button>
     );
 
     const shouldDisableSuspendButton = (!sceneRef.state.cachedArticle || constants.ARTICLE.STATE.APPROVED != sceneRef.state.cachedArticle.state);
     const suspendButton = (
     <Button
-    style={{
-      display: (shouldDisableSuspendButton ? 'none' : 'inline-block'),
-      margin: 5,
-    }}
-    onPress={ (evt) => {
-      sceneRef.setState({
-        showSuspensionReasonBox: true,
-      });
-    }}
-    >
-        {LocaleManager.instance.effectivePack().SUSPEND}
-      </Button>
+            style={ {
+                      display: (shouldDisableSuspendButton ? 'none' : 'inline-block'),
+                      margin: 5,
+                    } }
+            onPress={ (evt) => {
+                        sceneRef.setState({
+                          showSuspensionReasonBox: true,
+                        });
+                      } }>
+      { LocaleManager.instance.effectivePack().SUSPEND }
+    </Button>
     );
 
     const notApproved = (null === sceneRef.state.cachedArticle || (constants.ARTICLE.STATE.APPROVED != sceneRef.state.cachedArticle.state));
@@ -1047,15 +1037,15 @@ class Edit extends Component {
     if (null !== articleStateToDisplayStr) {
       articleStateToDisplay = (
         <View
-        key='article-state'
-        style={{
-          fontSize: 16,
-          verticalAlign: 'middle',
-          height: topbarHeightPx,
-          lineHeight: topbarHeightPx,
-          textAlign: "center"
-        }}>
-          {articleStateToDisplayStr}
+              key='article-state'
+              style={ {
+                        fontSize: 16,
+                        verticalAlign: 'middle',
+                        height: topbarHeightPx,
+                        lineHeight: topbarHeightPx,
+                        textAlign: "center"
+                      } }>
+          { articleStateToDisplayStr }
         </View>
       );
     }
@@ -1070,11 +1060,9 @@ class Edit extends Component {
         position: "relative"
       };
       negativeReason = (
-        <View
-        style={negativeReasonStyle}
-        >
-          {'⚠'}
-          {negativeReasonStr}
+        <View style={ negativeReasonStyle }>
+          { '⚠' }
+          { negativeReasonStr }
         </View>
       );
     }
@@ -1097,13 +1085,12 @@ class Edit extends Component {
     const topbarChildren = [articleStateToDisplay];
     const topbar = (
     <Topbar
-    style={{
-      paddingTop: 10
-    }}
-    {...menuProps}
-    >
-        {topbarChildren}
-      </Topbar>
+            style={ {
+                      paddingTop: 10
+                    } }
+            {...menuProps}>
+      { topbarChildren }
+    </Topbar>
     );
 
     // Category picker building.
@@ -1111,16 +1098,15 @@ class Edit extends Component {
     categoryChoiceList.map(function(single) {
       const singleCell = (
       <PickerItem
-      disabled={sceneRef.state.disabled}
-      key={single.title}
-      onClick={ (evt) => {
-        sceneRef.setState({
-          cachedCategory: single.key,
-        });
-      }}
-      >
-        {single.title}
-        </PickerItem>
+                  disabled={ sceneRef.state.disabled }
+                  key={ single.title }
+                  onClick={ (evt) => {
+                              sceneRef.setState({
+                                cachedCategory: single.key,
+                              });
+                            } }>
+        { single.title }
+      </PickerItem>
       );
       categoryPickerItemList.push(singleCell);
     });
@@ -1134,140 +1120,132 @@ class Edit extends Component {
 
     const categoryPicker = (
     <NavItem
-    style={{
-      display: 'block',
-      height: 45,
-      lineHeight: '45px',
-      width: '15%',
-      textAlign: 'center',
-    }}
-    key='category-picker-nav'>
-        <DropdownPicker
-    id='category-picker'
-    disabled={sceneRef.state.disabled}
-    title={effectiveCategoryTitle}
-    style={styles.singlePicker}
-    >
-        {categoryPickerItemList}
-        </DropdownPicker>
-      </NavItem>
+             style={ {
+                       display: 'block',
+                       height: 45,
+                       lineHeight: '45px',
+                       width: '15%',
+                       textAlign: 'center',
+                     } }
+             key='category-picker-nav'>
+      <DropdownPicker
+                      id='category-picker'
+                      disabled={ sceneRef.state.disabled }
+                      title={ effectiveCategoryTitle }
+                      style={ styles.singlePicker }>
+        { categoryPickerItemList }
+      </DropdownPicker>
+    </NavItem>
     );
 
     const namedGatewayInfo = queryNamedGatewayInfoDictSync().articleServer;
     const viewAsPlayerEntry = (
     <HyperLink
-    href={namedGatewayInfo.protocol + "://" + namedGatewayInfo.pageGateway + constants.ROUTE_PATHS.BASE + constants.ROUTE_PATHS.PLAYER + constants.ROUTE_PATHS.ARTICLE + "/" + params.articleId + constants.ROUTE_PATHS.DETAIL}
-    style={{
-      display: (notApproved ? 'none' : 'block'),
-      fontSize: 20,
-      width: 128,
-    }}
-    >
-      {LocaleManager.instance.effectivePack().VIEW_AS_PLAYER}
+               href={ namedGatewayInfo.protocol + "://" + namedGatewayInfo.pageGateway + constants.ROUTE_PATHS.BASE + constants.ROUTE_PATHS.PLAYER + constants.ROUTE_PATHS.ARTICLE + "/" + params.articleId + constants.ROUTE_PATHS.DETAIL }
+               style={ {
+                         display: (notApproved ? 'none' : 'block'),
+                         fontSize: 20,
+                         width: 128,
+                       } }>
+      { LocaleManager.instance.effectivePack().VIEW_AS_PLAYER }
     </HyperLink>
     );
 
     const suspensionReasonBox = (
     <ConfirmBox
-    View={View}
-    Button={Button}
-    title={LocaleManager.instance.effectivePack().SUSPENSION_REASON}
-    Input={Input}
-    ModalPopup={ModalPopup}
-    show={sceneRef.state.showSuspensionReasonBox}
-    onConfirmedBridge={(reason) => {
-      sceneRef.setState({
-        showSuspensionReasonBox: false,
-      }, function() {
-        sceneRef.suspend(reason);
-      });
-    }}
-    onHide={() => {
-      sceneRef.setState({
-        showSuspensionReasonBox: false,
-      });
-    }}
-    inputPlaceHolder={LocaleManager.instance.effectivePack().INPUT_REASON}
-    cancelBtnTxt={LocaleManager.instance.effectivePack().CANCEL}
-    confirmBtnTxt={LocaleManager.instance.effectivePack().CONFIRM}
-    />
+                View={ View }
+                Button={ Button }
+                title={ LocaleManager.instance.effectivePack().SUSPENSION_REASON }
+                Input={ Input }
+                ModalPopup={ ModalPopup }
+                show={ sceneRef.state.showSuspensionReasonBox }
+                onConfirmedBridge={ (reason) => {
+                                      sceneRef.setState({
+                                        showSuspensionReasonBox: false,
+                                      }, function() {
+                                        sceneRef.suspend(reason);
+                                      });
+                                    } }
+                onHide={ () => {
+                           sceneRef.setState({
+                             showSuspensionReasonBox: false,
+                           });
+                         } }
+                inputPlaceHolder={ LocaleManager.instance.effectivePack().INPUT_REASON }
+                cancelBtnTxt={ LocaleManager.instance.effectivePack().CANCEL }
+                confirmBtnTxt={ LocaleManager.instance.effectivePack().CONFIRM } />
     );
 
     const previewWholeArticleBtn = (
-      <Button
-      disabled={sceneRef.state.disabled}
-      style={{
-      marginTop: 3,
-        fontSize: 14,
-      }}
-      onPress={ (evt) => {
-        sceneRef.setState({
-          showWholeArticlePreviewer: true,
-        });
-      }}
-      >
-        {LocaleManager.instance.effectivePack().PREVIEW}
-      </Button>
-    ); ;
+    <Button
+            disabled={ sceneRef.state.disabled }
+            style={ {
+                      marginTop: 3,
+                      fontSize: 14,
+                    } }
+            onPress={ (evt) => {
+                        sceneRef.setState({
+                          showWholeArticlePreviewer: true,
+                        });
+                      } }>
+      { LocaleManager.instance.effectivePack().PREVIEW }
+    </Button>
+    );
 
     let videoList = (
-                      null == sceneRef.state.videoBundle 
-                      ? 
-                      null 
-                      : 
-                      [
-                        { 
-                          src: sceneRef.state.videoBundle.effectiveVideoSrc
-                        }
-                      ]
+    null == sceneRef.state.videoBundle
+      ?
+      null
+      :
+      [
+        {
+          src: sceneRef.state.videoBundle.effectiveVideoSrc
+        }
+      ]
     );
-    const wholeArticlePreview = (
-      <WholeArticlePreviewer
-      shouldShow={ () => { 
-        return sceneRef.state.showWholeArticlePreviewer; 
-      }}
-      shouldDisable={ () => {
+    const wholeArticlePreview = React.createElement(WholeArticlePreviewer, {
+      shouldShow: () => {
+        return sceneRef.state.showWholeArticlePreviewer;
+      },
+      shouldDisable: () => {
         return sceneRef.state.disabled;
-      }}
-      onHide={ () => {
+      },
+      onHide: () => {
         sceneRef.setState({
           showWholeArticlePreviewer: false,
         });
-      }}
-      previewableVideoList={videoList}
-      previewableImageList={imageList}
-      source={sceneRef.state.cachedContent}
-      ref={ (c) => {
+      },
+      previewableVideoList: videoList,
+      previewableImageList: imageList,
+      source: sceneRef.state.cachedContent,
+      ref: (c) => {
         if (!c) return;
         sceneRef._wholeArticlePreviewerRef = c;
-      }}
-      >
-      </WholeArticlePreviewer>
-    );
+      }
+    });
 
     return (
-      <View
-      style={{
-        display: (shouldWaitForCachedArticle ? 'none' : 'block'),
-        paddingLeft: 5,
-        paddingRight: 5,
-      }}>
-        {topbar}
-        {negativeReason}
-        {singleVideoSelectorRow}
-        {multiImageSelector}
-        {titleEditor}
-        {keywordListView}
-        {categoryPicker}
-        {mdContentEditor}
-        {imagePreviewer}
-        {saveButton}
-        {submitButton}
-        {suspendButton}
-        {viewAsPlayerEntry}
-        {suspensionReasonBox}
-        {previewWholeArticleBtn}
-        {wholeArticlePreview}
+      <View style={ {
+                display: (shouldWaitForCachedArticle ? 'none' : 'block'),
+                paddingLeft: 5,
+                paddingRight: 5,
+              } }>
+        { topbar }
+        { negativeReason }
+        { singleVideoSelectorRow }
+        { multiImageSelector }
+        { titleEditor }
+        { keywordListView }
+        { categoryPicker }
+        { mdContentEditor }
+        { imagePreviewer }
+        { saveButton }
+        { submitButton }
+        { suspendButton }
+        { viewAsPlayerEntry }
+        { suspensionReasonBox }
+        { previewWholeArticleBtn }
+        { wholeArticlePreview }
       </View>
     );
   }

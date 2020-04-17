@@ -12,6 +12,8 @@ const LocaleManager = require('../../../../common/LocaleManager').default;
 
 import { Button, View, Topbar, Input, replaceNewScene, getRootElementSize, changeSceneTitle, queryNamedGatewayInfoDictSync, } from '../../../widgets/WebCommonRouteProps';
 
+import AuthForm from '../../../widgets/AuthForm';
+
 class Edit extends Component {
 
   constructor(props) {
@@ -262,11 +264,9 @@ class Edit extends Component {
 
     const topbarChildren = [];
     const topbar = (
-    <Topbar
-    {...topbarProps}
-    >
-        {topbarChildren}  
-      </Topbar>
+    <Topbar {...topbarProps}>
+      { topbarChildren }
+    </Topbar>
     );
 
     const sharedInputStyle = {
@@ -286,14 +286,13 @@ class Edit extends Component {
 
     const btnSave = (
     <Button
-    disabled={sceneRef.state.disabled || !sceneRef.state.savable}
-    style={sharedButtonStyle}
-    onPress={(evt) => {
-      sceneRef.save();
-    }}
-    >
-        {LocaleManager.instance.effectivePack().SAVE}
-      </Button>
+            disabled={ sceneRef.state.disabled || !sceneRef.state.savable }
+            style={ sharedButtonStyle }
+            onPress={ (evt) => {
+                        sceneRef.save();
+                      } }>
+      { LocaleManager.instance.effectivePack().SAVE }
+    </Button>
     );
 
     const btnDeleteStyle = {};
@@ -303,100 +302,76 @@ class Edit extends Component {
     });
     const btnDelete = (
     <Button
-    disabled={sceneRef.state.disabled || !sceneRef.state.deletable}
-    style={btnDeleteStyle}
-    onPress={(evt) => {
-      sceneRef.delet();
-    }}
-    >
-        {LocaleManager.instance.effectivePack().DELETE}
-      </Button>
+            disabled={ sceneRef.state.disabled || !sceneRef.state.deletable }
+            style={ btnDeleteStyle }
+            onPress={ (evt) => {
+                        sceneRef.delet();
+                      } }>
+      { LocaleManager.instance.effectivePack().DELETE }
+    </Button>
     );
 
     const buttonsRow = (
-    <View
-    style={{
-      marginTop: 3,
-      marginBottom: 3,
-    }}
-    >
-        {btnSave}
-        {btnDelete}
-      </View>
+    <View style={ {
+                marginTop: 3,
+                marginBottom: 3,
+              } }>
+      { btnSave }
+      { btnDelete }
+    </View>
     );
 
-    const mainScene = (
-    <View>
-        <View>
-          <Input
-    disabled={sceneRef.state.disabled}
-    type="text"
-    style={sharedInputStyle}
-    value={sceneRef.state.cachedWriter.handle}
-    onUpdated={(evt) => {
-      const newCachedWriter = {};
-      Object.assign(newCachedWriter, sceneRef.state.cachedWriter);
-      Object.assign(newCachedWriter, {
-        handle: evt.target.value,
-      });
-      sceneRef.setState({
-        savable: sceneRef.isFormValid(newCachedWriter),
-        deletable: false,
-        cachedWriter: newCachedWriter,
-      });
-    }}
-    placeholder={LocaleManager.instance.effectivePack().WRITER_HANDLE}
-    />
-        </View>
-        <View>
-          <Input
-    disabled={sceneRef.state.disabled}
-    type="password"
-    style={sharedInputStyle}
-    value={sceneRef.state.cachedRawPassword}
-    onUpdated={(evt) => {
-      sceneRef.setState({
-        savable: sceneRef.isFormValid(sceneRef.state.cachedWriter),
-        deletable: false,
-        cachedRawPassword: evt.target.value,
-      });
-    }}
-    placeholder={LocaleManager.instance.effectivePack().WRITER_PASSWORD_INPUT_HINT}
-    />
-        </View>
-        <View>
-          <Input
-    disabled={sceneRef.state.disabled}
-    type="text"
-    style={sharedInputStyle}
-    value={sceneRef.state.cachedWriter.displayName}
-    onUpdated={(evt) => {
-      const newCachedWriter = {};
-      Object.assign(newCachedWriter, sceneRef.state.cachedWriter);
-      Object.assign(newCachedWriter, {
-        displayName: evt.target.value,
-      });
-      sceneRef.setState({
-        savable: sceneRef.isFormValid(newCachedWriter),
-        deletable: false,
-        cachedWriter: newCachedWriter,
-      });
-    }}
-    placeholder={LocaleManager.instance.effectivePack().WRITER_DISPLAY_NAME}
-    />
-        </View>
-        {buttonsRow}
-      </View>
+    const authForm = (
+    <AuthForm
+              disabled={ sceneRef.state.disabled }
+              sharedInputStyle={ sharedInputStyle }
+              handleValue={ sceneRef.state.cachedWriter.handle }
+              handleInputPlaceholder={ LocaleManager.instance.effectivePack().WRITER_HANDLE }
+              onHandleInputUpdated={ (evt) => {
+                                       const newCachedWriter = {};
+                                       Object.assign(newCachedWriter, sceneRef.state.cachedWriter);
+                                       Object.assign(newCachedWriter, {
+                                         handle: evt.target.value,
+                                       });
+                                       sceneRef.setState({
+                                         savable: sceneRef.isFormValid(newCachedWriter),
+                                         deletable: false,
+                                         cachedWriter: newCachedWriter,
+                                       });
+                                     } }
+              passwordValue={ sceneRef.state.cachedRawPassword }
+              passwordInputPlaceholder={ LocaleManager.instance.effectivePack().WRITER_PASSWORD_INPUT_HINT }
+              onPasswordInputUpdated={ (evt) => {
+                                         sceneRef.setState({
+                                           savable: sceneRef.isFormValid(sceneRef.state.cachedWriter),
+                                           deletable: false,
+                                           cachedRawPassword: evt.target.value,
+                                         });
+                                       } }
+              displayNameValue={ sceneRef.state.cachedWriter.displayName }
+              displayNameInputPlaceholder={ LocaleManager.instance.effectivePack().WRITER_DISPLAY_NAME }
+              onDisplayNameInputUpdated={ (evt) => {
+                                            const newCachedWriter = {};
+                                            Object.assign(newCachedWriter, sceneRef.state.cachedWriter);
+                                            Object.assign(newCachedWriter, {
+                                              displayName: evt.target.value,
+                                            });
+                                            sceneRef.setState({
+                                              savable: sceneRef.isFormValid(newCachedWriter),
+                                              deletable: false,
+                                              cachedWriter: newCachedWriter,
+                                            });
+                                          } }>
+    </AuthForm>
     );
 
     return (
-      <View
-      style={{
-        padding: 10
-      }}
-      >
-        {topbar}
-        {mainScene}
+      <View style={ {
+                padding: 10
+              } }>
+        { topbar }
+        { authForm }
+        { buttonsRow }
       </View>
     );
   }

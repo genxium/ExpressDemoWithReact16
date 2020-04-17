@@ -79,9 +79,7 @@ class MarkdownEditor extends React.Component {
     };
 
     return (
-      <YAMDEditor
-      {...editorProps}
-      />
+      <YAMDEditor {...editorProps} />
     );
   }
 }

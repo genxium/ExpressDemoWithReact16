@@ -149,66 +149,60 @@ class Login extends Component {
 
     const loginBtn = (
     <Button
-    style={{
-      fontSize: 18,
-    }}
-    disabled={!sceneRef.isValidRoleHandle(sceneRef.state.cachedHandle) || !sceneRef.isValidPassword(sceneRef.state.cachedPassword)}
-    onPress={(evt) => {
-      sceneRef.triggerLoginRequest();
-    }}
-    >
-        {LocaleManager.instance.effectivePack().LOGIN}
-      </Button>
+            style={ {
+                      fontSize: 18,
+                    } }
+            disabled={ !sceneRef.isValidRoleHandle(sceneRef.state.cachedHandle) || !sceneRef.isValidPassword(sceneRef.state.cachedPassword) }
+            onPress={ (evt) => {
+                        sceneRef.triggerLoginRequest();
+                      } }>
+      { LocaleManager.instance.effectivePack().LOGIN }
+    </Button>
     );
 
     const mainScene = (
-    <View
-    style={{
-      textAlign: 'center',
-    }}>
-        <View
-    >
-          <Input
-    key='handle-input'
-    style={{
-      display: 'inline-block',
-      fontSize: 18,
-    }}
-    value={sceneRef.state.cachedHandle}
-    onUpdated= {(evt) => {
-      sceneRef.setState({
-        cachedHandle: evt.target.value,
-      });
-    }}
-    placeholder={LocaleManager.instance.effectivePack().PLEASE_INPUT_HANDLE}
-    />
-        </View>
-        <View
-    >
-          <Input
-    key='password-input'
-    type='password'
-    style={{
-      display: 'inline-block',
-      fontSize: 18,
-    }}
-    value={sceneRef.state.cachedPassword}
-    onUpdated= {(evt) => {
-      sceneRef.setState({
-        cachedPassword: evt.target.value,
-      });
-    }}
-    placeholder={LocaleManager.instance.effectivePack().PLEASE_INPUT_PASSWORD}
-    onKeyDown={ (evt) => {
-      if (evt.keyCode != constants.KEYBOARD_CODE.RETURN) return;
-      if (!sceneRef.isValidRoleHandle(sceneRef.state.cachedHandle)) return;
-      if (!sceneRef.isValidPassword(sceneRef.state.cachedPassword)) return;
-      sceneRef.triggerLoginRequest();
-    }}
-    />
-        </View>
-        {loginBtn}
+    <View style={ {
+                textAlign: 'center',
+              } }>
+      <View>
+        <Input
+               key='handle-input'
+               style={ {
+                         display: 'inline-block',
+                         fontSize: 18,
+                       } }
+               value={ sceneRef.state.cachedHandle }
+               onUpdated={ (evt) => {
+                             sceneRef.setState({
+                               cachedHandle: evt.target.value,
+                             });
+                           } }
+               placeholder={ LocaleManager.instance.effectivePack().PLEASE_INPUT_HANDLE } />
       </View>
+      <View>
+        <Input
+               key='password-input'
+               type='password'
+               style={ {
+                         display: 'inline-block',
+                         fontSize: 18,
+                       } }
+               value={ sceneRef.state.cachedPassword }
+               onUpdated={ (evt) => {
+                             sceneRef.setState({
+                               cachedPassword: evt.target.value,
+                             });
+                           } }
+               placeholder={ LocaleManager.instance.effectivePack().PLEASE_INPUT_PASSWORD }
+               onKeyDown={ (evt) => {
+                             if (evt.keyCode != constants.KEYBOARD_CODE.RETURN) return;
+                             if (!sceneRef.isValidRoleHandle(sceneRef.state.cachedHandle)) return;
+                             if (!sceneRef.isValidPassword(sceneRef.state.cachedPassword)) return;
+                             sceneRef.triggerLoginRequest();
+                           } } />
+      </View>
+      { loginBtn }
+    </View>
     );
 
     const topbarProps = Object.assign({
@@ -217,15 +211,13 @@ class Login extends Component {
     }, sceneRef.props);
 
     const topbar = (
-    <Topbar
-    {...topbarProps}
-    />
+    <Topbar {...topbarProps} />
     );
 
     return (
       <View>
-        {topbar}
-        {mainScene}
+        { topbar }
+        { mainScene }
       </View>
     );
   }

@@ -11,12 +11,12 @@ class MarkdownRenderer extends React.Component {
 
     return (
       <YAMDRenderer
-      imgTag='iimag'
-      videoTag='pvd'
-      ktxTag='katex'
-      mermaidTag='mermaid'
-      alignCenterTag='algctr'
-      {...other}/>
+                    imgTag='iimag'
+                    videoTag='pvd'
+                    ktxTag='katex'
+                    mermaidTag='mermaid'
+                    alignCenterTag='algctr'
+                    {...other}/>
     );
   }
 }

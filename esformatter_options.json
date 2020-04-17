@@ -1,0 +1,19 @@
+{
+  "plugins": [
+    "esformatter-jsx"   
+  ],
+  "jsx": {
+    "formatJSX": true, 
+    "attrsOnSameLineAsTag": false, 
+    "firstAttributeOnSameLine": false,
+    "formatJSXExpressions": true, 
+    "JSXExpressionsSingleLine": false, 
+    "alignWithFirstAttribute": true, 
+    "spaceInJSXExpressionContainers": " ",
+    "removeSpaceBeforeClosingJSX": false,
+    "closingTagOnNewLine": false,
+    "JSXAttributeQuotes": "", 
+    "htmlOptions": {
+    }
+  }
+}

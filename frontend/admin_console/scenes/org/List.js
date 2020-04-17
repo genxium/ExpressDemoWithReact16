@@ -25,18 +25,17 @@ class List extends Component {
 
     return (
       <View
-      style={{
-        padding: 5,
-        width: cellWidthPx,
-        border: 'solid 1px ' + constants.THEME.MAIN.GREY,
-      }}
-      key={key}
-      onClick={(evt) => {
-        const pathname = constants.ROUTE_PATHS.ORG + "/" + writer.id + constants.ROUTE_PATHS.EDIT;
-        pushNewScene(sceneRef, pathname);
-      }}
-      >
-        {writer.handle}
+            style={ {
+                      padding: 5,
+                      width: cellWidthPx,
+                      border: 'solid 1px ' + constants.THEME.MAIN.GREY,
+                    } }
+            key={ key }
+            onClick={ (evt) => {
+                        const pathname = constants.ROUTE_PATHS.ORG + "/" + writer.id + constants.ROUTE_PATHS.EDIT;
+                        pushNewScene(sceneRef, pathname);
+                      } }>
+        { writer.handle }
       </View>
     );
   }
@@ -160,64 +159,62 @@ class List extends Component {
     // Search widget building.
     const searchInput = (
     <Input
-    key='search-input'
-    style={{
-      height: 23,
-      width: 146,
-      padding: 3,
-      border: 'none',
-      color: constants.THEME.MAIN.BLACK,
-      borderRadius: '4px',
-    }}
-    value={sceneRef.state.cachedSearchKeyword}
-    onUpdated={ (evt) => {
-      sceneRef.setState({
-        cachedSearchKeyword: evt.target.value
-      });
-    }}
-    onKeyDown={ (evt) => {
-      if (evt.keyCode != constants.KEYBOARD_CODE.RETURN) return;
-      sceneRef.triggerSearch();
-    }}
-    >
-      </Input>
+           key='search-input'
+           style={ {
+                     height: 23,
+                     width: 146,
+                     padding: 3,
+                     border: 'none',
+                     color: constants.THEME.MAIN.BLACK,
+                     borderRadius: '4px',
+                   } }
+           value={ sceneRef.state.cachedSearchKeyword }
+           onUpdated={ (evt) => {
+                         sceneRef.setState({
+                           cachedSearchKeyword: evt.target.value
+                         });
+                       } }
+           onKeyDown={ (evt) => {
+                         if (evt.keyCode != constants.KEYBOARD_CODE.RETURN) return;
+                         sceneRef.triggerSearch();
+                       } }>
+    </Input>
     );
 
     const searchButton = (
     <View
-    key='search-button'
-    style={{
-      display: 'inline-block',
-      width: 18,
-      marginLeft: 10,
-      position: 'absolute',
-    }}
-    onClick={(evt) => {
-      sceneRef.triggerSearch();
-    }}
-    >
-        <ClipartSearch />
-      </View>
+          key='search-button'
+          style={ {
+                    display: 'inline-block',
+                    width: 18,
+                    marginLeft: 10,
+                    position: 'absolute',
+                  } }
+          onClick={ (evt) => {
+                      sceneRef.triggerSearch();
+                    } }>
+      <ClipartSearch />
+    </View>
     );
 
     const searchEntry = (
     <NavItem
-    style={{
-      lineHeight: 1,
-      display: 'block',
-      position: 'absolute',
-      left: '15%',
-      height: 45,
-      paddingTop: 11,
-      paddingBottom: 11,
-      width: '70%',
-      textAlign: 'center',
-      marginLeft: 10,
-    }}
-    key='search-entry-nav'>
-        {searchInput}
-        {searchButton}
-      </NavItem>
+             style={ {
+                       lineHeight: 1,
+                       display: 'block',
+                       position: 'absolute',
+                       left: '15%',
+                       height: 45,
+                       paddingTop: 11,
+                       paddingBottom: 11,
+                       width: '70%',
+                       textAlign: 'center',
+                       marginLeft: 10,
+                     } }
+             key='search-entry-nav'>
+      { searchInput }
+      { searchButton }
+    </NavItem>
     );
 
     const topbarProps = Object.assign({
@@ -244,11 +241,10 @@ class List extends Component {
     const topbarChildren = [searchEntry];
     const topbar = (
     <Topbar
-    style={styles.topbar}
-    {...topbarProps}
-    >
-        {topbarChildren}
-      </Topbar>
+            style={ styles.topbar }
+            {...topbarProps}>
+      { topbarChildren }
+    </Topbar>
     );
 
     const buttonsRowSingleStyle = {
@@ -264,32 +260,30 @@ class List extends Component {
     if (null !== sceneRef.state.rootElementSize) {
       const btnAdd = (
       <Button
-      style={buttonsRowSingleStyle}
-      onPress={(evt) => {
-        const pathname = constants.ROUTE_PATHS.ORG + constants.ROUTE_PATHS.ADD;
-        pushNewScene(sceneRef, pathname);
-      }}
-      >
-          {LocaleManager.instance.effectivePack().SYMBOL_ADD} 
-        </Button>
+              style={ buttonsRowSingleStyle }
+              onPress={ (evt) => {
+                          const pathname = constants.ROUTE_PATHS.ORG + constants.ROUTE_PATHS.ADD;
+                          pushNewScene(sceneRef, pathname);
+                        } }>
+        { LocaleManager.instance.effectivePack().SYMBOL_ADD }
+      </Button>
       );
 
       buttonsRow = (
         <View
-        style={{
-          float: 'right',
-        }}
-        ref={(c) => {
-          if (!c) return;
-          const newSize = getRenderedComponentSize(c);
-          const oldSize = sceneRef.state.buttonsRowSize;
-          if (null !== oldSize && oldSize.width == newSize.width && oldSize.height == newSize.height) return;
-          sceneRef.setState({
-            buttonsRowSize: newSize,
-          });
-        }}
-        >
-          {btnAdd}
+              style={ {
+                        float: 'right',
+                      } }
+              ref={ (c) => {
+                      if (!c) return;
+                      const newSize = getRenderedComponentSize(c);
+                      const oldSize = sceneRef.state.buttonsRowSize;
+                      if (null !== oldSize && oldSize.width == newSize.width && oldSize.height == newSize.height) return;
+                      sceneRef.setState({
+                        buttonsRowSize: newSize,
+                      });
+                    } }>
+          { btnAdd }
         </View>
       );
 
@@ -333,29 +327,28 @@ class List extends Component {
 
       listview = (
         <Paginator
-        style={{
-          clear: 'both'
-        }}
-        ref={ (c) => {
-          if (!c) return;
-          sceneRef._listviewRef = c;
-        }}
-        {...listViewProps}
-        />
+                   style={ {
+                             clear: 'both'
+                           } }
+                   ref={ (c) => {
+                           if (!c) return;
+                           sceneRef._listviewRef = c;
+                         } }
+                   {...listViewProps} />
       );
     }
 
     const mainScene = (
     <View>
-        {buttonsRow}
-        {listview}
-      </View>
+      { buttonsRow }
+      { listview }
+    </View>
     );
 
     return (
       <View>
-        {topbar}
-        {mainScene}
+        { topbar }
+        { mainScene }
       </View>
     );
   }

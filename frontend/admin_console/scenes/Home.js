@@ -48,11 +48,9 @@ class Home extends Component {
 
     const topbarChildren = [];
     const topbar = (
-    <Topbar
-    {...topbarProps}
-    >
-        {topbarChildren}  
-      </Topbar>
+    <Topbar {...topbarProps}>
+      { topbarChildren }
+    </Topbar>
     );
 
     const entryBtnStyle = {
@@ -68,49 +66,42 @@ class Home extends Component {
     };
 
     const mainScene = (
-        <View>
-        <Button
-        style={entryBtnStyle}
-        onPress={(evt) => {
-        const pathname = constants.ROUTE_PATHS.WRITER + constants.ROUTE_PATHS.LIST;
-        pushNewScene(sceneRef, pathname);
-        }}
-        >
-        {LocaleManager.instance.effectivePack().WRITER_LIST}
-        </Button>
-
-        <Button
-        style={entryBtnStyle}
-        onPress={(evt) => {
-        const pathname = constants.ROUTE_PATHS.ORG + constants.ROUTE_PATHS.LIST;
-        pushNewScene(sceneRef, pathname);
-        }}
-        >
-        {LocaleManager.instance.effectivePack().ORG_LIST}
-        </Button>
-
-        <Button
-        style={logoutBtnStyle}
-        onPress={(evt) => {
-        RoleLoginSingleton.instance.logoutAsync(sceneRef)
-        .then(function(loggedOut) {
-            RoleLoginSingleton.instance.replaceRoleLoginScene(sceneRef);
-            });
-        }}
-        >
-        {LocaleManager.instance.effectivePack().LOGOUT}
-        </Button>
-          </View>
-          );
+    <View>
+      <Button
+              style={ entryBtnStyle }
+              onPress={ (evt) => {
+                          const pathname = constants.ROUTE_PATHS.WRITER + constants.ROUTE_PATHS.LIST;
+                          pushNewScene(sceneRef, pathname);
+                        } }>
+        { LocaleManager.instance.effectivePack().WRITER_LIST }
+      </Button>
+      <Button
+              style={ entryBtnStyle }
+              onPress={ (evt) => {
+                          const pathname = constants.ROUTE_PATHS.ORG + constants.ROUTE_PATHS.LIST;
+                          pushNewScene(sceneRef, pathname);
+                        } }>
+        { LocaleManager.instance.effectivePack().ORG_LIST }
+      </Button>
+      <Button
+              style={ logoutBtnStyle }
+              onPress={ (evt) => {
+                          RoleLoginSingleton.instance.logoutAsync(sceneRef)
+                            .then(function(loggedOut) {
+                              RoleLoginSingleton.instance.replaceRoleLoginScene(sceneRef);
+                            });
+                        } }>
+        { LocaleManager.instance.effectivePack().LOGOUT }
+      </Button>
+    </View>
+    );
 
     return (
-      <View
-      style={{
-        padding: 10
-      }}
-      >
-        {topbar}
-        {mainScene}
+      <View style={ {
+                padding: 10
+              } }>
+        { topbar }
+        { mainScene }
       </View>
     );
   }

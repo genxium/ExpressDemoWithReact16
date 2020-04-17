@@ -74,44 +74,44 @@ exports.solidifyManyAttachments = function(forMetaType, forMetaId, forOwnerMetaT
 
   return Promise.reduce(toBindOssFilepathList, function(total, ossFilepath) {
     return QiniuServerUtil.instance.statAsync(bucket, ossFilepath)
-    .then(function(stat) {
-      // logger.info("Returned stat for bucket == ", bucket, ", ossFilepath == ", ossFilepath, " is\n", stat);
-      const replacementSetObject = {
-        state: constants.ATTACHMENT.STATE.SOLIDIFIED,
-        updated_at: currentMillis,
+      .then(function(stat) {
+        // logger.info("Returned stat for bucket == ", bucket, ", ossFilepath == ", ossFilepath, " is\n", stat);
+        const replacementSetObject = {
+          state: constants.ATTACHMENT.STATE.SOLIDIFIED,
+          updated_at: currentMillis,
 
-        meta_id: forMetaId,
-        meta_type: forMetaType,
-      };
-      if (null != stat && null != stat.mimeType) {
-        Object.assign(replacementSetObject, {
-          mime_type: stat.mimeType,
+          meta_id: forMetaId,
+          meta_type: forMetaType,
+        };
+        if (null != stat && null != stat.mimeType) {
+          Object.assign(replacementSetObject, {
+            mime_type: stat.mimeType,
+          });
+        }
+        return AttachmentTable.update(replacementSetObject, {
+          where: {
+            state: constants.ATTACHMENT.STATE.CREATED_UNSOLIDIFIED,
+            oss_filepath: ossFilepath,
+            owner_meta_id: forOwnerMetaId,
+            owner_meta_type: forOwnerMetaType,
+
+            deleted_at: null,
+          },
+          transaction: trx,
         });
-      }
-      return AttachmentTable.update(replacementSetObject, {
-        where: {
-          state: constants.ATTACHMENT.STATE.CREATED_UNSOLIDIFIED,
-          oss_filepath: ossFilepath,
-          owner_meta_id: forOwnerMetaId,
-          owner_meta_type: forOwnerMetaType,
-
-          deleted_at: null,
-        },
-        transaction: trx,
+      })
+      .then(function(affectedRows) {
+        const affectedRowsCount = affectedRows[0];
+        // logger.info("Successfully ran one round of `solidifyManyAttachments` for ossFilepath == ", ossFilepath, ", affectedRowsCount == ", affectedRowsCount);
+        return (total + affectedRowsCount);
+      }, function(err) {
+        logger.error("Error occurred when invoking `solidifyManyAttachments`", err);
+        return total;
       });
-    })
-    .then(function(affectedRows) {
-      const affectedRowsCount = affectedRows[0];
-      // logger.info("Successfully ran one round of `solidifyManyAttachments` for ossFilepath == ", ossFilepath, ", affectedRowsCount == ", affectedRowsCount);
-      return (total + affectedRowsCount);
-    }, function(err) {
-      logger.error("Error occurred when invoking `solidifyManyAttachments`", err);
+  }, 0)
+    .then(function(total) {
       return total;
     });
-  }, 0)
-  .then(function(total) {
-    return total;
-  });
 };
 
 const queryAttachmentListForArticleAsync = function(article, allowedMimeTypeList, trx) {
@@ -131,20 +131,20 @@ const queryAttachmentListForArticleAsync = function(article, allowedMimeTypeList
 
     owner_meta_type: constants.ATTACHMENT.OWNER_META_TYPE.WRITER,
     owner_meta_id: article.writer_id,
-    
+
     deleted_at: null,
   };
 
   if (null != allowedMimeTypeList && 0 < allowedMimeTypeList.length) {
     if (1 == allowedMimeTypeList.length) {
       Object.assign(whereCondition, {
-        mime_type: allowedMimeTypeList[0], 
+        mime_type: allowedMimeTypeList[0],
       });
     } else {
       Object.assign(whereCondition, {
-        mime_type: allowedMimeTypeList, 
+        mime_type: allowedMimeTypeList,
       });
-    } 
+    }
   }
 
   return AttachmentTable.findAndCountAll({
@@ -155,7 +155,7 @@ const queryAttachmentListForArticleAsync = function(article, allowedMimeTypeList
       const attachmentList = result.rows;
       let toRet = [];
       for (let i in attachmentList) {
-        const attachment = attachmentList[i]; 
+        const attachment = attachmentList[i];
         toRet.push(attachment.dataValues);
       }
       return toRet;
@@ -169,7 +169,7 @@ const appendAttachmentListForArticleAsync = function(article, allowedMimeTypeLis
     .then(function(attachmentList) {
       /*
       * Aggregate "attachmentList" to "attachmentSrcsetDict" keyed by the "prefix of ossFilepath".
-      */ 
+      */
       let attachmentSrcsetDict = {};
       for (let i in attachmentList) {
         const ossFilepath = attachmentList[i].oss_filepath;
@@ -185,15 +185,15 @@ const appendAttachmentListForArticleAsync = function(article, allowedMimeTypeLis
       });
 
       for (let prefix in attachmentSrcsetDict) {
-        const attachmentSrcset = attachmentSrcsetDict[prefix]; 
+        const attachmentSrcset = attachmentSrcsetDict[prefix];
         const clientAttachmentData = {
           srcset: []
         };
         for (let i in attachmentSrcset) {
           let targetDownloadEndpoint = null;
           if (-1 != constants.ATTACHMENT.IMAGE.POLICY.READ_ALLOWED_MIME_TYPES.indexOf(attachmentSrcset[i].mime_type)) {
-             targetDownloadEndpoint = QiniuServerUtil.instance.config.imageDownloadEndpoint;
-          } 
+            targetDownloadEndpoint = QiniuServerUtil.instance.config.imageDownloadEndpoint;
+          }
 
           if (-1 != constants.ATTACHMENT.VIDEO.POLICY.READ_ALLOWED_MIME_TYPES.indexOf(attachmentSrcset[i].mime_type)) {
             targetDownloadEndpoint = QiniuServerUtil.instance.config.videoDownloadEndpoint;
@@ -202,13 +202,13 @@ const appendAttachmentListForArticleAsync = function(article, allowedMimeTypeLis
             downloadEndpoint: targetDownloadEndpoint,
             ossFilepath: attachmentSrcset[i].oss_filepath,
             mimeType: attachmentSrcset[i].mime_type,
-          }); 
+          });
           clientAttachmentData.srcset.push(attachmentSrcset[i]);
 
           if (null == clientAttachmentData.downloadEndpoint || null == clientAttachmentData.ossFilepath) {
-            Object.assign(clientAttachmentData, attachmentSrcset[i]); 
-          }  
-        } 
+            Object.assign(clientAttachmentData, attachmentSrcset[i]);
+          }
+        }
         article.attachmentList.push(clientAttachmentData);
       }
       return article;

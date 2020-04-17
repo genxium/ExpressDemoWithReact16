@@ -19,28 +19,26 @@ class WholeArticlePreviewer extends React.Component {
 
     const closeButton = (
     <View
-    disabled={shouldDisable()}
-    style={{
-      position: "absolute",
-      left: 5,
-      backgroundColor: constants.THEME.MAIN.TRANSPARENT,
-    }}
-    onClick={ (evt) => {
-      onHide();
-    }}>
+          disabled={ shouldDisable() }
+          style={ {
+                    position: "absolute",
+                    left: 5,
+                    backgroundColor: constants.THEME.MAIN.TRANSPARENT,
+                  } }
+          onClick={ (evt) => {
+                      onHide();
+                    } }>
       <ClipartClose />
     </View>
     );
 
     const buttonListRow = (
-    <View
-    style={{
-      position: "relative",
-      height: 57,
-      backgroundColor: constants.THEME.MAIN.BLACK,
-    }}
-    >
-      {closeButton}
+    <View style={ {
+                position: "relative",
+                height: 57,
+                backgroundColor: constants.THEME.MAIN.BLACK,
+              } }>
+      { closeButton }
     </View>
     );
 
@@ -51,44 +49,40 @@ class WholeArticlePreviewer extends React.Component {
 
     return (
       <ModalPopup
-      style={{
-        overlay: {
-          position: 'absolute',
-          top: 0,
-          left: 0,
-          right: 0,
-          bottom: 0,
-          backgroundColor: constants.THEME.MAIN.WHITE,
-          zIndex: 1,
-        },
-        content: {
-          position: 'absolute',
-          top: 0,
-          left: '0px',
-          right: '0px',
-          bottom: 'auto',
-          border: 'none',
-          borderRadius: '0px',
-          background: constants.THEME.MAIN.WHITE,
-          padding: '0px',
-          backgroundColor: constants.THEME.MAIN.WHITE,
-        }
-      }}
-      show={ shouldShow() }
-      >
-        {buttonListRow}
+                  style={ {
+                            overlay: {
+                              position: 'absolute',
+                              top: 0,
+                              left: 0,
+                              right: 0,
+                              bottom: 0,
+                              backgroundColor: constants.THEME.MAIN.WHITE,
+                              zIndex: 1,
+                            },
+                            content: {
+                              position: 'absolute',
+                              top: 0,
+                              left: '0px',
+                              right: '0px',
+                              bottom: 'auto',
+                              border: 'none',
+                              borderRadius: '0px',
+                              background: constants.THEME.MAIN.WHITE,
+                              padding: '0px',
+                              backgroundColor: constants.THEME.MAIN.WHITE,
+                            }
+                          } }
+                  show={ shouldShow() }>
+        { buttonListRow }
         <MarkdownRenderer
-        videoTag={constants.YAMD.TAG.VIDEO}
-        imgTag={constants.YAMD.TAG.IMAGE}
-        ktxTag={constants.YAMD.TAG.KATEX}
-        mermaidTag={constants.YAMD.TAG.MERMAID}
-        alignCenterTag={constants.YAMD.TAG.ALIGN_CENTER}
-
-        previewableVideoList={previewableVideoList}
-        previewableImageList={previewableImageList}
-
-        source={source}
-        />
+                          videoTag={ constants.YAMD.TAG.VIDEO }
+                          imgTag={ constants.YAMD.TAG.IMAGE }
+                          ktxTag={ constants.YAMD.TAG.KATEX }
+                          mermaidTag={ constants.YAMD.TAG.MERMAID }
+                          alignCenterTag={ constants.YAMD.TAG.ALIGN_CENTER }
+                          previewableVideoList={ previewableVideoList }
+                          previewableImageList={ previewableImageList }
+                          source={ source } />
       </ModalPopup>
     );
   }

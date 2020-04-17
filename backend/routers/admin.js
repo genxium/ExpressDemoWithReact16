@@ -214,47 +214,47 @@ const writerSaveApi = function(req, res) {
       },
       transaction: t
     })
-    .then(function(doc) {
-      if (null != doc && doc.id != writerId) {
-        throw new signals.GeneralFailure(constants.RET_CODE.DUPLICATED);
-      }
+      .then(function(doc) {
+        if (null != doc && doc.id != writerId) {
+          throw new signals.GeneralFailure(constants.RET_CODE.DUPLICATED);
+        }
 
-      const replacementSetObject = {
-        handle: newHandle,
-        display_name: newDisplayName,
-        updated_at: currentMillis,
-      };
+        const replacementSetObject = {
+          handle: newHandle,
+          display_name: newDisplayName,
+          updated_at: currentMillis,
+        };
 
-      if (null != newSalt && null != newObsuredPassword) {
-        Object.assign(replacementSetObject, {
-          salt: newSalt,
-          password: newObsuredPassword,
+        if (null != newSalt && null != newObsuredPassword) {
+          Object.assign(replacementSetObject, {
+            salt: newSalt,
+            password: newObsuredPassword,
+          });
+        }
+
+        return WriterTable.update(replacementSetObject, {
+          where: {
+            id: writerId,
+            deleted_at: null,
+          },
+          transaction: t,
         });
-      }
+      })
+      .then(function(affectedRows) {
+        const affectedRowsCount = affectedRows[0];
+        if (1 != affectedRowsCount) {
+          logger.warn("writerSaveApi, affectedRowsCount == ", affectedRowsCount);
+          throw new signals.GeneralFailure();
+        }
 
-      return WriterTable.update(replacementSetObject, {
-        where: {
-          id: writerId,
-          deleted_at: null,
-        },
-        transaction: t,
+        res.json({
+          ret: constants.RET_CODE.OK,
+        });
       });
-    })
-    .then(function(affectedRows) {
-      const affectedRowsCount = affectedRows[0];
-      if (1 != affectedRowsCount) {
-        logger.warn("writerSaveApi, affectedRowsCount == ", affectedRowsCount);
-        throw new signals.GeneralFailure();
-      }
-
-      res.json({
-        ret: constants.RET_CODE.OK,
-      });
-    });
   })
-  .catch(function(err) {
-    instance.respondWithError(res, err);
-  });
+    .catch(function(err) {
+      instance.respondWithError(res, err);
+    });
 };
 
 const writerDetailApi = function(req, res) {
@@ -302,19 +302,19 @@ const writerDeleteApi = function(req, res) {
       },
       transaction: t,
     })
-    .then(function(affectedRowsCount) {
-      if (1 != affectedRowsCount) {
-        throw new signals.GeneralFailure();
-      }
+      .then(function(affectedRowsCount) {
+        if (1 != affectedRowsCount) {
+          throw new signals.GeneralFailure();
+        }
 
-      res.json({
-        ret: constants.RET_CODE.OK,
+        res.json({
+          ret: constants.RET_CODE.OK,
+        });
       });
-    });
   })
-  .catch(function(err) {
-    instance.respondWithError(res, err);
-  });
+    .catch(function(err) {
+      instance.respondWithError(res, err);
+    });
 };
 
 //---writer APIs ends---
@@ -449,7 +449,7 @@ const orgAddApi = function(req, res) {
           throw new signals.GeneralFailure();
         }
         newOrg = doc;
-        
+
         return WriterTable.create({
           handle: newModeratorHandle,
           display_name: newModeratorDisplayName,
@@ -466,7 +466,7 @@ const orgAddApi = function(req, res) {
           throw new signals.GeneralFailure();
         }
         newWriter = doc;
-        
+
         return SuborgTable.create({
           org_id: newOrg.id,
           parent_id: null,

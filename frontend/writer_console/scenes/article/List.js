@@ -29,18 +29,17 @@ class List extends Component {
 
     return (
       <View
-      style={{
-        padding: 5,
-        width: cellWidthPx,
-        border: 'solid 1px ' + constants.THEME.MAIN.GREY,
-      }}
-      key={key}
-      onClick={(evt) => {
-        const pathname = constants.ROUTE_PATHS.ARTICLE + "/" + article.id.toString() + constants.ROUTE_PATHS.EDIT;
-        pushNewScene(sceneRef, pathname);
-      }}
-      >
-        {article.title}
+            style={ {
+                      padding: 5,
+                      width: cellWidthPx,
+                      border: 'solid 1px ' + constants.THEME.MAIN.GREY,
+                    } }
+            key={ key }
+            onClick={ (evt) => {
+                        const pathname = constants.ROUTE_PATHS.ARTICLE + "/" + article.id.toString() + constants.ROUTE_PATHS.EDIT;
+                        pushNewScene(sceneRef, pathname);
+                      } }>
+        { article.title }
       </View>
     );
   }
@@ -195,48 +194,46 @@ class List extends Component {
     stateChoiceList.map(function(single) {
       const singleCell = (
       <PickerItem
-      key={single.key}
-      onClick={ (evt) => {
-        const pathname = constants.ROUTE_PATHS.ARTICLE + constants.ROUTE_PATHS.LIST;
-        const params = {};
-        for (let k in query) {
-          params[k] = query[k];
-        }
-        if (single.key == sceneRef.state.statePicker.key) return;
-
-        Object.assign(params, {
-          st: single.key,
-        });
-        replaceNewScene(sceneRef, pathname, params);
-      }}
-      >
-        {single.title}
-        </PickerItem>
+                  key={ single.key }
+                  onClick={ (evt) => {
+                              const pathname = constants.ROUTE_PATHS.ARTICLE + constants.ROUTE_PATHS.LIST;
+                              const params = {};
+                              for (let k in query) {
+                                params[k] = query[k];
+                              }
+                              if (single.key == sceneRef.state.statePicker.key) return;
+                            
+                              Object.assign(params, {
+                                st: single.key,
+                              });
+                              replaceNewScene(sceneRef, pathname, params);
+                            } }>
+        { single.title }
+      </PickerItem>
       );
       statePickerItemList.push(singleCell);
     });
 
     const statePickerNav = (
     <View
-    style={{
-      display: 'inline-block',
-      position: 'relative',
-      height: 45,
-      lineHeight: '45px',
-      width: 150,
-      fontSize: 12,
-      textAlign: 'center',
-      marginRight: 5,
-    }}
-    key='state-picker-nav'>
-        <DropdownPicker
-    id='state-picker'
-    title={sceneRef.state.statePicker.title}
-    style={styles.singlePicker}
-    >
-        {statePickerItemList}
-        </DropdownPicker>
-      </View>
+          style={ {
+                    display: 'inline-block',
+                    position: 'relative',
+                    height: 45,
+                    lineHeight: '45px',
+                    width: 150,
+                    fontSize: 12,
+                    textAlign: 'center',
+                    marginRight: 5,
+                  } }
+          key='state-picker-nav'>
+      <DropdownPicker
+                      id='state-picker'
+                      title={ sceneRef.state.statePicker.title }
+                      style={ styles.singlePicker }>
+        { statePickerItemList }
+      </DropdownPicker>
+    </View>
     );
 
     // Category picker building.
@@ -244,111 +241,106 @@ class List extends Component {
     categoryChoiceList.map(function(single) {
       const singleCell = (
       <PickerItem
-      key={single.key}
-      onClick={ (evt) => {
-        const pathname = constants.ROUTE_PATHS.ARTICLE + constants.ROUTE_PATHS.LIST;
-        const params = {};
-        for (let k in query) {
-          params[k] = query[k];
-        }
-        if (single.key == sceneRef.state.categoryPicker.key) return;
-
-        Object.assign(params, {
-          ctgry: single.key,
-        });
-        replaceNewScene(sceneRef, pathname, params);
-      }}
-      >
-        {single.title}
-        </PickerItem>
+                  key={ single.key }
+                  onClick={ (evt) => {
+                              const pathname = constants.ROUTE_PATHS.ARTICLE + constants.ROUTE_PATHS.LIST;
+                              const params = {};
+                              for (let k in query) {
+                                params[k] = query[k];
+                              }
+                              if (single.key == sceneRef.state.categoryPicker.key) return;
+                            
+                              Object.assign(params, {
+                                ctgry: single.key,
+                              });
+                              replaceNewScene(sceneRef, pathname, params);
+                            } }>
+        { single.title }
+      </PickerItem>
       );
       categoryPickerItemList.push(singleCell);
     });
 
     const categoryPickerNav = (
     <View
-    style={{
-      display: 'inline-block',
-      position: 'relative',
-      height: 45,
-      lineHeight: '45px',
-      width: 64,
-      textAlign: 'center',
-      marginRight: 5,
-    }}
-    key='category-picker-nav'
-    >
-        <DropdownPicker
-    id='category-picker'
-    title={sceneRef.state.categoryPicker.title}
-    style={styles.singlePicker}
-    >
-          {categoryPickerItemList}
-        </DropdownPicker>
-      </View>
+          style={ {
+                    display: 'inline-block',
+                    position: 'relative',
+                    height: 45,
+                    lineHeight: '45px',
+                    width: 64,
+                    textAlign: 'center',
+                    marginRight: 5,
+                  } }
+          key='category-picker-nav'>
+      <DropdownPicker
+                      id='category-picker'
+                      title={ sceneRef.state.categoryPicker.title }
+                      style={ styles.singlePicker }>
+        { categoryPickerItemList }
+      </DropdownPicker>
+    </View>
     );
 
     // Search widget building.
     const searchInput = (
     <Input
-    key='search-input'
-    style={{
-      height: 23,
-      width: 146,
-      padding: 3,
-      border: 'none',
-      color: constants.THEME.MAIN.BLACK,
-      borderRadius: 4,
-    }}
-    value={sceneRef.state.cachedSearchKeyword}
-    onUpdated={ (evt) => {
-      sceneRef.setState({
-        cachedSearchKeyword: evt.target.value
-      });
-    }}
-    onKeyDown={ (evt) => {
-      if (evt.keyCode != constants.KEYBOARD_CODE.RETURN) return;
-      sceneRef.triggerSearch();
-    }}
-    >
-      </Input>
+           key='search-input'
+           style={ {
+                     height: 23,
+                     width: 146,
+                     padding: 3,
+                     border: 'none',
+                     color: constants.THEME.MAIN.BLACK,
+                     borderRadius: 4,
+                   } }
+           value={ sceneRef.state.cachedSearchKeyword }
+           onUpdated={ (evt) => {
+                         sceneRef.setState({
+                           cachedSearchKeyword: evt.target.value
+                         });
+                       } }
+           onKeyDown={ (evt) => {
+                         if (evt.keyCode != constants.KEYBOARD_CODE.RETURN) return;
+                         sceneRef.triggerSearch();
+                       } }>
+    </Input>
     );
 
     const searchButton = (
     <View
-    key='search-button'
-    style={{
-      display: 'inline-block',
-      width: 18,
-      marginLeft: 10,
-      position: 'absolute',
-    }}
-    onClick={(evt) => {
-      sceneRef.triggerSearch();
-    }}
-    >
-        <ClipartSearch />
-      </View>
+          key='search-button'
+          style={ {
+                    display: 'inline-block',
+                    width: 18,
+                    marginLeft: 10,
+                    position: 'absolute',
+                  } }
+          onClick={ (evt) => {
+                      sceneRef.triggerSearch();
+                    } }>
+      <ClipartSearch />
+    </View>
     );
 
     const searchEntry = (
     <NavItem
-    style={{
-      lineHeight: 1,
-      display: 'block',
-      position: 'absolute',
-      left: '15%',
-      height: 45,
-      paddingTop: 11,
-      paddingBottom: 11,
-      width: '70%',
-      textAlign: 'center',
-      marginLeft: 10,
-    }}
-    key='search-entry-nav'>
-        {searchInput}
-        {searchButton}
-      </NavItem>
+             style={ {
+                       lineHeight: 1,
+                       display: 'block',
+                       position: 'absolute',
+                       left: '15%',
+                       height: 45,
+                       paddingTop: 11,
+                       paddingBottom: 11,
+                       width: '70%',
+                       textAlign: 'center',
+                       marginLeft: 10,
+                     } }
+             key='search-entry-nav'>
+      { searchInput }
+      { searchButton }
+    </NavItem>
     );
 
     const topbarProps = Object.assign({
@@ -375,11 +367,10 @@ class List extends Component {
     const topbarChildren = [searchEntry];
     const topbar = (
     <Topbar
-    style={styles.topbar}
-    {...topbarProps}
-    >
-        {topbarChildren}
-      </Topbar>
+            style={ styles.topbar }
+            {...topbarProps}>
+      { topbarChildren }
+    </Topbar>
     );
 
     let buttonsRow = null;
@@ -387,46 +378,42 @@ class List extends Component {
     if (null !== sceneRef.state.rootElementSize) {
       const btnAdd = (
       <Button
-      style={{
-        fontSize: 18,
-        display: 'inline-block',
-        float: 'right',
-      }}
-      onPress={(evt) => {
-        const pathname = constants.ROUTE_PATHS.ARTICLE + constants.ROUTE_PATHS.ADD;
-        pushNewScene(sceneRef, pathname);
-      }}
-      >
-          {LocaleManager.instance.effectivePack().SYMBOL_ADD} 
-        </Button>
+              style={ {
+                        fontSize: 18,
+                        display: 'inline-block',
+                        float: 'right',
+                      } }
+              onPress={ (evt) => {
+                          const pathname = constants.ROUTE_PATHS.ARTICLE + constants.ROUTE_PATHS.ADD;
+                          pushNewScene(sceneRef, pathname);
+                        } }>
+        { LocaleManager.instance.effectivePack().SYMBOL_ADD }
+      </Button>
       );
 
       buttonsRow = (
         <View
-        style={{
-          width: '100%',
-          height: 50,
-          position: 'relative',
-        }}
-        ref={(c) => {
-          if (!c) return;
-          const newSize = getRenderedComponentSize(c);
-          const oldSize = sceneRef.state.buttonsRowSize;
-          if (null !== oldSize && oldSize.width == newSize.width && oldSize.height == newSize.height) return;
-          sceneRef.setState({
-            buttonsRowSize: newSize,
-          });
-        }}
-        >
-          <View
-        style={{
-          position: 'absolute',
-        }}
-        >
-            {statePickerNav}
-            {categoryPickerNav}
+              style={ {
+                        width: '100%',
+                        height: 50,
+                        position: 'relative',
+                      } }
+              ref={ (c) => {
+                      if (!c) return;
+                      const newSize = getRenderedComponentSize(c);
+                      const oldSize = sceneRef.state.buttonsRowSize;
+                      if (null !== oldSize && oldSize.width == newSize.width && oldSize.height == newSize.height) return;
+                      sceneRef.setState({
+                        buttonsRowSize: newSize,
+                      });
+                    } }>
+          <View style={ {
+                          position: 'absolute',
+                        } }>
+            { statePickerNav }
+            { categoryPickerNav }
           </View>
-          {btnAdd}
+          { btnAdd }
         </View>
       );
 
@@ -480,29 +467,28 @@ class List extends Component {
 
       listview = (
         <Paginator
-        style={{
-          clear: 'both'
-        }}
-        ref={ (c) => {
-          if (!c) return;
-          sceneRef._listviewRef = c;
-        }}
-        {...listViewProps}
-        />
+                   style={ {
+                             clear: 'both'
+                           } }
+                   ref={ (c) => {
+                           if (!c) return;
+                           sceneRef._listviewRef = c;
+                         } }
+                   {...listViewProps} />
       );
     }
 
     const mainScene = (
     <View>
-        {buttonsRow}
-        {listview}
-      </View>
+      { buttonsRow }
+      { listview }
+    </View>
     );
 
     return (
       <View>
-        {topbar}
-        {mainScene}
+        { topbar }
+        { mainScene }
       </View>
     );
   }

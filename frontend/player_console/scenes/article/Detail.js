@@ -117,18 +117,16 @@ class Detail extends React.Component {
 
     const topbarChildren = [];
     const topbar = (
-    <Topbar
-    {...topbarProps}
-    >
-        {topbarChildren}  
-      </Topbar>
+    <Topbar {...topbarProps}>
+      { topbarChildren }
+    </Topbar>
     );
 
     const shouldWaitForCachedArticle = (null == sceneRef.state.cachedArticle);
     if (true == shouldWaitForCachedArticle) {
       return (
         <View>
-          {topbar}
+          { topbar }
         </View>
       );
     }
@@ -141,79 +139,68 @@ class Detail extends React.Component {
 
     const mainScene = (
     <ArticlePreviewer
-    View={View}
-    Input={Input}
-    ModalPopup={ModalPopup}
-    Button={Button}
-    Text={Text}
-    Image={Image}
-    style={{
-      width: '100%',
-      paddingTop: mainScenePaddingTop,
-      paddingBottom: mainScenePaddingBottom,
-      paddingLeft: mainScenePaddingLeft,
-      paddingRight: mainScenePaddingRight,
-    }}
-    rootElementSize={{
-      width: sceneRef.state.rootElementSize.width,
-      height: (sceneRef.state.rootElementSize.height - sceneRef.state.footerSize.height - sceneRef.state.topbarSize.height),
-    }}
-    data={sceneRef.state.cachedArticle}
-    {...sceneRef.props}
-    />
+                      View={ View }
+                      Input={ Input }
+                      ModalPopup={ ModalPopup }
+                      Button={ Button }
+                      Text={ Text }
+                      Image={ Image }
+                      style={ {
+                                width: '100%',
+                                paddingTop: mainScenePaddingTop,
+                                paddingBottom: mainScenePaddingBottom,
+                                paddingLeft: mainScenePaddingLeft,
+                                paddingRight: mainScenePaddingRight,
+                              } }
+                      rootElementSize={ {
+                                          width: sceneRef.state.rootElementSize.width,
+                                          height: (sceneRef.state.rootElementSize.height - sceneRef.state.footerSize.height - sceneRef.state.topbarSize.height),
+                                        } }
+                      data={ sceneRef.state.cachedArticle }
+                      {...sceneRef.props} />
     );
 
     const author = sceneRef.state.cachedArticle.author;
     let authorSection = null;
     if (undefined !== author && null !== author) {
       authorSection = (
-        <View
-        style={{
-          display: 'block',
-          overflowWrap: 'break-word',
-          borderTop: '1px solid ' + constants.THEME.MAIN.BROWN_REDISH,
-        }}
-        >
-          <View
-        style={{
-          display: 'inline-block',
-          fontSize: 14,
-        }}
-        >
-            {LocaleManager.instance.effectivePack().ARTICLE_PROVIDED_BY_PREFIX}
+        <View style={ {
+                display: 'block',
+                overflowWrap: 'break-word',
+                borderTop: '1px solid ' + constants.THEME.MAIN.BROWN_REDISH,
+              } }>
+          <View style={ {
+                          display: 'inline-block',
+                          fontSize: 14,
+                        } }>
+            { LocaleManager.instance.effectivePack().ARTICLE_PROVIDED_BY_PREFIX }
           </View>
-          <View
-        style={{
-          display: 'inline-block',
-          marginLeft: 5,
-          marginRight: 5,
-          fontSize: 18,
-          color: constants.THEME.MAIN.GREY,
-        }}
-        >
-            {author.displayName}
+          <View style={ {
+                          display: 'inline-block',
+                          marginLeft: 5,
+                          marginRight: 5,
+                          fontSize: 18,
+                          color: constants.THEME.MAIN.GREY,
+                        } }>
+            { author.displayName }
           </View>
-          <View
-        style={{
-          display: 'inline-block',
-          fontSize: 14,
-        }}
-        >
-            {LocaleManager.instance.effectivePack().ARTICLE_PROVIDED_BY_SUFFIX}
+          <View style={ {
+                          display: 'inline-block',
+                          fontSize: 14,
+                        } }>
+            { LocaleManager.instance.effectivePack().ARTICLE_PROVIDED_BY_SUFFIX }
           </View>
         </View>
       );
     }
 
     return (
-      <View
-      style={{
-        padding: 3,
-      }}
-      >
-        {topbar}
-        {mainScene}
-        {authorSection}
+      <View style={ {
+                padding: 3,
+              } }>
+        { topbar }
+        { mainScene }
+        { authorSection }
       </View>
     );
   }

@@ -61,11 +61,9 @@ class Home extends React.Component {
 
     const topbarChildren = [];
     const topbar = (
-    <Topbar
-    {...topbarProps}
-    >
-				{topbarChildren}
-			</Topbar>
+    <Topbar {...topbarProps}>
+      { topbarChildren }
+    </Topbar>
     );
 
     /*
@@ -81,66 +79,100 @@ class Home extends React.Component {
         <Container>
           <h1>DGFluoresence</h1>
           <p>
-            Providing software test automation, server stress diagonsis and solutions. 
+            Providing software test automation, server stress diagonsis and solutions.
           </p>
-
         </Container>
       </Jumbotron>
       <CardColumns>
         <Card>
-          <Card.Img variant="top" src={quarrelClipartPath} />
+          <Card.Img
+                    variant="top"
+                    src={ quarrelClipartPath } />
           <Card.Body>
-            <Card.Title>What your product may be sufferring from</Card.Title>
+            <Card.Title>
+              What your product may be sufferring from
+            </Card.Title>
           </Card.Body>
           <ListGroup>
-            <ListGroup.Item><FaSadCry/> Lack of budget to have in-house test automation</ListGroup.Item> 
-            <ListGroup.Item><FaSadTear/> Ambiguous arguments on critical but laggy features</ListGroup.Item>
-            <ListGroup.Item><FaRegSadCry/> Lack of experienced people to identify application bottleneck</ListGroup.Item>
-            <ListGroup.Item><FaRegSadTear/> Lack of experience to solve application bottleneck</ListGroup.Item>
+            <ListGroup.Item>
+              <FaSadCry/> Lack of budget to have in-house test automation
+            </ListGroup.Item>
+            <ListGroup.Item>
+              <FaSadTear/> Ambiguous arguments on critical but laggy features
+            </ListGroup.Item>
+            <ListGroup.Item>
+              <FaRegSadCry/> Lack of experienced people to identify application bottleneck
+            </ListGroup.Item>
+            <ListGroup.Item>
+              <FaRegSadTear/> Lack of experience to solve application bottleneck
+            </ListGroup.Item>
           </ListGroup>
           <Card.Footer>
             <small className="text-muted">and more...</small>
           </Card.Footer>
         </Card>
         <Card>
-          <Card.Img variant="top" src={profilingClipartPath} />
+          <Card.Img
+                    variant="top"
+                    src={ profilingClipartPath } />
           <Card.Body>
-            <Card.Title>What we ship</Card.Title>
+            <Card.Title>
+              What we ship
+            </Card.Title>
           </Card.Body>
           <ListGroup>
-            <ListGroup.Item><FaAssistiveListeningSystems/> Listen to your needs</ListGroup.Item>
-            <ListGroup.Item><FaNewspaper/> Reports and plans of our estimation to critical cases that need testing</ListGroup.Item>
-            <ListGroup.Item><FaCodeBranch/> Codes or devops scripts for test automation cass, stress relieving, at any phase of development</ListGroup.Item>
-            <ListGroup.Item><FaRegNewspaper/> Reports of the improvement</ListGroup.Item>
+            <ListGroup.Item>
+              <FaAssistiveListeningSystems/> Listen to your needs
+            </ListGroup.Item>
+            <ListGroup.Item>
+              <FaNewspaper/> Reports and plans of our estimation to critical cases that need testing
+            </ListGroup.Item>
+            <ListGroup.Item>
+              <FaCodeBranch/> Codes or devops scripts for test automation cass, stress relieving, at any phase of development
+            </ListGroup.Item>
+            <ListGroup.Item>
+              <FaRegNewspaper/> Reports of the improvement
+            </ListGroup.Item>
           </ListGroup>
           <Card.Footer>
             <small className="text-muted">and more...</small>
           </Card.Footer>
         </Card>
         <Card>
-          <Card.Img variant="top" src={deliveredClipartPath} />
+          <Card.Img
+                    variant="top"
+                    src={ deliveredClipartPath } />
           <Card.Body>
-            <Card.Title>Who we served</Card.Title>
+            <Card.Title>
+              Who we served
+            </Card.Title>
           </Card.Body>
           <ListGroup>
-            <ListGroup.Item><FaPhone/> International Telcom companies</ListGroup.Item>
-            <ListGroup.Item><FaUserShield/> Domestic security Bureau</ListGroup.Item>
-            <ListGroup.Item><FaPiggyBank/> Domestic & international banks</ListGroup.Item>
-            <ListGroup.Item><FaVideo/> International video conferencing vendor</ListGroup.Item>
+            <ListGroup.Item>
+              <FaPhone/> International Telcom companies
+            </ListGroup.Item>
+            <ListGroup.Item>
+              <FaUserShield/> Domestic security Bureau
+            </ListGroup.Item>
+            <ListGroup.Item>
+              <FaPiggyBank/> Domestic & international banks
+            </ListGroup.Item>
+            <ListGroup.Item>
+              <FaVideo/> International video conferencing vendor
+            </ListGroup.Item>
           </ListGroup>
           <Card.Footer>
             <small className="text-muted">and more...</small>
           </Card.Footer>
         </Card>
       </CardColumns>
-      </View>
+    </View>
     );
 
     return (
-      <View
-      >
-				{mainScene}
-			</View>
+      <View>
+        { mainScene }
+      </View>
     );
   }
 }

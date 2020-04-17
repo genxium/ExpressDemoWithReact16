@@ -25,18 +25,17 @@ class Paginator extends React.Component {
     const props = widgets.props;
     return (
       <CrimsonPaginator
-      ref={(c) => {
-        if (!c) return;
-        widgets._cp = c;
-      }}
-      View={View}
-      Text={Text}
-      Image={Image}
-      Button={Button}
-      noResultHintIcon={IgBackgroundOfEmptyList1}
-      BackArrow={ClipartSlimArrow}
-      {...props}
-      />
+                        ref={ (c) => {
+                                if (!c) return;
+                                widgets._cp = c;
+                              } }
+                        View={ View }
+                        Text={ Text }
+                        Image={ Image }
+                        Button={ Button }
+                        noResultHintIcon={ IgBackgroundOfEmptyList1 }
+                        BackArrow={ ClipartSlimArrow }
+                        {...props} />
     );
   }
 }

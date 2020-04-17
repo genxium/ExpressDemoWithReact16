@@ -414,7 +414,7 @@ exports.SUBORG = {
 exports.ATTACHMENT = {
   ORIGINAL: {
     LITERAL: "original",
-  }, 
+  },
   TRANSCODED_PREFIX: {
     LITERAL: "transcoded_",
   },

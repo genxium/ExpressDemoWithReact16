@@ -161,9 +161,9 @@ const overwriteArticleAsync = function(articleId, writerId, bundle, trx) {
       return sharedDao.queryAttachmentListForArticleAsync({
         id: articleId,
         writer_id: writerId,
-      }, 
-      ArticleUtil.instance.clientAccessibleMimeTypes(), 
-      trx);
+      },
+        ArticleUtil.instance.clientAccessibleMimeTypes(),
+        trx);
     })
     .then(function(existingAttachmentList) {
       if (null == existingAttachmentList || 0 == existingAttachmentList.length) {
@@ -243,10 +243,10 @@ const submitArticleAsync = function(articleId, writerId, trx) {
     },
     transaction: trx,
   })
-  .then(function(affectedRows) {
-    const affectedRowsCount = affectedRows[0];
-    return affectedRowsCount;
-  });
+    .then(function(affectedRows) {
+      const affectedRowsCount = affectedRows[0];
+      return affectedRowsCount;
+    });
 };
 
 exports.submitArticleAsync = submitArticleAsync;
@@ -266,10 +266,10 @@ const suspendArticleAsync = function(articleId, writerId, reason, trx) {
     },
     transaction: trx,
   })
-  .then(function(affectedRows) {
-    const affectedRowsCount = affectedRows[0];
-    return affectedRowsCount;
-  });
+    .then(function(affectedRows) {
+      const affectedRowsCount = affectedRows[0];
+      return affectedRowsCount;
+    });
 };
 
 exports.suspendArticleAsync = suspendArticleAsync;

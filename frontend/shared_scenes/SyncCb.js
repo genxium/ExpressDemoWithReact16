@@ -35,9 +35,9 @@ class SyncCb extends Component {
   render() {
     const sceneRef = this;
     return (
-      <View style={{
-        padding: 64
-      }}>
+      <View style={ {
+                padding: 64
+              } }>
       </View>
     );
   }

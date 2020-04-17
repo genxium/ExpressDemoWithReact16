@@ -9,7 +9,7 @@
     "btoa": "^1.1.2",
     "bunyan": "^1.8.12",
     "bunyan-prettystream": "^0.1.3",
-    "cookie-parser": "^1.4.3",
+    "cookie-parser": "^1.4.5",
     "cors": "^2.8.1",
     "crypto-js": "^3.1.8",
     "emailjs": "^1.0.8",
@@ -19,13 +19,15 @@
     "moment": "2.17.1",
     "mysql2": "^1.4.2",
     "node-schedule": "^1.3.0",
-    "node-wechat-util": "https://github.com/genxium/node-wechat-util",
+    "node-wechat-util": "git+https://github.com/genxium/node-wechat-util.git",
     "pug": "^2.0.0-beta5",
     "qiniu": "^6.1.13",
     "request": "^2.81.0",
-    "sequelize": "^5.21.5"
+    "sequelize": "^5.21.6"
   },
   "devDependencies": {
-    "esformatter": "^0.11.3"
+    "babylon": "^6.18.0",
+    "esformatter": "^0.11.3",
+    "esformatter-jsx": "^8.0.1"
   }
 }

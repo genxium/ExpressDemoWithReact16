@@ -32,7 +32,7 @@ class AttachmentUtil {
     }
     return {
       imageList: imageList,
-      videoList: videoList, 
+      videoList: videoList,
     };
   }
 }
