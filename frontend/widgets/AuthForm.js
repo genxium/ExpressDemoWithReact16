@@ -18,50 +18,44 @@ class AuthForm extends Component {
 
     if (true != hideHandleInput) {
       const handleInput = (
-      <Form.Group
-      key={localKey++}
-      >
+      <Form.Group key={ localKey++ }>
         <Form.Control
-               disabled={ disabled }
-               style={ sharedInputStyle }
-               type="text"
-               value={ handleValue }
-               onChange={ onHandleInputUpdated }
-               placeholder={ handleInputPlaceholder } />
+                      disabled={ disabled }
+                      style={ sharedInputStyle }
+                      type="text"
+                      value={ handleValue }
+                      onChange={ onHandleInputUpdated }
+                      placeholder={ handleInputPlaceholder } />
       </Form.Group>
       );
-      inputList.push(handleInput); 
+      inputList.push(handleInput);
     }
 
     if (true != hidePasswordInput) {
       const passwordInput = (
-      <Form.Group
-      key={localKey++}
-      >
+      <Form.Group key={ localKey++ }>
         <Form.Control
-               disabled={ disabled }
-               style={ sharedInputStyle }
-               type="password"
-               value={ passwordValue }
-               onChange={ onPasswordInputUpdated }
-               placeholder={ passwordInputPlaceholder } />
+                      disabled={ disabled }
+                      style={ sharedInputStyle }
+                      type="password"
+                      value={ passwordValue }
+                      onChange={ onPasswordInputUpdated }
+                      placeholder={ passwordInputPlaceholder } />
       </Form.Group>
       );
-      inputList.push(passwordInput); 
+      inputList.push(passwordInput);
     }
 
     if (true != hideDisplayNameInput) {
       const displayNameInput = (
-      <Form.Group   
-      key={localKey++}
-      >
+      <Form.Group key={ localKey++ }>
         <Form.Control
-               disabled={ disabled }
-               style={ sharedInputStyle }
-               type="text"
-               value={ displayNameValue }
-               onChange={ onDisplayNameInputUpdated }
-               placeholder={ displayNameInputPlaceholder } />
+                      disabled={ disabled }
+                      style={ sharedInputStyle }
+                      type="text"
+                      value={ displayNameValue }
+                      onChange={ onDisplayNameInputUpdated }
+                      placeholder={ displayNameInputPlaceholder } />
       </Form.Group>
       );
       inputList.push(displayNameInput);

@@ -130,9 +130,9 @@ class Edit extends Component {
       disabled: true,
     }, function() {
       let paramDict = {
-        handle: sceneRef.state.cachedOrg.handle, 
-        displayName: sceneRef.state.cachedOrg.displayName, 
-        
+        handle: sceneRef.state.cachedOrg.handle,
+        displayName: sceneRef.state.cachedOrg.displayName,
+
         newModeratorHandle: sceneRef.state.cachedModerator.handle,
         newModeratorPassword: sceneRef.state.cachedModerator.rawPassword,
         newModeratorDisplayName: sceneRef.state.cachedModerator.displayName,
@@ -361,17 +361,15 @@ class Edit extends Component {
     );
 
     const separator = (
-    <View
-    style={{
-      display: 'block', 
-      position: 'relative', 
-      height: 1,
-      marginTop: 2,
-      marginBottom: 15,
-      width: sharedInputStyle.width,
-      backgroundColor: constants.THEME.MAIN.GREY,
-    }}
-    >
+    <View style={ {
+                display: 'block',
+                position: 'relative',
+                height: 1,
+                marginTop: 2,
+                marginBottom: 15,
+                width: sharedInputStyle.width,
+                backgroundColor: constants.THEME.MAIN.GREY,
+              } }>
     </View>
     );
 
@@ -396,11 +394,11 @@ class Edit extends Component {
               passwordValue={ sceneRef.state.cachedModerator.rawPassword }
               passwordInputPlaceholder={ LocaleManager.instance.effectivePack().WRITER_PASSWORD_INPUT_HINT }
               onPasswordInputUpdated={ (evt) => {
-                                       const newCachedWriter = {};
-                                       Object.assign(newCachedWriter, sceneRef.state.cachedModerator);
-                                       Object.assign(newCachedWriter, {
-                                         rawPassword: evt.target.value,
-                                       });
+                                         const newCachedWriter = {};
+                                         Object.assign(newCachedWriter, sceneRef.state.cachedModerator);
+                                         Object.assign(newCachedWriter, {
+                                           rawPassword: evt.target.value,
+                                         });
                                          sceneRef.setState({
                                            savable: WriterUtil.instance.isFormValid(newCachedWriter) && OrgUtil.instance.isOrgFormValid(sceneRef.state.cachedOrg),
                                            deletable: false,

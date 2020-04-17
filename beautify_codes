@@ -3,25 +3,39 @@
 basedir=$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )
 
 function beautify_js_by_folder {
-  root_folder=$1
-  echo "About to beautify under $root_folder"
-  node $basedir/node_modules/esformatter/bin/esformatter -i "$root_folder/*.js" 
-  for d in $(find $root_folder -mindepth 1 -maxdepth 1 -type d)
+  rootdir=$1
+  echo "About to beautify under rootdir $rootdir"
+  for f in $(find $rootdir -mindepth 1 -maxdepth 1 -type f -regex ".*\.js")
+  do
+    echo "  About to beautify $f"
+    node $basedir/node_modules/esformatter/bin/esformatter --config "$basedir/esformatter_options.json" -i "$f" 
+  done
+
+  for d in $(find $rootdir -mindepth 1 -maxdepth 1 -type d)
   do
     if [[ $d =~ "/node_modules" || $d =~ "/bin" || $d =~ "/pugs" || $d =~ "/static" || $d =~ "/configs" || $d =~ "/transcoding_buffer" ]]; 
     then
       continue  
     fi
-    echo "About to beautify under $d"
-    # Ignore files using "lazy/suspend pattern since React v16.6.0", https://reactjs.org/docs/code-splitting.html#reactlazy.
-    node $basedir/node_modules/esformatter/bin/esformatter --config "$basedir/esformatter_options.json" --ignore "$d/**/index.js" --ignore "$d/**/landing.js" -i "$d/**/*.js" 
+    echo "  About to beautify under depth 1 subdir $d"
+
+    for f in $(find $d -mindepth 1 -type f -regex ".*\.js")
+    do
+      # Ignore files using "lazy/suspend pattern since React v16.6.0", https://reactjs.org/docs/code-splitting.html#reactlazy.
+      if [[ $f =~ "/index.js" || $f =~ "/landing.js" ]]; 
+      then
+        continue  
+      fi
+      echo "    About to beautify $f"
+      node $basedir/node_modules/esformatter/bin/esformatter --config "$basedir/esformatter_options.json" -i "$f" 
+    done
   done 
 }
 
-target_root_folders=( "$basedir/common" "$basedir/backend" "$basedir/frontend" )
+target_rootdirs=( "$basedir/common" "$basedir/backend" "$basedir/frontend" )
 
-for root_folder in "${target_root_folders[@]}"
+for rootdir in "${target_rootdirs[@]}"
 do
-  beautify_js_by_folder $root_folder 
+  beautify_js_by_folder $rootdir 
 done
 

@@ -392,9 +392,9 @@ const orgAddApi = function(req, res) {
   const displayName = req.body.displayName;
 
   if (false == OrgUtil.isOrgFormValid({
-    handle: handle,
-    displayName: displayName,
-  })) {
+      handle: handle,
+      displayName: displayName,
+    })) {
     res.json({
       ret: constants.RET_CODE.FAILURE,
     });
