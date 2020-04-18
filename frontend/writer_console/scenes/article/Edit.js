@@ -297,7 +297,7 @@ class Edit extends Component {
     const isNewArticle = (null == params.articleId);
 
     if (true == isNewArticle) {
-      let newVideoBundle = state.state.videoBundle;
+      let newVideoBundle = sceneRef.state.videoBundle;
 
       let newBundleListManager = sceneRef.state.bundleListManager;
       newBundleListManager.pushNew();

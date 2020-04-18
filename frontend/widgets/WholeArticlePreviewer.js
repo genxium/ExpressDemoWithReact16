@@ -51,11 +51,14 @@ class WholeArticlePreviewer extends React.Component {
       <ModalPopup
                   style={ {
                             overlay: {
-                              position: 'absolute',
+                              position: 'fixed',
                               top: 0,
                               left: 0,
                               right: 0,
                               bottom: 0,
+                              overflowWrap: 'break-word',
+                              overflowX: 'auto',
+                              overflowY: 'scroll',
                               backgroundColor: constants.THEME.MAIN.WHITE,
                               zIndex: 1,
                             },
@@ -67,6 +70,7 @@ class WholeArticlePreviewer extends React.Component {
                               bottom: 'auto',
                               border: 'none',
                               borderRadius: '0px',
+                              overflow: 'hidden',
                               background: constants.THEME.MAIN.WHITE,
                               padding: '0px',
                               backgroundColor: constants.THEME.MAIN.WHITE,
