@@ -8,6 +8,7 @@ const Crypto = require('../../common/Crypto').default;
 const Time = require('../../common/Time').default;
 const LocaleManager = require('../../common/LocaleManager').default;
 const WriterUtil = require('../../common/WriterUtil').default;
+const OrgUtil = require('../../common/OrgUtil').default;
 
 const WriterManager = require('../utils/WriterManager').default;
 const WriterTable = require('../models/Writer');
@@ -391,7 +392,7 @@ const orgAddApi = function(req, res) {
   const handle = req.body.handle;
   const displayName = req.body.displayName;
 
-  if (false == OrgUtil.isOrgFormValid({
+  if (false == OrgUtil.instance.isOrgFormValid({
       handle: handle,
       displayName: displayName,
     })) {
@@ -427,6 +428,8 @@ const orgAddApi = function(req, res) {
   let newWriter = null;
   let newWriterSuborgBinding = null;
 
+  const currentMillis = Time.currentMillis();
+
   MySQLManager.instance.dbRef.transaction(t => {
     return OrgTable.findOne({
       where: {
@@ -440,7 +443,6 @@ const orgAddApi = function(req, res) {
           throw new signals.GeneralFailure(constants.RET_CODE.DUPLICATED);
         }
 
-        const currentMillis = Time.currentMillis();
         return OrgTable.create({
           handle: handle,
           display_name: displayName,
@@ -535,9 +537,89 @@ const orgSaveApi = function(req, res) {
 };
 
 const orgDetailApi = function(req, res) {
-  res.json({
-    ret: constants.RET_CODE.NOT_IMPLEMENTED_YET,
-  });
+  const instance = this;
+  const orgId = parseInt(req.params.orgId);
+
+  let theOrg = null;
+  let theModeratorSuborg = null;
+  let theModeratorSuborgBinding = null;
+  let theModerator = null;
+
+  MySQLManager.instance.dbRef.transaction(t => {
+    return OrgTable.findOne({
+      where: {
+        id: orgId,
+        deleted_at: null
+      },
+      transaction: t
+    })
+      .then(function(doc) {
+        if (null == doc) {
+          throw new signals.GeneralFailure(constants.RET_CODE.NONEXISTENT_ORG);
+        }
+
+        theOrg = doc;
+
+        return SuborgTable.findOne({
+          where: {
+            org_id: orgId,
+            parent_id: null,
+            type: constants.SUBORG.TYPE.MODERATOR,
+            deleted_at: null,
+          },
+          transaction: t
+        });
+      })
+      .then(function(doc) {
+        if (null == doc) {
+          throw new signals.GeneralFailure(constants.RET_CODE.NONEXISTENT_SUBORG);
+        }
+
+        theModeratorSuborg = doc;
+
+        return WriterSuborgBindingTable.findOne({
+          where: {
+            org_id: orgId,
+            suborg_id: theModeratorSuborg.id,
+            deleted_at: null,
+          }
+        }, {
+          transaction: t
+        });
+      })
+      .then(function(doc) {
+        if (null == doc) {
+          throw new signals.GeneralFailure(constants.RET_CODE.NONEXISTENT_WRITER_SUBORG_BINDING);
+        }
+        theModeratorSuborgBinding = doc;
+
+        return WriterTable.findOne({
+          where: {
+            id: theModeratorSuborgBinding.writer_id,
+            deleted_at: null,
+          }
+        }, {
+          transaction: t
+        });
+      })
+      .then(function(doc) {
+        if (null == doc) {
+          throw new signals.GeneralFailure(constants.RET_CODE.NONEXISTENT_WRITER);
+        }
+        theModerator = doc;
+
+        res.json({
+          ret: constants.RET_CODE.OK,
+          org: theOrg,
+          suborg: theModeratorSuborg,
+          moderator: theModerator,
+          writerSuborgBinding: theModeratorSuborgBinding,
+        });
+      });
+  })
+    .catch(function(err) {
+      instance.respondWithError(res, err);
+    });
 };
 
 const orgDeleteApi = function(req, res) {

@@ -43,8 +43,8 @@ class List extends Component {
   handleListResponseData(responseData) {
     const sceneRef = this;
     const {RoleLoginSingleton, ...other} = sceneRef.props;
-    let writerList = responseData.writerList;
-    if (!writerList) {
+    let orgList = responseData.orgList;
+    if (!orgList) {
       RoleLoginSingleton.instance.checkWhetherTokenHasExpiredAsync(sceneRef, responseData)
         .then(function(trueOrFalse) {
           if (!trueOrFalse) return;
@@ -53,7 +53,7 @@ class List extends Component {
       return;
     }
     let newCellList = [];
-    writerList.map(function(single) {
+    orgList.map(function(single) {
       const singleCell = sceneRef.createCellReactElement(single, single.id);
       newCellList.push(singleCell);
     });

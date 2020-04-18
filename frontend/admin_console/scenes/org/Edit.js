@@ -86,7 +86,7 @@ class Edit extends Component {
       token: cookieToken,
     };
     const namedGatewayInfo = queryNamedGatewayInfoDictSync().articleServer;
-    const url = namedGatewayInfo.protocol + "://" + namedGatewayInfo.apiGateway + basename + constants.ROUTE_PATHS.API_V1 + constants.ROUTE_PATHS.WRITER + "/" + params.orgId + constants.ROUTE_PATHS.DETAIL;
+    const url = namedGatewayInfo.protocol + "://" + namedGatewayInfo.apiGateway + basename + constants.ROUTE_PATHS.API_V1 + constants.ROUTE_PATHS.ORG + "/" + params.orgId + constants.ROUTE_PATHS.DETAIL;
     let respData = null;
     NetworkFunc.get(url, paramDict)
       .then(function(response) {
@@ -109,9 +109,14 @@ class Edit extends Component {
           savable: false,
           deletable: true,
           disabled: false,
+          cachedOrg: {
+            handle: respData.org.handle,
+            displayName: respData.org.display_name,
+          },
           cachedModerator: {
-            handle: respData.writer.handle,
-            displayName: respData.writer.display_name,
+            handle: respData.moderator.handle,
+            displayName: respData.moderator.display_name,
+            rawPassword: "",
           }
         });
       });
@@ -134,8 +139,8 @@ class Edit extends Component {
         displayName: sceneRef.state.cachedOrg.displayName,
 
         newModeratorHandle: sceneRef.state.cachedModerator.handle,
-        newModeratorPassword: sceneRef.state.cachedModerator.rawPassword,
         newModeratorDisplayName: sceneRef.state.cachedModerator.displayName,
+        newModeratorPassword: sceneRef.state.cachedModerator.rawPassword,
         token: cookieToken,
       };
 
@@ -169,7 +174,7 @@ class Edit extends Component {
             alert(LocaleManager.instance.effectivePack().ORG_OR_WRITER_HANDLE_DUPLICATED);
             sceneRef.setState({
               disabled: false,
-              savable: (WriterUtil.instance.isFormValid(sceneRef.state.cachedModerator) && OrgUtil.instance.isFormValid(sceneRef.state.cachedOrg)),
+              savable: (WriterUtil.instance.isFormValid(sceneRef.state.cachedModerator) && OrgUtil.instance.isOrgFormValid(sceneRef.state.cachedOrg)),
               deletable: false,
             });
             return;
@@ -178,7 +183,7 @@ class Edit extends Component {
             alert(LocaleManager.instance.effectivePack().OOPS);
             sceneRef.setState({
               disabled: false,
-              savable: (WriterUtil.instance.isFormValid(sceneRef.state.cachedModerator) && OrgUtil.instance.isFormValid(sceneRef.state.cachedOrg)),
+              savable: (WriterUtil.instance.isFormValid(sceneRef.state.cachedModerator) && OrgUtil.instance.isOrgFormValid(sceneRef.state.cachedOrg)),
               deletable: false,
             });
             return;
@@ -217,7 +222,7 @@ class Edit extends Component {
         token: cookieToken,
       };
       const namedGatewayInfo = queryNamedGatewayInfoDictSync().articleServer;
-      const url = namedGatewayInfo.protocol + "://" + namedGatewayInfo.apiGateway + basename + constants.ROUTE_PATHS.API_V1 + constants.ROUTE_PATHS.WRITER + "/" + params.orgId + constants.ROUTE_PATHS.DELETE;
+      const url = namedGatewayInfo.protocol + "://" + namedGatewayInfo.apiGateway + basename + constants.ROUTE_PATHS.API_V1 + constants.ROUTE_PATHS.ORG + "/" + params.orgId + constants.ROUTE_PATHS.DELETE;
       let respData = null;
       NetworkFunc.post(url, paramDict)
         .then(function(response) {
