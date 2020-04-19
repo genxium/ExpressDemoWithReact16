@@ -121,14 +121,7 @@ const writerAddApi = function(req, res) {
   const instance = this;
   const handle = req.body.handle;
   const displayName = req.body.displayName;
-
   const newSha1HashedPassword = req.body.password;
-  let newSalt = null;
-  let newObsuredPassword = null;
-  if (null != newSha1HashedPassword && "" != newSha1HashedPassword) {
-    newSalt = Crypto.sha1Sign(NetworkFunc.guid());
-    newObsuredPassword = WriterManager.instance.obscureWithSalt(newSha1HashedPassword, newSalt);
-  }
 
   if (false == WriterUtil.instance.isFormValid({
       handle: handle,
@@ -141,38 +134,15 @@ const writerAddApi = function(req, res) {
   }
 
   MySQLManager.instance.dbRef.transaction(t => {
-    return WriterTable.findOne({
-      where: {
-        handle: handle,
-        deleted_at: null
-      },
-      transaction: t
-    })
+    return WriterManager.instance.upsertWriterAsync(null, handle, displayName, newSha1HashedPassword, t)
       .then(function(doc) {
-        if (null != doc) {
-          throw new signals.GeneralFailure(constants.RET_CODE.DUPLICATED);
-        }
-
-        const currentMillis = Time.currentMillis();
-        return WriterTable.create({
-          handle: handle,
-          display_name: displayName,
-          salt: newSalt,
-          password: newObsuredPassword,
-          created_at: currentMillis,
-          updated_at: currentMillis,
-        }, {
-          transaction: t
-        });
-      })
-      .then(function(newWriter) {
-        if (null == newWriter) {
+        if (null == doc) {
           throw new signals.GeneralFailure();
         }
 
         res.json({
           ret: constants.RET_CODE.OK,
-          writer: newWriter,
+          writer: doc,
         });
       });
   })
@@ -188,12 +158,6 @@ const writerSaveApi = function(req, res) {
   const newDisplayName = req.body.displayName;
 
   const newSha1HashedPassword = req.body.password;
-  let newSalt = null;
-  let newObsuredPassword = null;
-  if (null != newSha1HashedPassword && "" != newSha1HashedPassword) {
-    newSalt = Crypto.sha1Sign(NetworkFunc.guid());
-    newObsuredPassword = WriterManager.instance.obscureWithSalt(newSha1HashedPassword, newSalt);
-  }
 
   if (false == WriterUtil.instance.isFormValid({
       handle: newHandle,
@@ -205,47 +169,11 @@ const writerSaveApi = function(req, res) {
     return;
   }
 
-  const currentMillis = Time.currentMillis();
-
   MySQLManager.instance.dbRef.transaction(t => {
-    return WriterTable.findOne({
-      where: {
-        handle: newHandle,
-        deleted_at: null,
-      },
-      transaction: t
-    })
+    return WriterManager.instance.upsertWriterAsync(writerId, newHandle, newDisplayName, newSha1HashedPassword, t)
       .then(function(doc) {
-        if (null != doc && doc.id != writerId) {
-          throw new signals.GeneralFailure(constants.RET_CODE.DUPLICATED);
-        }
-
-        const replacementSetObject = {
-          handle: newHandle,
-          display_name: newDisplayName,
-          updated_at: currentMillis,
-        };
-
-        if (null != newSalt && null != newObsuredPassword) {
-          Object.assign(replacementSetObject, {
-            salt: newSalt,
-            password: newObsuredPassword,
-          });
-        }
-
-        return WriterTable.update(replacementSetObject, {
-          where: {
-            id: writerId,
-            deleted_at: null,
-          },
-          transaction: t,
-        });
-      })
-      .then(function(affectedRows) {
-        const affectedRowsCount = affectedRows[0];
-        if (1 != affectedRowsCount) {
-          logger.warn("writerSaveApi, affectedRowsCount == ", affectedRowsCount);
-          throw new signals.GeneralFailure();
+        if (null == doc) {
+          throw new signals.GeneralFailure(constants.RET_CODE.FAILURE);
         }
 
         res.json({
@@ -296,22 +224,16 @@ const writerDeleteApi = function(req, res) {
   const writerId = parseInt(req.params.writerId);
 
   MySQLManager.instance.dbRef.transaction(t => {
-    return WriterTable.destroy({
-      where: {
-        id: writerId,
-        deleted_at: null,
-      },
-      transaction: t,
-    })
-      .then(function(affectedRowsCount) {
-        if (1 != affectedRowsCount) {
-          throw new signals.GeneralFailure();
-        }
+    return WriterManager.instance.deleteWritersSoftly([writerId], t)
+    .then(function(affectedRowsCount) {
+      if (1 != affectedRowsCount) {
+        throw new signals.GeneralFailure();
+      }
 
-        res.json({
-          ret: constants.RET_CODE.OK,
-        });
+      res.json({
+        ret: constants.RET_CODE.OK,
       });
+    });
   })
     .catch(function(err) {
       instance.respondWithError(res, err);
@@ -389,12 +311,12 @@ const orgPaginationListApi = function(req, res) {
 
 const orgAddApi = function(req, res) {
   const instance = this;
-  const handle = req.body.handle;
-  const displayName = req.body.displayName;
+  const newHandle = req.body.handle;
+  const newDisplayName = req.body.displayName;
 
   if (false == OrgUtil.instance.isOrgFormValid({
-      handle: handle,
-      displayName: displayName,
+      handle: newHandle,
+      displayName: newDisplayName,
     })) {
     res.json({
       ret: constants.RET_CODE.FAILURE,
@@ -405,13 +327,6 @@ const orgAddApi = function(req, res) {
   const newModeratorHandle = req.body.newModeratorHandle;
   const newModeratorDisplayName = req.body.newModeratorDisplayName;
   const newModeratorSha1HashedPassword = req.body.newModeratorPassword;
-
-  let newModeratorSalt = null;
-  let newModeratorObsuredPassword = null;
-  if (null != newModeratorSha1HashedPassword && "" != newModeratorSha1HashedPassword) {
-    newModeratorSalt = Crypto.sha1Sign(NetworkFunc.guid());
-    newModeratorObsuredPassword = WriterManager.instance.obscureWithSalt(newModeratorSha1HashedPassword, newModeratorSalt);
-  }
 
   if (false == WriterUtil.instance.isFormValid({
       handle: newModeratorHandle,
@@ -431,70 +346,23 @@ const orgAddApi = function(req, res) {
   const currentMillis = Time.currentMillis();
 
   MySQLManager.instance.dbRef.transaction(t => {
-    return OrgTable.findOne({
-      where: {
-        handle: handle,
-        deleted_at: null
-      },
-      transaction: t
-    })
+    return OrgManager.instance.upsertOrgAsync(null, newHandle, newDisplayName, t)
       .then(function(doc) {
         if (null != doc) {
-          throw new signals.GeneralFailure(constants.RET_CODE.DUPLICATED);
-        }
-
-        return OrgTable.create({
-          handle: handle,
-          display_name: displayName,
-          created_at: currentMillis,
-          updated_at: currentMillis,
-        }, {
-          transaction: t
-        });
-      })
-      .then(function(doc) {
-        if (null == doc) {
-          throw new signals.GeneralFailure();
+          logger.warn("orgAddApi err #1, OrgManager.instance.upsertOrgAsync failed for ", {handle: newHandle, displayName: newDisplayName});
+          throw new signals.GeneralFailure(constants.RET_CODE.FAILURE);
         }
         newOrg = doc;
 
-        return WriterTable.findOne({
-          where: {
-            handle: handle,
-            deleted_at: null
-          },
-          transaction: t
-        });
-      })
-      .then(function(doc) {
-        if (null != doc) {
-          throw new signals.GeneralFailure(constants.RET_CODE.DUPLICATED);
-        }
-
-        return WriterTable.create({
-          handle: newModeratorHandle,
-          display_name: newModeratorDisplayName,
-          salt: newModeratorSalt,
-          password: newModeratorObsuredPassword,
-          created_at: currentMillis,
-          updated_at: currentMillis,
-        }, {
-          transaction: t
-        });
-      })
+        return WriterManager.instance.upsertWriterAsync(null, newModeratorHandle, newModeratorDisplayName, newModeratorSha1HashedPassword, t);        })
       .then(function(doc) {
         if (null == doc) {
-          throw new signals.GeneralFailure();
+          logger.warn("orgAddApi err #2, WriterManager.instance.upsertWriterAsync failed for ", {handle: newModeratorHandle, displayName: newModeratorDisplayName});
+          throw new signals.GeneralFailure(constants.RET_CODE.FAILURE);
         }
         newWriter = doc;
 
-        return SuborgTable.create({
-          org_id: newOrg.id,
-          parent_id: null,
-          type: constants.SUBORG.TYPE.MODERATOR,
-          created_at: currentMillis,
-          updated_at: currentMillis,
-        });
+        return OrgManager.instance.upsertSuborgAsync(newOrg.id, newSuborg.id, newType, newDisplayName, t);
       })
       .then(function(doc) {
         if (null == doc) {
@@ -531,9 +399,67 @@ const orgAddApi = function(req, res) {
 };
 
 const orgSaveApi = function(req, res) {
-  res.json({
-    ret: constants.RET_CODE.NOT_IMPLEMENTED_YET,
-  });
+  const instance = this;
+  const orgId = parseInt(req.params.orgId);
+
+  const newHandle = req.body.handle;
+  const newDisplayName = req.body.displayName;
+
+  if (false == OrgUtil.instance.isOrgFormValid({
+      handle: newHandle,
+      displayName: newDisplayName,
+    })) {
+    res.json({
+      ret: constants.RET_CODE.FAILURE,
+    });
+    return;
+  }
+
+  const newModeratorHandle = req.body.newModeratorHandle;
+  const newModeratorDisplayName = req.body.newModeratorDisplayName;
+  const newModeratorSha1HashedPassword = req.body.newModeratorPassword;
+
+  const currentMillis = Time.currentMillis();
+
+  MySQLManager.instance.dbRef.transaction(t => {
+    return OrgTable.findOne({
+      where: {
+        handle: newHandle,
+        deleted_at: null,
+      },
+      transaction: t
+    })
+      .then(function(doc) {
+        if (null != doc && doc.id != orgId) {
+          throw new signals.GeneralFailure(constants.RET_CODE.DUPLICATED);
+        }
+
+        const replacementSetObject = {
+          handle: newHandle,
+          display_name: newDisplayName,
+        };
+
+        return OrgTable.update(replacementSetObject, {
+          where: {
+            id: orgId,
+            deleted_at: null,
+          },
+          transaction: t,
+        });
+      })
+      .then(function(affectedRows) {
+        const affectedRowsCount = affectedRows[0];
+        if (1 != affectedRowsCount) {
+          logger.warn("orgSaveApi, affectedRowsCount == ", affectedRowsCount);
+          throw new signals.GeneralFailure();
+        }
+        
+        // We'll physically delete the existing "MODERATOR binding" anyway, without making any change to the existing "writer" record. 
+      })
+  })
+    .catch(function(err) {
+      instance.respondWithError(res, err);
+    });
 };
 
 const orgDetailApi = function(req, res) {
@@ -623,9 +549,33 @@ const orgDetailApi = function(req, res) {
 };
 
 const orgDeleteApi = function(req, res) {
-  res.json({
-    ret: constants.RET_CODE.NOT_IMPLEMENTED_YET,
-  });
+  const instance = this;
+  const currentMillis = Time.currentMillis();
+  const orgId = parseInt(req.params.orgId);
+
+  MySQLManager.instance.dbRef.transaction(t => {
+    return OrgTable.update({
+        deleted_at: currentMillis,
+      }, {
+      where: {
+        id: writerId,
+        deleted_at: null,
+      },
+      transaction: t,
+    })
+    .then(function(affectedRowsCount) {
+      if (1 != affectedRowsCount) {
+        throw new signals.GeneralFailure();
+      }
+
+      res.json({
+        ret: constants.RET_CODE.OK,
+      });
+    });
+  })
+    .catch(function(err) {
+      instance.respondWithError(res, err);
+    });
 };
 
 //---org APIs ends---
