@@ -64,7 +64,7 @@ const _adminCredentialsAuthImpl = function(req, res, next) {
   }
 };
 
-const WriterManager = require('../utils/WriterManager').default;
+const writerDao = require('../dao/writer');
 const _writerCredentialsAuthImpl = function(req, res, next) {
   const instance = this;
   const handle = req.body.handle;
@@ -73,7 +73,7 @@ const _writerCredentialsAuthImpl = function(req, res, next) {
   // logger.info("Received handle = ", handle, ", password = ", sha1HashedPassword);
 
   const trxInternalPromiseChain = (t) => {
-    return WriterManager.instance.validateCredentialsAsync(handle, sha1HashedPassword, t);
+    return writerDao.validateCredentialsAsync(handle, sha1HashedPassword, t);
   };
 
   const trxExternalPromise = MySQLManager.instance.dbRef.transaction(trxInternalPromiseChain);

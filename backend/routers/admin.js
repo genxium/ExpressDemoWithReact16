@@ -10,7 +10,6 @@ const LocaleManager = require('../../common/LocaleManager').default;
 const WriterUtil = require('../../common/WriterUtil').default;
 const OrgUtil = require('../../common/OrgUtil').default;
 
-const WriterManager = require('../utils/WriterManager').default;
 const WriterTable = require('../models/Writer');
 
 const OrgTable = require('../models/Org');
@@ -29,6 +28,9 @@ const Logger = require('../utils/Logger');
 const logger = Logger.instance.getLogger(__filename);
 
 const SequelizeOp = require('sequelize').Op;
+
+const writerDao = require('../dao/writer');
+const orgDao = require('../dao/org');
 
 const createPageRouter = function() {
   const instance = this;
@@ -134,7 +136,7 @@ const writerAddApi = function(req, res) {
   }
 
   MySQLManager.instance.dbRef.transaction(t => {
-    return WriterManager.instance.upsertWriterAsync(null, handle, displayName, newSha1HashedPassword, t)
+    return writerDao.upsertWriterAsync(null, handle, displayName, newSha1HashedPassword, t)
       .then(function(doc) {
         if (null == doc) {
           throw new signals.GeneralFailure();
@@ -170,7 +172,7 @@ const writerSaveApi = function(req, res) {
   }
 
   MySQLManager.instance.dbRef.transaction(t => {
-    return WriterManager.instance.upsertWriterAsync(writerId, newHandle, newDisplayName, newSha1HashedPassword, t)
+    return writerDao.upsertWriterAsync(writerId, newHandle, newDisplayName, newSha1HashedPassword, t)
       .then(function(doc) {
         if (null == doc) {
           throw new signals.GeneralFailure(constants.RET_CODE.FAILURE);
@@ -224,7 +226,7 @@ const writerDeleteApi = function(req, res) {
   const writerId = parseInt(req.params.writerId);
 
   MySQLManager.instance.dbRef.transaction(t => {
-    return WriterManager.instance.deleteWritersSoftly([writerId], t)
+    return writerDao.deleteWritersSoftly([writerId], t)
     .then(function(affectedRowsCount) {
       if (1 != affectedRowsCount) {
         throw new signals.GeneralFailure();
@@ -346,23 +348,23 @@ const orgAddApi = function(req, res) {
   const currentMillis = Time.currentMillis();
 
   MySQLManager.instance.dbRef.transaction(t => {
-    return OrgManager.instance.upsertOrgAsync(null, newHandle, newDisplayName, t)
+    return orgDao.upsertOrgAsync(null, newHandle, newDisplayName, t)
       .then(function(doc) {
         if (null != doc) {
-          logger.warn("orgAddApi err #1, OrgManager.instance.upsertOrgAsync failed for ", {handle: newHandle, displayName: newDisplayName});
+          logger.warn("orgAddApi err #1, orgDao.upsertOrgAsync failed for ", {handle: newHandle, displayName: newDisplayName});
           throw new signals.GeneralFailure(constants.RET_CODE.FAILURE);
         }
         newOrg = doc;
 
-        return WriterManager.instance.upsertWriterAsync(null, newModeratorHandle, newModeratorDisplayName, newModeratorSha1HashedPassword, t);        })
+        return writerDao.upsertWriterAsync(null, newModeratorHandle, newModeratorDisplayName, newModeratorSha1HashedPassword, t);        })
       .then(function(doc) {
         if (null == doc) {
-          logger.warn("orgAddApi err #2, WriterManager.instance.upsertWriterAsync failed for ", {handle: newModeratorHandle, displayName: newModeratorDisplayName});
+          logger.warn("orgAddApi err #2, writerDao.upsertWriterAsync failed for ", {handle: newModeratorHandle, displayName: newModeratorDisplayName});
           throw new signals.GeneralFailure(constants.RET_CODE.FAILURE);
         }
         newWriter = doc;
 
-        return OrgManager.instance.upsertSuborgAsync(newOrg.id, newSuborg.id, newType, newDisplayName, t);
+        return orgDao.findOrCreateSuborgAsync(newOrg.id, constants.SUBORG.TYPE.MODERATOR, newDisplayName, t);
       })
       .then(function(doc) {
         if (null == doc) {
@@ -370,13 +372,7 @@ const orgAddApi = function(req, res) {
         }
         newSuborg = doc;
 
-        return WriterSuborgBindingTable.create({
-          writer_id: newWriter.id,
-          suborg_id: newSuborg.id,
-          org_id: newOrg.id,
-          created_at: currentMillis,
-          updated_at: currentMillis,
-        });
+        return orgDao.bindWritersToSuborgWithoutPreunbindingAsync(newOrg.id, newSuborg.id, [newWriter.id], t);
       })
       .then(function(doc) {
         if (null == doc) {
@@ -399,6 +395,11 @@ const orgAddApi = function(req, res) {
 };
 
 const orgSaveApi = function(req, res) {
+  /*
+  * Updating or rebinding MODERATOR of an existing org is prohibitted for the "RootAdmin" from GUI client for avoiding confusion of access control.
+  * 
+  * -- YFLu, 2020-04-20
+  */
   const instance = this;
   const orgId = parseInt(req.params.orgId);
 
@@ -415,47 +416,25 @@ const orgSaveApi = function(req, res) {
     return;
   }
 
-  const newModeratorHandle = req.body.newModeratorHandle;
-  const newModeratorDisplayName = req.body.newModeratorDisplayName;
-  const newModeratorSha1HashedPassword = req.body.newModeratorPassword;
-
   const currentMillis = Time.currentMillis();
 
   MySQLManager.instance.dbRef.transaction(t => {
-    return OrgTable.findOne({
-      where: {
-        handle: newHandle,
-        deleted_at: null,
-      },
-      transaction: t
-    })
+    return orgDao.upsertOrgAsync(null, newHandle, newDisplayName, t)
       .then(function(doc) {
-        if (null != doc && doc.id != orgId) {
-          throw new signals.GeneralFailure(constants.RET_CODE.DUPLICATED);
+        if (null != doc) {
+          logger.warn("orgSaveApi err #1, orgDao.upsertOrgAsync failed for ", {handle: newHandle, displayName: newDisplayName});
+          throw new signals.GeneralFailure(constants.RET_CODE.FAILURE);
         }
+        newOrg = doc;
 
-        const replacementSetObject = {
-          handle: newHandle,
-          display_name: newDisplayName,
-        };
-
-        return OrgTable.update(replacementSetObject, {
-          where: {
-            id: orgId,
-            deleted_at: null,
-          },
-          transaction: t,
+        res.json({
+          ret: constants.RET_CODE.OK,
+          org: newOrg,
+          suborg: newSuborg,
+          moderator: newWriter,
+          writerSuborgBinding: newWriterSuborgBinding,
         });
-      })
-      .then(function(affectedRows) {
-        const affectedRowsCount = affectedRows[0];
-        if (1 != affectedRowsCount) {
-          logger.warn("orgSaveApi, affectedRowsCount == ", affectedRowsCount);
-          throw new signals.GeneralFailure();
-        }
-        
-        // We'll physically delete the existing "MODERATOR binding" anyway, without making any change to the existing "writer" record. 
-      })
+      });
   })
     .catch(function(err) {
       instance.respondWithError(res, err);
@@ -468,8 +447,7 @@ const orgDetailApi = function(req, res) {
 
   let theOrg = null;
   let theModeratorSuborg = null;
-  let theModeratorSuborgBinding = null;
-  let theModerator = null;
+  let theModeratorList = null;
 
   MySQLManager.instance.dbRef.transaction(t => {
     return OrgTable.findOne({
@@ -485,7 +463,7 @@ const orgDetailApi = function(req, res) {
         }
 
         theOrg = doc;
-
+        
         return SuborgTable.findOne({
           where: {
             org_id: orgId,
@@ -503,43 +481,22 @@ const orgDetailApi = function(req, res) {
 
         theModeratorSuborg = doc;
 
-        return WriterSuborgBindingTable.findOne({
-          where: {
-            org_id: orgId,
-            suborg_id: theModeratorSuborg.id,
-            deleted_at: null,
-          }
-        }, {
-          transaction: t
-        });
-      })
-      .then(function(doc) {
-        if (null == doc) {
-          throw new signals.GeneralFailure(constants.RET_CODE.NONEXISTENT_WRITER_SUBORG_BINDING);
-        }
-        theModeratorSuborgBinding = doc;
+        const orientation = constants.DESC;
+        const orderKey = constants.UPDATED_AT;
 
-        return WriterTable.findOne({
-          where: {
-            id: theModeratorSuborgBinding.writer_id,
-            deleted_at: null,
-          }
-        }, {
-          transaction: t
-        });
+        return orgDao.queryWriterListOfSuborgAsync(theOrg.id, theModeratorSuborg.id, 1, 100, [[orderKey, orientation]]/* hardcoded temporarily -- YFLu, 2020-04-20 */, t);
       })
-      .then(function(doc) {
-        if (null == doc) {
+      .then(function(result) {
+        if (null == result) {
           throw new signals.GeneralFailure(constants.RET_CODE.NONEXISTENT_WRITER);
         }
-        theModerator = doc;
+        theModeratorList = result.rows;
 
         res.json({
           ret: constants.RET_CODE.OK,
           org: theOrg,
           suborg: theModeratorSuborg,
-          moderator: theModerator,
-          writerSuborgBinding: theModeratorSuborgBinding,
+          moderatorList: theModeratorList,
         });
       });
   })

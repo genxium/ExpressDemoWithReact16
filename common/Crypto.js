@@ -16,6 +16,10 @@ class Crypto {
   static hmacSha1Sign(seed, key) {
     return hmacSha1(seed.toString(), key.toString()).toString();
   }
+    
+  static obscureWithSalt(content, salt) {
+    return Crypto.hmacSha1Sign(content, salt);
+  }
 }
 
 // Use "CommonJs `require`" syntax to import for both NodeJsBackend and React16Frontend to guarantee compatibility.
