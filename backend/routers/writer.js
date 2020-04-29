@@ -143,7 +143,7 @@ const articlePaginationListApi = function(req, res) {
 
 const articleDetailApi = function(req, res) {
   const instance = this;
-  let articleId = (null == req.params.articleId ? null : parseInt(req.params.articleId));
+  let articleId = (null == req.query.articleId ? null : parseInt(req.query.articleId));
   let article = null;
   const loggedInRole = req.loggedInRole;
 
@@ -196,7 +196,7 @@ const articleSaveApi = function(req, res) {
 
   const writerId = loggedInRole.id;
   let waitFor = null;
-  let articleId = (null == req.params.articleId ? null : parseInt(req.params.articleId));
+  let articleId = (null == req.body.articleId ? null : parseInt(req.body.articleId));
   let article = null;
 
   MySQLManager.instance.dbRef.transaction(t => {
@@ -233,7 +233,7 @@ const articleSaveApi = function(req, res) {
 
 const articleSubmitApi = function(req, res) {
   const instance = this;
-  let articleId = (null == req.params.articleId ? null : parseInt(req.params.articleId));
+  let articleId = (null == req.body.articleId ? null : parseInt(req.body.articleId));
 
   const loggedInRole = req.loggedInRole;
   if (null == loggedInRole) {
@@ -259,7 +259,7 @@ const articleSubmitApi = function(req, res) {
 
 const articleSuspendApi = function(req, res) {
   const instance = this;
-  let articleId = (null == req.params.articleId ? null : parseInt(req.params.articleId));
+  let articleId = (null == req.body.articleId ? null : parseInt(req.body.articleId));
 
   const reason = (null == req.body.reason ? null : req.body.reason);
 

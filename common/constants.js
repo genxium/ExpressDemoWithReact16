@@ -240,12 +240,6 @@ exports.ROUTE_PATHS = ROUTE_PATHS;
 
 const ROUTE_PARAMS = {
   API_VER: "/Api/:version",
-  ORG_ID: "/:orgId",
-  SKU_ID: "/:skuId",
-
-  WRITER_ID: "/:writerId",
-  ARTICLE_ID: "/:articleId",
-
   ACT: "/:act",
 };
 

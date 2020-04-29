@@ -33,7 +33,7 @@ const createPageRouter = function() {
 const articleDetailApi = function(req, res) {
   const instance = this;
 
-  let articleId = (null == req.params.articleId ? null : parseInt(req.params.articleId));
+  let articleId = (null == req.query.articleId ? null : parseInt(req.query.articleId));
   let article = null;
 
   MySQLManager.instance.dbRef.transaction(t => {
@@ -96,7 +96,7 @@ class PlayerRouterCollection extends AbstractAuthRouterCollection {
   articleSpa(req, res) {
     // TODO: Employ full server rendering.
     const instance = this;
-    let articleId = (null == req.params.articleId ? null : parseInt(req.params.articleId));
+    let articleId = (null == req.query.articleId ? null : parseInt(req.query.articleId));
 
     MySQLManager.instance.dbRef.transaction(t => {
       return playerDao.queryReadableArticleAsync(articleId, t);

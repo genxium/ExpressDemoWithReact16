@@ -35,17 +35,22 @@ class Detail extends React.Component {
   initScene() {
     const sceneRef = this;
     const props = sceneRef.props;
-    const params = props.match.params;
     const {RoleLoginSingleton, location, basename, ...other} = sceneRef.props;
 
-    const paramDict = {};
+    const query = NetworkFunc.searchStrToMap(sceneRef.props.location.search);
+    const articleId = query.articleId; 
+
+    const paramDict = {
+      articleId: articleId,
+    };
+
     if (RoleLoginSingleton.instance.hasLoggedIn()) {
       Object.assign(paramDict, {
         token: RoleLoginSingleton.instance.loggedInRole.token,
       });
     }
 
-    const url = basename + constants.ROUTE_PATHS.API_V1 + constants.ROUTE_PATHS.PUBLIC + constants.ROUTE_PATHS.ARTICLE + "/" + params.articleId + constants.ROUTE_PATHS.DETAIL;
+    const url = basename + constants.ROUTE_PATHS.API_V1 + constants.ROUTE_PATHS.PUBLIC + constants.ROUTE_PATHS.ARTICLE + constants.ROUTE_PATHS.DETAIL;
 
     let respData = null;
     NetworkFunc.get(url, paramDict)
@@ -85,7 +90,6 @@ class Detail extends React.Component {
   render() {
     const sceneRef = this;
     const props = sceneRef.props;
-    const params = props.match.params;
     const RoleLoginSingleton = props.RoleLoginSingleton;
 
     const topbarProps = Object.assign({

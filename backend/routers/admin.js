@@ -43,11 +43,11 @@ const createPageRouter = function() {
 
   router.get(constants.ROUTE_PATHS.WRITER + constants.ROUTE_PATHS.LIST, instance.spa);
   router.get(constants.ROUTE_PATHS.WRITER + constants.ROUTE_PATHS.ADD, instance.spa);
-  router.get(constants.ROUTE_PATHS.WRITER + constants.ROUTE_PARAMS.WRITER_ID + constants.ROUTE_PATHS.EDIT, instance.spa);
+  router.get(constants.ROUTE_PATHS.WRITER + constants.ROUTE_PATHS.EDIT, instance.spa);
 
   router.get(constants.ROUTE_PATHS.ORG + constants.ROUTE_PATHS.LIST, instance.spa);
   router.get(constants.ROUTE_PATHS.ORG + constants.ROUTE_PATHS.ADD, instance.spa);
-  router.get(constants.ROUTE_PATHS.ORG + constants.ROUTE_PARAMS.ORG_ID + constants.ROUTE_PATHS.EDIT, instance.spa);
+  router.get(constants.ROUTE_PATHS.ORG + constants.ROUTE_PATHS.EDIT, instance.spa);
 
   return router;
 };
@@ -155,7 +155,7 @@ const writerAddApi = function(req, res) {
 
 const writerSaveApi = function(req, res) {
   const instance = this;
-  const writerId = parseInt(req.params.writerId);
+  const writerId = parseInt(req.body.writerId);
   const newHandle = req.body.handle;
   const newDisplayName = req.body.displayName;
 
@@ -190,7 +190,7 @@ const writerSaveApi = function(req, res) {
 
 const writerDetailApi = function(req, res) {
   const instance = this;
-  const writerId = parseInt(req.params.writerId);
+  const writerId = parseInt(req.query.writerId);
 
   MySQLManager.instance.dbRef.transaction(t => {
     return WriterTable.findOne({
@@ -223,7 +223,7 @@ const writerDetailApi = function(req, res) {
 
 const writerDeleteApi = function(req, res) {
   const instance = this;
-  const writerId = parseInt(req.params.writerId);
+  const writerId = parseInt(req.body.writerId);
 
   MySQLManager.instance.dbRef.transaction(t => {
     return writerDao.deleteWritersSoftly([writerId], t)
@@ -350,7 +350,7 @@ const orgAddApi = function(req, res) {
   MySQLManager.instance.dbRef.transaction(t => {
     return orgDao.upsertOrgAsync(null, newHandle, newDisplayName, t)
       .then(function(doc) {
-        if (null != doc) {
+        if (null == doc) {
           logger.warn("orgAddApi err #1, orgDao.upsertOrgAsync failed for ", {handle: newHandle, displayName: newDisplayName});
           throw new signals.GeneralFailure(constants.RET_CODE.FAILURE);
         }
@@ -364,7 +364,7 @@ const orgAddApi = function(req, res) {
         }
         newWriter = doc;
 
-        return orgDao.findOrCreateSuborgAsync(newOrg.id, constants.SUBORG.TYPE.MODERATOR, newDisplayName, t);
+        return orgDao.findOrCreateSuborgByTypeAsync(newOrg.id, constants.SUBORG.TYPE.MODERATOR, newDisplayName, t);
       })
       .then(function(doc) {
         if (null == doc) {
@@ -401,7 +401,7 @@ const orgSaveApi = function(req, res) {
   * -- YFLu, 2020-04-20
   */
   const instance = this;
-  const orgId = parseInt(req.params.orgId);
+  const orgId = parseInt(req.body.orgId);
 
   const newHandle = req.body.handle;
   const newDisplayName = req.body.displayName;
@@ -421,18 +421,15 @@ const orgSaveApi = function(req, res) {
   MySQLManager.instance.dbRef.transaction(t => {
     return orgDao.upsertOrgAsync(null, newHandle, newDisplayName, t)
       .then(function(doc) {
-        if (null != doc) {
+        if (null == doc) {
           logger.warn("orgSaveApi err #1, orgDao.upsertOrgAsync failed for ", {handle: newHandle, displayName: newDisplayName});
           throw new signals.GeneralFailure(constants.RET_CODE.FAILURE);
         }
-        newOrg = doc;
+        const theOrg = doc;
 
         res.json({
           ret: constants.RET_CODE.OK,
-          org: newOrg,
-          suborg: newSuborg,
-          moderator: newWriter,
-          writerSuborgBinding: newWriterSuborgBinding,
+          org: theOrg,
         });
       });
   })
@@ -443,7 +440,7 @@ const orgSaveApi = function(req, res) {
 
 const orgDetailApi = function(req, res) {
   const instance = this;
-  const orgId = parseInt(req.params.orgId);
+  const orgId = parseInt(req.query.orgId);
 
   let theOrg = null;
   let theModeratorSuborg = null;
@@ -508,7 +505,7 @@ const orgDetailApi = function(req, res) {
 const orgDeleteApi = function(req, res) {
   const instance = this;
   const currentMillis = Time.currentMillis();
-  const orgId = parseInt(req.params.orgId);
+  const orgId = parseInt(req.body.orgId);
 
   MySQLManager.instance.dbRef.transaction(t => {
     return OrgTable.update({
@@ -545,15 +542,15 @@ const createAuthProtectedApiRouter = function() {
 
   router.get(constants.ROUTE_PATHS.WRITER + constants.ROUTE_PATHS.PAGINATION + constants.ROUTE_PATHS.LIST, writerPaginationListApi.bind(instance));
   router.post(constants.ROUTE_PATHS.WRITER + constants.ROUTE_PATHS.ADD, writerAddApi.bind(instance));
-  router.post(constants.ROUTE_PATHS.WRITER + constants.ROUTE_PARAMS.WRITER_ID + constants.ROUTE_PATHS.SAVE, writerSaveApi.bind(instance));
-  router.get(constants.ROUTE_PATHS.WRITER + constants.ROUTE_PARAMS.WRITER_ID + constants.ROUTE_PATHS.DETAIL, writerDetailApi.bind(instance));
-  router.post(constants.ROUTE_PATHS.WRITER + constants.ROUTE_PARAMS.WRITER_ID + constants.ROUTE_PATHS.DELETE, writerDeleteApi.bind(instance));
+  router.post(constants.ROUTE_PATHS.WRITER + constants.ROUTE_PATHS.SAVE, writerSaveApi.bind(instance));
+  router.get(constants.ROUTE_PATHS.WRITER + constants.ROUTE_PATHS.DETAIL, writerDetailApi.bind(instance));
+  router.post(constants.ROUTE_PATHS.WRITER + constants.ROUTE_PATHS.DELETE, writerDeleteApi.bind(instance));
 
   router.get(constants.ROUTE_PATHS.ORG + constants.ROUTE_PATHS.PAGINATION + constants.ROUTE_PATHS.LIST, orgPaginationListApi.bind(instance));
   router.post(constants.ROUTE_PATHS.ORG + constants.ROUTE_PATHS.ADD, orgAddApi.bind(instance));
-  router.post(constants.ROUTE_PATHS.ORG + constants.ROUTE_PARAMS.ORG_ID + constants.ROUTE_PATHS.SAVE, orgSaveApi.bind(instance));
-  router.get(constants.ROUTE_PATHS.ORG + constants.ROUTE_PARAMS.ORG_ID + constants.ROUTE_PATHS.DETAIL, orgDetailApi.bind(instance));
-  router.post(constants.ROUTE_PATHS.ORG + constants.ROUTE_PARAMS.ORG_ID + constants.ROUTE_PATHS.DELETE, orgDeleteApi.bind(instance));
+  router.post(constants.ROUTE_PATHS.ORG + constants.ROUTE_PATHS.SAVE, orgSaveApi.bind(instance));
+  router.get(constants.ROUTE_PATHS.ORG  + constants.ROUTE_PATHS.DETAIL, orgDetailApi.bind(instance));
+  router.post(constants.ROUTE_PATHS.ORG + constants.ROUTE_PATHS.DELETE, orgDeleteApi.bind(instance));
 
   return router;
 };

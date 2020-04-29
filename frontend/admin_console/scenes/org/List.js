@@ -16,7 +16,7 @@ import { Topbar, Button, View, Image, Input, Text, pushNewScene, replaceNewScene
 
 class List extends Component {
 
-  createCellReactElement(writer, key) {
+  createCellReactElement(org, key) {
     const sceneRef = this;
     const {basename, ...other} = sceneRef.props;
 
@@ -32,10 +32,12 @@ class List extends Component {
                     } }
             key={ key }
             onClick={ (evt) => {
-                        const pathname = constants.ROUTE_PATHS.ORG + "/" + writer.id + constants.ROUTE_PATHS.EDIT;
-                        pushNewScene(sceneRef, pathname);
+                        const pathname = constants.ROUTE_PATHS.ORG + constants.ROUTE_PATHS.EDIT;
+                        pushNewScene(sceneRef, pathname, {
+                          orgId: org.id,
+                        });
                       } }>
-        { writer.handle }
+        { org.handle }
       </View>
     );
   }

@@ -32,8 +32,10 @@ class List extends Component {
                     } }
             key={ key }
             onClick={ (evt) => {
-                        const pathname = constants.ROUTE_PATHS.WRITER + "/" + writer.id + constants.ROUTE_PATHS.EDIT;
-                        pushNewScene(sceneRef, pathname);
+                        const pathname = constants.ROUTE_PATHS.WRITER + constants.ROUTE_PATHS.EDIT;
+                        pushNewScene(sceneRef, pathname, {
+                          writerId: writer.id,
+                        });
                       } }>
         { writer.handle }
       </View>

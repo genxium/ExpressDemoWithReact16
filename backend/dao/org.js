@@ -242,6 +242,7 @@ const bindWritersToSuborgWithoutPreunbindingAsync = function(orgId, suborgId, wr
 
   let newWriterSuborgBindingRecordList = [];
   for (let i in writerIdList) {
+    const writerId = writerIdList[i];
     newWriterSuborgBindingRecordList.push({
       writer_id: writerId,
       suborg_id: suborgId,

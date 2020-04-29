@@ -85,7 +85,7 @@ const routes = (
           <Route path={constants.ROUTE_PATHS.WRITER + constants.ROUTE_PATHS.ADD} render={(routerProps) => (
             <WriterEdit {...commonRouteProps} />
           )} />
-          <Route path={constants.ROUTE_PATHS.WRITER + constants.ROUTE_PARAMS.WRITER_ID + constants.ROUTE_PATHS.EDIT} render={(routerProps) => (
+          <Route path={constants.ROUTE_PATHS.WRITER + constants.ROUTE_PATHS.EDIT} render={(routerProps) => (
             <WriterEdit {...commonRouteProps} />
           )} />
 
@@ -95,7 +95,7 @@ const routes = (
           <Route path={constants.ROUTE_PATHS.ORG + constants.ROUTE_PATHS.ADD} render={(routerProps) => (
             <OrgEdit {...commonRouteProps} />
           )} />
-          <Route path={constants.ROUTE_PATHS.ORG + constants.ROUTE_PARAMS.ORG_ID + constants.ROUTE_PATHS.EDIT} render={(routerProps) => (
+          <Route path={constants.ROUTE_PATHS.ORG + constants.ROUTE_PATHS.EDIT} render={(routerProps) => (
             <OrgEdit {...commonRouteProps} />
           )} />
 

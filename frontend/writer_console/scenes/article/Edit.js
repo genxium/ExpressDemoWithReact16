@@ -148,8 +148,9 @@ class Edit extends Component {
 
   componentDidMount() {
     const sceneRef = this;
-    const params = sceneRef.props.match.params;
-    const isNew = (null == params || null == params.articleId);
+    const query = NetworkFunc.searchStrToMap(sceneRef.props.location.search);
+    const articleId = query.articleId;
+    const isNew = (null == articleId);
     if (isNew) {
       changeSceneTitle(sceneRef, LocaleManager.instance.effectivePack().ADD_ARTICLE);
     } else {
@@ -168,7 +169,9 @@ class Edit extends Component {
     const sceneRef = this;
     const params = sceneRef.props.match.params;
     const {location, basename, ...other} = sceneRef.props;
-    const isNewArticle = (null == params.articleId);
+    const query = NetworkFunc.searchStrToMap(sceneRef.props.location.search);
+    const articleId = query.articleId;
+    const isNewArticle = (null == articleId);
 
     const bundleList = sceneRef.state.bundleListManager.bundleList;
     let ossFilepathList = [];
@@ -191,10 +194,14 @@ class Edit extends Component {
       token: cookieToken,
     };
     let url = null;
-    if (isNewArticle)
+    if (isNewArticle) {
       url = basename + constants.ROUTE_PATHS.API_V1 + constants.ROUTE_PATHS.ARTICLE + constants.ROUTE_PATHS.SAVE;
-    else
-      url = basename + constants.ROUTE_PATHS.API_V1 + constants.ROUTE_PATHS.ARTICLE + "/" + params.articleId + constants.ROUTE_PATHS.SAVE;
+    } else {
+      Object.assign(paramsDict, {
+        articleId: articleId,
+      });
+      url = basename + constants.ROUTE_PATHS.API_V1 + constants.ROUTE_PATHS.ARTICLE + constants.ROUTE_PATHS.SAVE;
+    }
     NetworkFunc.post(url, paramDict)
       .then(function(response) {
         return response.json();
@@ -226,15 +233,18 @@ class Edit extends Component {
     const sceneRef = this;
     const {location, basename, ...other} = sceneRef.props;
     const params = sceneRef.props.match.params;
+    const query = NetworkFunc.searchStrToMap(sceneRef.props.location.search);
+    const articleId = query.articleId;
     sceneRef.setState({
       disabled: true,
       submittable: false,
     }, function() {
-      const url = basename + constants.ROUTE_PATHS.API_V1 + constants.ROUTE_PATHS.ARTICLE + "/" + params.articleId + constants.ROUTE_PATHS.SUBMIT;
+      const url = basename + constants.ROUTE_PATHS.API_V1 + constants.ROUTE_PATHS.ARTICLE + constants.ROUTE_PATHS.SUBMIT;
       const cookieToken = WebFunc.getCookie(constants.WEB_FRONTEND_COOKIE_INT_AUTH_TOKEN_KEY);
 
       const paramDict = {
         token: cookieToken,
+        articleId: articleId,
       };
       NetworkFunc.post(url, paramDict)
         .then(function(response) {
@@ -257,15 +267,18 @@ class Edit extends Component {
   suspend(reason) {
     const sceneRef = this;
     const params = sceneRef.props.match.params;
+    const query = NetworkFunc.searchStrToMap(sceneRef.props.location.search);
+    const articleId = query.articleId;
     const {location, basename, ...other} = sceneRef.props;
     sceneRef.setState({
       disabled: true,
       submittable: false,
     }, function() {
-      const url = basename + constants.ROUTE_PATHS.API_V1 + constants.ROUTE_PATHS.ARTICLE + "/" + params.articleId + constants.ROUTE_PATHS.SUSPEND;
+      const url = basename + constants.ROUTE_PATHS.API_V1 + constants.ROUTE_PATHS.ARTICLE + constants.ROUTE_PATHS.SUSPEND;
       const cookieToken = WebFunc.getCookie(constants.WEB_FRONTEND_COOKIE_INT_AUTH_TOKEN_KEY);
       const paramDict = {
         reason: reason,
+        articleId: articleId,
         token: cookieToken,
       };
       NetworkFunc.post(url, paramDict)
@@ -293,8 +306,10 @@ class Edit extends Component {
     const sceneRef = this;
     const params = sceneRef.props.match.params;
     const {location, basename, ...other} = sceneRef.props;
+    const query = NetworkFunc.searchStrToMap(sceneRef.props.location.search);
+    const articleId = query.articleId;
 
-    const isNewArticle = (null == params.articleId);
+    const isNewArticle = (null == articleId);
 
     if (true == isNewArticle) {
       let newVideoBundle = sceneRef.state.videoBundle;
@@ -315,8 +330,9 @@ class Edit extends Component {
     const cookieToken = WebFunc.getCookie(constants.WEB_FRONTEND_COOKIE_INT_AUTH_TOKEN_KEY);
     const paramDict = {
       token: cookieToken,
+      articleId: articleId,
     };
-    const url = basename + constants.ROUTE_PATHS.API_V1 + constants.ROUTE_PATHS.ARTICLE + "/" + params.articleId + constants.ROUTE_PATHS.DETAIL;
+    const url = basename + constants.ROUTE_PATHS.API_V1 + constants.ROUTE_PATHS.ARTICLE + constants.ROUTE_PATHS.DETAIL;
     let cachedArticle = null;
     NetworkFunc.get(url, paramDict)
       .then(function(response) {
@@ -560,12 +576,13 @@ class Edit extends Component {
     const {location, basename, ...other} = sceneRef.props;
     const params = sceneRef.props.match.params;
     const styles = sceneRef.styles;
+    const query = NetworkFunc.searchStrToMap(sceneRef.props.location.search);
+    const articleId = query.articleId;
 
-    const isNewArticle = (null == params.articleId);
+    const isNewArticle = (null == articleId);
     const shouldWaitForCachedArticle = (!isNewArticle && null == sceneRef.state.cachedArticle);
 
     const currentMomentObj = Time.currentMomentObj();
-    let articleId = params.articleId;
 
     const genQueryAndSetSingleBundleExtUploaderCredentialsAsync = (mimeTypeGroup) => {
       const toRetFunc = function(pluploadUploader) {
@@ -1141,7 +1158,7 @@ class Edit extends Component {
     const namedGatewayInfo = queryNamedGatewayInfoDictSync().articleServer;
     const viewAsPlayerEntry = (
     <HyperLink
-               href={ namedGatewayInfo.protocol + "://" + namedGatewayInfo.pageGateway + constants.ROUTE_PATHS.BASE + constants.ROUTE_PATHS.PLAYER + constants.ROUTE_PATHS.ARTICLE + "/" + params.articleId + constants.ROUTE_PATHS.DETAIL }
+               href={ namedGatewayInfo.protocol + "://" + namedGatewayInfo.pageGateway + constants.ROUTE_PATHS.BASE + constants.ROUTE_PATHS.PLAYER + constants.ROUTE_PATHS.ARTICLE + "/" + params.articleId + constants.ROUTE_PATHS.DETAIL + "?" + NetworkFunc.mapToSortedQueryParams({articleId: articleId})}
                style={ {
                          display: (notApproved ? 'none' : 'block'),
                          fontSize: 20,

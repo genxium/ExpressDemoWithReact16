@@ -39,9 +39,10 @@ class Edit extends Component {
 
   componentDidMount() {
     const sceneRef = this;
-    const params = sceneRef.props.match.params;
+    const query = NetworkFunc.searchStrToMap(sceneRef.props.location.search);
+    const writerId = query.writerId;
 
-    const isNew = (null == params.writerId);
+    const isNew = (null == writerId);
     if (isNew) {
       changeSceneTitle(sceneRef, LocaleManager.instance.effectivePack().ADD_WRITER);
     } else {
@@ -65,9 +66,10 @@ class Edit extends Component {
   initScene() {
     const sceneRef = this;
     const {location, basename, ...other} = sceneRef.props;
-    const params = sceneRef.props.match.params;
+    const query = NetworkFunc.searchStrToMap(sceneRef.props.location.search);
+    const writerId = query.writerId;
 
-    const isNew = (null == params.writerId);
+    const isNew = (null == writerId);
     if (isNew) {
       sceneRef.setState({
         disabled: false,
@@ -79,9 +81,10 @@ class Edit extends Component {
 
     let paramDict = {
       token: cookieToken,
+      writerId: writerId,
     };
     const namedGatewayInfo = queryNamedGatewayInfoDictSync().articleServer;
-    const url = namedGatewayInfo.protocol + "://" + namedGatewayInfo.apiGateway + basename + constants.ROUTE_PATHS.API_V1 + constants.ROUTE_PATHS.WRITER + "/" + params.writerId + constants.ROUTE_PATHS.DETAIL;
+    const url = namedGatewayInfo.protocol + "://" + namedGatewayInfo.apiGateway + basename + constants.ROUTE_PATHS.API_V1 + constants.ROUTE_PATHS.WRITER + constants.ROUTE_PATHS.DETAIL;
     let respData = null;
     NetworkFunc.get(url, paramDict)
       .then(function(response) {
@@ -115,10 +118,11 @@ class Edit extends Component {
 
   save() {
     const sceneRef = this;
-    const params = sceneRef.props.match.params;
     const {location, basename, ...other} = sceneRef.props;
 
-    const isNew = (null == params.writerId);
+    const query = NetworkFunc.searchStrToMap(sceneRef.props.location.search);
+    const writerId = query.writerId;
+    const isNew = (null == writerId);
 
     const cookieToken = WebFunc.getCookie(constants.WEB_FRONTEND_COOKIE_INT_AUTH_TOKEN_KEY);
 
@@ -139,10 +143,14 @@ class Edit extends Component {
 
       const namedGatewayInfo = queryNamedGatewayInfoDictSync().articleServer;
       let url = null;
-      if (isNew)
+      if (isNew) {
         url = namedGatewayInfo.protocol + "://" + namedGatewayInfo.apiGateway + basename + constants.ROUTE_PATHS.API_V1 + constants.ROUTE_PATHS.WRITER + constants.ROUTE_PATHS.ADD;
-      else
-        url = namedGatewayInfo.protocol + "://" + namedGatewayInfo.apiGateway + basename + constants.ROUTE_PATHS.API_V1 + constants.ROUTE_PATHS.WRITER + "/" + params.writerId + constants.ROUTE_PATHS.SAVE;
+      } else {
+        Object.assign(paramDict, {
+          writerId: writerId,
+        });
+        url = namedGatewayInfo.protocol + "://" + namedGatewayInfo.apiGateway + basename + constants.ROUTE_PATHS.API_V1 + constants.ROUTE_PATHS.WRITER + constants.ROUTE_PATHS.SAVE; 
+      }
       let respData = null;
       NetworkFunc.post(url, paramDict)
         .then(function(response) {
@@ -193,10 +201,11 @@ class Edit extends Component {
   // NOTE: Intentionally spelled as 'delet'.
   delet() {
     const sceneRef = this;
-    const params = sceneRef.props.match.params;
     const {location, basename, ...other} = sceneRef.props;
+    const query = NetworkFunc.searchStrToMap(sceneRef.props.location.search);
+    const writerId = query.writerId;
 
-    const isNew = (null == params.writerId);
+    const isNew = (null == writerId);
 
     if (isNew) return; // Invalid trigger.
 
@@ -207,9 +216,10 @@ class Edit extends Component {
     }, function() {
       let paramDict = {
         token: cookieToken,
+        writerId: writerId,
       };
       const namedGatewayInfo = queryNamedGatewayInfoDictSync().articleServer;
-      const url = namedGatewayInfo.protocol + "://" + namedGatewayInfo.apiGateway + basename + constants.ROUTE_PATHS.API_V1 + constants.ROUTE_PATHS.WRITER + "/" + params.writerId + constants.ROUTE_PATHS.DELETE;
+      const url = namedGatewayInfo.protocol + "://" + namedGatewayInfo.apiGateway + basename + constants.ROUTE_PATHS.API_V1 + constants.ROUTE_PATHS.WRITER + constants.ROUTE_PATHS.DELETE;
       let respData = null;
       NetworkFunc.post(url, paramDict)
         .then(function(response) {
@@ -240,11 +250,12 @@ class Edit extends Component {
 
   render() {
     const sceneRef = this;
-    const params = sceneRef.props.match.params;
     const {location, basename, ...other} = sceneRef.props;
     const styles = sceneRef.styles;
+    const query = NetworkFunc.searchStrToMap(sceneRef.props.location.search);
+    const writerId = query.writerId;
 
-    const isNew = (null == params.writerId);
+    const isNew = (null == writerId);
 
     const topbarProps = Object.assign({
       showLoginNav: false,
