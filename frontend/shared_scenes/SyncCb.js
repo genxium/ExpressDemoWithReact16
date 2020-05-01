@@ -21,7 +21,7 @@ class SyncCb extends Component {
     const sceneRef = this;
     const query = NetworkFunc.searchStrToMap(sceneRef.props.location.search);
     const daysToKeepToken = Time.targetMillisToDurationFromNow(query.ExpiresAtGmtZero).days;
-    WebFunc.setCookie(constants.WEB_FRONTEND_COOKIE_INT_AUTH_TOKEN_KEY, query.IntAuthToken, daysToKeepToken);
+    WebFunc.setCookie(constants.WEB_FRONTEND_COOKIE_INT_AUTH_TOKEN_KEY, query.IntAuthToken, {expires: daysToKeepToken});
 
     const decodedStateWithAction = WebFunc.decodeStateWithAction(query.state);
 
