@@ -327,7 +327,7 @@ const overwriteArticleAsync = function(articleId, writerId, bundle, trx) {
       if (null != bundle.keywordList) {
         Object.assign(replacementSetObject, {
           // TODO: Use a more efficient codec, e.g. protobuf.
-          keywordList: JSON.stringify(bundle.keywordList),
+          keyword_list: JSON.stringify(bundle.keywordList),
         });
       }
 

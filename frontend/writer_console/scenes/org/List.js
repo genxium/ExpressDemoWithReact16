@@ -20,8 +20,9 @@ import { View, Topbar, Text, Button, Image, Input, pushNewScene, DropdownPicker,
 
 class List extends Component {
 
-  createCellReactElement(article, key) {
+  createCellReactElement(org, key) {
     const sceneRef = this;
+    const params = sceneRef.props.match.params;
 
     const cellWidthPx = sceneRef.state.rootElementSize.width;
     const cellHeightPx = sceneRef._cellHeightPx;
@@ -35,13 +36,10 @@ class List extends Component {
                     } }
             key={ key }
             onClick={ (evt) => {
-                        const pathname = constants.ROUTE_PATHS.ARTICLE + constants.ROUTE_PATHS.EDIT;
-                        const paramDict = {
-                          articleId: article.id, 
-                        };
-                        pushNewScene(sceneRef, pathname, paramDict);
+                        const pathname = constants.ROUTE_PATHS.ORG + "/" + org.id.toString() + constants.ROUTE_PATHS.EDIT;
+                        pushNewScene(sceneRef, pathname);
                       } }>
-        { article.title }
+        { org.title }
       </View>
     );
   }
@@ -49,8 +47,8 @@ class List extends Component {
   handleListResponseData(responseData) {
     const sceneRef = this;
     const {RoleLoginSingleton, ...other} = sceneRef.props;
-    let articleList = responseData.articleList;
-    if (!articleList) {
+    let orgList = responseData.orgList;
+    if (!orgList) {
       RoleLoginSingleton.instance.checkWhetherTokenHasExpiredAsync(sceneRef, responseData)
         .then(function(trueOrFalse) {
           if (!trueOrFalse) return;
@@ -59,7 +57,7 @@ class List extends Component {
       return;
     }
     let newCellList = [];
-    articleList.map(function(single) {
+    orgList.map(function(single) {
       const singleCell = sceneRef.createCellReactElement(single, single.id);
       newCellList.push(singleCell);
     });
@@ -103,7 +101,7 @@ class List extends Component {
 
   componentDidMount() {
     const sceneRef = this;
-    changeSceneTitle(sceneRef, LocaleManager.instance.effectivePack().ARTICLE_LIST);
+    changeSceneTitle(sceneRef, LocaleManager.instance.effectivePack().ORG_LIST);
 
     if (null !== sceneRef.state.rootElementSize) return;
     const rootElementSize = getRootElementSize();
@@ -125,7 +123,7 @@ class List extends Component {
   triggerSearch() {
     const sceneRef = this;
     const query = NetworkFunc.searchStrToMap(sceneRef.props.location.search);
-    const pathname = constants.ROUTE_PATHS.ARTICLE + constants.ROUTE_PATHS.LIST;
+    const pathname = constants.ROUTE_PATHS.ORG + constants.ROUTE_PATHS.LIST;
     const params = {};
     for (let k in query) {
       params[k] = query[k];
@@ -198,7 +196,7 @@ class List extends Component {
       <PickerItem
                   key={ single.key }
                   onClick={ (evt) => {
-                              const pathname = constants.ROUTE_PATHS.ARTICLE + constants.ROUTE_PATHS.LIST;
+                              const pathname = constants.ROUTE_PATHS.ORG + constants.ROUTE_PATHS.LIST;
                               const params = {};
                               for (let k in query) {
                                 params[k] = query[k];
@@ -245,7 +243,7 @@ class List extends Component {
       <PickerItem
                   key={ single.key }
                   onClick={ (evt) => {
-                              const pathname = constants.ROUTE_PATHS.ARTICLE + constants.ROUTE_PATHS.LIST;
+                              const pathname = constants.ROUTE_PATHS.ORG + constants.ROUTE_PATHS.LIST;
                               const params = {};
                               for (let k in query) {
                                 params[k] = query[k];
@@ -386,7 +384,7 @@ class List extends Component {
                         float: 'right',
                       } }
               onPress={ (evt) => {
-                          const pathname = constants.ROUTE_PATHS.ARTICLE + constants.ROUTE_PATHS.ADD;
+                          const pathname = constants.ROUTE_PATHS.ORG + constants.ROUTE_PATHS.ADD;
                           pushNewScene(sceneRef, pathname);
                         } }>
         { LocaleManager.instance.effectivePack().SYMBOL_ADD }
@@ -448,13 +446,13 @@ class List extends Component {
           });
           return filters;
         },
-        dataUrl: basename + constants.ROUTE_PATHS.API_V1 + constants.ROUTE_PATHS.ARTICLE + constants.ROUTE_PATHS.PAGINATION + constants.ROUTE_PATHS.LIST,
+        dataUrl: basename + constants.ROUTE_PATHS.API_V1 + constants.ROUTE_PATHS.ORG + constants.ROUTE_PATHS.PAGINATION + constants.ROUTE_PATHS.LIST,
         cellList: sceneRef.state.cellList,
         activePage: () => {
           return sceneRef.state.activePage;
         },
         onPageSelectedBridge: (page) => {
-          const pathname = constants.ROUTE_PATHS.ARTICLE + constants.ROUTE_PATHS.LIST;
+          const pathname = constants.ROUTE_PATHS.ORG + constants.ROUTE_PATHS.LIST;
           const params = {};
           for (let k in query) {
             params[k] = query[k];

@@ -51,6 +51,14 @@ const ArticleEdit = withRouter(lazy(
     () => import("./scenes/article/Edit")
 ));
 
+const OrgList = withRouter(lazy(
+    () => import("./scenes/org/List")
+));
+
+const OrgEdit = withRouter(lazy(
+    () => import("./scenes/org/Edit")
+));
+
 import Loading from '../shared_scenes/Loading';
 
 import WriterManager from "./WriterManager";
@@ -76,11 +84,14 @@ const routes = (
           <Route path={constants.ROUTE_PATHS.ARTICLE + constants.ROUTE_PATHS.LIST} render={(routerProps) => (
             <ArticleList {...commonRouteProps} />
           )} />
-          <Route path={constants.ROUTE_PATHS.ARTICLE + constants.ROUTE_PATHS.ADD} render={(routerProps) => (
-            <ArticleEdit {...commonRouteProps} />
-          )} />
           <Route path={constants.ROUTE_PATHS.ARTICLE + constants.ROUTE_PATHS.EDIT} render={(routerProps) => (
             <ArticleEdit {...commonRouteProps} />
+          )} />
+          <Route path={constants.ROUTE_PATHS.ORG + constants.ROUTE_PATHS.LIST} render={(routerProps) => (
+            <OrgList {...commonRouteProps} />
+          )} />
+          <Route path={constants.ROUTE_PATHS.ORG + constants.ROUTE_PATHS.EDIT} render={(routerProps) => (
+            <OrgEdit {...commonRouteProps} />
           )} />
           <Route render={(routerProps) => (
             <Home {...commonRouteProps} />

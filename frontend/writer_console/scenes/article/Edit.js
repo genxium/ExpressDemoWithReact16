@@ -197,7 +197,7 @@ class Edit extends Component {
     if (isNewArticle) {
       url = basename + constants.ROUTE_PATHS.API_V1 + constants.ROUTE_PATHS.ARTICLE + constants.ROUTE_PATHS.SAVE;
     } else {
-      Object.assign(paramsDict, {
+      Object.assign(paramDict, {
         articleId: articleId,
       });
       url = basename + constants.ROUTE_PATHS.API_V1 + constants.ROUTE_PATHS.ARTICLE + constants.ROUTE_PATHS.SAVE;

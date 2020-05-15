@@ -41,7 +41,10 @@ const createPageRouter = function() {
 
   router.get(constants.ROUTE_PATHS.ARTICLE + constants.ROUTE_PATHS.LIST, instance.spa);
   router.get(constants.ROUTE_PATHS.ARTICLE + constants.ROUTE_PATHS.ADD, instance.spa);
-  router.get(constants.ROUTE_PATHS.ARTICLE + constants.ROUTE_PARAMS.ARTICLE_ID + constants.ROUTE_PATHS.EDIT, instance.spa);
+  router.get(constants.ROUTE_PATHS.ARTICLE + constants.ROUTE_PATHS.EDIT, instance.spa);
+
+  router.get(constants.ROUTE_PATHS.ORG + constants.ROUTE_PATHS.LIST, instance.spa);
+  router.get(constants.ROUTE_PATHS.ORG + constants.ROUTE_PATHS.EDIT, instance.spa);
 
   return router;
 };
@@ -431,11 +434,10 @@ const createAuthProtectedApiRouter = function() {
   });
 
   router.get(constants.ROUTE_PATHS.ARTICLE + constants.ROUTE_PATHS.PAGINATION + constants.ROUTE_PATHS.LIST, articlePaginationListApi.bind(instance));
-  router.get(constants.ROUTE_PATHS.ARTICLE + constants.ROUTE_PARAMS.ARTICLE_ID + constants.ROUTE_PATHS.DETAIL, articleDetailApi.bind(instance));
+  router.get(constants.ROUTE_PATHS.ARTICLE + constants.ROUTE_PATHS.DETAIL, articleDetailApi.bind(instance));
   router.post(constants.ROUTE_PATHS.ARTICLE + constants.ROUTE_PATHS.SAVE, articleSaveApi.bind(instance));
-  router.post(constants.ROUTE_PATHS.ARTICLE + constants.ROUTE_PARAMS.ARTICLE_ID + constants.ROUTE_PATHS.SAVE, articleSaveApi.bind(instance));
-  router.post(constants.ROUTE_PATHS.ARTICLE + constants.ROUTE_PARAMS.ARTICLE_ID + constants.ROUTE_PATHS.SUBMIT, articleSubmitApi.bind(instance));
-  router.post(constants.ROUTE_PATHS.ARTICLE + constants.ROUTE_PARAMS.ARTICLE_ID + constants.ROUTE_PATHS.SUSPEND, articleSuspendApi.bind(instance));
+  router.post(constants.ROUTE_PATHS.ARTICLE + constants.ROUTE_PATHS.SUBMIT, articleSubmitApi.bind(instance));
+  router.post(constants.ROUTE_PATHS.ARTICLE + constants.ROUTE_PATHS.SUSPEND, articleSuspendApi.bind(instance));
 
   router.get(constants.ROUTE_PATHS.UPTOKEN + constants.ROUTE_PATHS.FETCH, uptokenFetchApi.bind(instance));
   return router;

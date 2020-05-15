@@ -10,6 +10,8 @@ CREATE TABLE `attachment` (
   `owner_meta_type` smallint unsigned NOT NULL,
   `owner_meta_id` bigint unsigned NOT NULL,
   `mime_type` varchar(32) DEFAULT NULL,
+  `transcoding_profile` text DEFAULT NULL,
+  `source_oss_attachment_id` bigint unsigned DEFAULT NULL,
   `created_at` bigint unsigned NOT NULL,
   `updated_at` bigint unsigned NOT NULL,
   `deleted_at` bigint unsigned DEFAULT NULL,
