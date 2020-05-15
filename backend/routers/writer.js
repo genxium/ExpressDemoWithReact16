@@ -10,6 +10,8 @@ const LocaleManager = require('../../common/LocaleManager').default;
 const ArticleTable = require('../models/Article');
 const AttachmentTable = require('../models/Attachment');
 
+const OrgTable = require('../models/Org');
+
 const QiniuServerUtil = require('../utils/QiniuServerUtil').default;
 
 const RoleLoginCacheCollection = require('../RoleLoginCacheCollection').default;
@@ -26,7 +28,8 @@ const logger = Logger.instance.getLogger(__filename);
 const writerDao = require('../dao/writer');
 const sharedDao = require('../dao/shared');
 
-const SequelizeOp = require('sequelize').Op;
+const Sequelize = require('sequelize');
+const SequelizeOp = Sequelize.Op;
 
 const mime = require('mime');
 
@@ -47,6 +50,64 @@ const createPageRouter = function() {
   router.get(constants.ROUTE_PATHS.ORG + constants.ROUTE_PATHS.EDIT, instance.spa);
 
   return router;
+};
+
+const orgPaginationListApi = function(req, res) {
+  const instance = this;
+  const requestNo = req.query.requestNo;
+  const page = parseInt(req.query.page);
+
+  const nPerPage = 10;
+  const orientation = constants.DESC;
+  const orderKey = constants.UPDATED_AT;
+
+  let searchKeyword = "";
+  if (null != req.query.searchKeyword) {
+    searchKeyword = req.query.searchKeyword;
+  }
+
+  const loggedInRole = req.loggedInRole;
+
+  if (null == loggedInRole) {
+    instance.respondWithError(res, new signals.GeneralFailure(constants.RET_CODE.NONEXISTENT_WRITER));
+    return;
+  }
+
+  // Reference https://sequelize.org/v5/manual/raw-queries.html.
+  MySQLManager.instance.dbRef.transaction(t => {
+    return MySQLManager.instance.dbRef.query(
+    "SELECT a.id as id,a.handle as handle,a.display_name as display_name, a.updated_at as updated_at FROM org as a JOIN writer_suborg_binding as b ON a.deleted_at is NULL AND b.deleted_at is NULL AND a.id=b.org_id AND b.writer_id=:writerId AND (a.display_name LIKE '%:searchKeyword%' OR a.handle LIKE '%:searchKeyword%') GROUP BY id ORDER BY :order1,:orientation1 LIMIT :offset,:count"
+    , {
+      model: OrgTable,
+      mappToModel: true,
+      replacements: { 
+        writerId: loggedInRole.id, 
+        searchKeyword: searchKeyword,
+        order1: orderKey,
+        orientation1: orientation,
+        offset: (page - 1)*nPerPage,
+        count: nPerPage,
+      },     
+      type: Sequelize.QueryTypes.SELECT,
+      transaction: t,
+    });
+  })
+    .then(function(result) {
+      if (null == result) {
+        throw new signals.GeneralFailure(constants.RET_CODE.FAILURE);
+      }
+      res.json({
+        ret: constants.RET_CODE.OK,
+        orgList: result.rows,
+        page: page,
+        nPerPage: nPerPage,
+        requestNo: requestNo,
+        totalCount: result.count,
+      });
+    })
+    .catch(function(err) {
+      instance.respondWithError(res, err);
+    });
 };
 
 const articlePaginationListApi = function(req, res) {
@@ -438,6 +499,8 @@ const createAuthProtectedApiRouter = function() {
   router.post(constants.ROUTE_PATHS.ARTICLE + constants.ROUTE_PATHS.SAVE, articleSaveApi.bind(instance));
   router.post(constants.ROUTE_PATHS.ARTICLE + constants.ROUTE_PATHS.SUBMIT, articleSubmitApi.bind(instance));
   router.post(constants.ROUTE_PATHS.ARTICLE + constants.ROUTE_PATHS.SUSPEND, articleSuspendApi.bind(instance));
+
+  router.get(constants.ROUTE_PATHS.ORG + constants.ROUTE_PATHS.PAGINATION + constants.ROUTE_PATHS.LIST, orgPaginationListApi.bind(instance));
 
   router.get(constants.ROUTE_PATHS.UPTOKEN + constants.ROUTE_PATHS.FETCH, uptokenFetchApi.bind(instance));
   return router;

@@ -71,6 +71,14 @@ class Home extends Component {
         { LocaleManager.instance.effectivePack().ARTICLE_LIST }
       </Button>
       <Button
+              style={ entryBtnStyle }
+              onPress={ (evt) => {
+                          const pathname = constants.ROUTE_PATHS.ORG + constants.ROUTE_PATHS.LIST;
+                          pushNewScene(sceneRef, pathname);
+                        } }>
+        { LocaleManager.instance.effectivePack().ORG_LIST }
+      </Button>
+      <Button
               style={ logoutBtnStyle }
               onPress={ (evt) => {
                           sceneRef.props.RoleLoginSingleton.instance.logoutAsync(sceneRef)

@@ -236,52 +236,6 @@ class List extends Component {
     </View>
     );
 
-    // Category picker building.
-    let categoryPickerItemList = [];
-    categoryChoiceList.map(function(single) {
-      const singleCell = (
-      <PickerItem
-                  key={ single.key }
-                  onClick={ (evt) => {
-                              const pathname = constants.ROUTE_PATHS.ORG + constants.ROUTE_PATHS.LIST;
-                              const params = {};
-                              for (let k in query) {
-                                params[k] = query[k];
-                              }
-                              if (single.key == sceneRef.state.categoryPicker.key) return;
-                            
-                              Object.assign(params, {
-                                ctgry: single.key,
-                              });
-                              replaceNewScene(sceneRef, pathname, params);
-                            } }>
-        { single.title }
-      </PickerItem>
-      );
-      categoryPickerItemList.push(singleCell);
-    });
-
-    const categoryPickerNav = (
-    <View
-          style={ {
-                    display: 'inline-block',
-                    position: 'relative',
-                    height: 45,
-                    lineHeight: '45px',
-                    width: 64,
-                    textAlign: 'center',
-                    marginRight: 5,
-                  } }
-          key='category-picker-nav'>
-      <DropdownPicker
-                      id='category-picker'
-                      title={ sceneRef.state.categoryPicker.title }
-                      style={ styles.singlePicker }>
-        { categoryPickerItemList }
-      </DropdownPicker>
-    </View>
-    );
-
     // Search widget building.
     const searchInput = (
     <Input
@@ -373,25 +327,9 @@ class List extends Component {
     </Topbar>
     );
 
-    let buttonsRow = null;
     let listview = null;
     if (null !== sceneRef.state.rootElementSize) {
-      const btnAdd = (
-      <Button
-              style={ {
-                        fontSize: 18,
-                        display: 'inline-block',
-                        float: 'right',
-                      } }
-              onPress={ (evt) => {
-                          const pathname = constants.ROUTE_PATHS.ORG + constants.ROUTE_PATHS.ADD;
-                          pushNewScene(sceneRef, pathname);
-                        } }>
-        { LocaleManager.instance.effectivePack().SYMBOL_ADD }
-      </Button>
-      );
-
-      buttonsRow = (
+      const buttonsRow = (
         <View
               style={ {
                         width: '100%',
@@ -410,10 +348,7 @@ class List extends Component {
           <View style={ {
                           position: 'absolute',
                         } }>
-            { statePickerNav }
-            { categoryPickerNav }
           </View>
-          { btnAdd }
         </View>
       );
 
@@ -431,16 +366,6 @@ class List extends Component {
             token: cookieToken,
             requestNo: 0,
           };
-          if (null !== sceneRef.state.statePicker.key && undefined !== sceneRef.state.statePicker.key) {
-            Object.assign(filters, {
-              state: sceneRef.state.statePicker.key
-            });
-          }
-          if (null !== sceneRef.state.categoryPicker.key && undefined !== sceneRef.state.categoryPicker.key) {
-            Object.assign(filters, {
-              category: sceneRef.state.categoryPicker.key
-            });
-          }
           Object.assign(filters, {
             searchKeyword: sceneRef.state.searchKeyword,
           });
@@ -480,7 +405,6 @@ class List extends Component {
 
     const mainScene = (
     <View>
-      { buttonsRow }
       { listview }
     </View>
     );
