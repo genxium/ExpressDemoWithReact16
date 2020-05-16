@@ -91,6 +91,7 @@ const upsertWriterAsync = function(specifiedWriterId, newHandle, newDisplayName,
       deleted_at: null,
     };
     return WriterTable.update(replacementSetObject, {
+      where: whereObject,
       transaction: trx,
     })
     .then(function(affectedRows) {

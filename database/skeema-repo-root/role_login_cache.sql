@@ -10,4 +10,4 @@ CREATE TABLE `role_login_cache` (
   `updated_at` bigint unsigned NOT NULL,
   `deleted_at` bigint unsigned DEFAULT NULL,
   PRIMARY KEY `id` (`id`)
-) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;

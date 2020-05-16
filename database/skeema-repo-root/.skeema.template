@@ -1,13 +1,15 @@
 [production]
-socket=/tmp/mysql.sock # Depending on the live MySQL server version and host OS, this "socket path" might vary. For example on "Ubuntu14.04/16.04", it's possible to find it via grepping "socket" of "/etc/my.cnf" or "/etc/mysql/".
+#socket=/tmp/mysql.sock # Depending on the live MySQL server version and host OS, this "socket path" might vary. For example on "Ubuntu14.04/16.04", it's possible to find it via grepping "socket" of "/etc/my.cnf" or "/etc/mysql/".
 user=root
 host=127.0.0.1
+port=3306
 schema=efactory
 
 [development]
-socket=/tmp/mysql.sock # Alternative for "Ubuntu16.04 + MySQL5.7" could be "/var/run/mysqld/mysqld.sock".
+#socket=/tmp/mysql.sock # Alternative for "Ubuntu16.04 + MySQL5.7" could be "/var/run/mysqld/mysqld.sock".
 user=root
 host=127.0.0.1
+port=3306
 allow-unsafe
 skip-alter-wrapper
 skip-alter-algorithm

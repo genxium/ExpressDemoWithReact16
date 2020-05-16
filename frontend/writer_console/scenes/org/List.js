@@ -36,10 +36,13 @@ class List extends Component {
                     } }
             key={ key }
             onClick={ (evt) => {
-                        const pathname = constants.ROUTE_PATHS.ORG + "/" + org.id.toString() + constants.ROUTE_PATHS.EDIT;
-                        pushNewScene(sceneRef, pathname);
+                        const pathname = constants.ROUTE_PATHS.ORG + constants.ROUTE_PATHS.EDIT;
+                        const paramDict = {
+                          orgId: org.id, 
+                        };
+                        pushNewScene(sceneRef, pathname, paramDict);
                       } }>
-        { org.title }
+        { org.display_name }
       </View>
     );
   }

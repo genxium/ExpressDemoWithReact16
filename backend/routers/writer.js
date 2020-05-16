@@ -73,36 +73,57 @@ const orgPaginationListApi = function(req, res) {
     return;
   }
 
-  // Reference https://sequelize.org/v5/manual/raw-queries.html.
+  /*
+   * References 
+   * - https://sequelize.org/v5/manual/raw-queries.html,
+   * - https://github.com/sidorares/node-mysql2/blob/master/README.md#using-prepared-statements.
+   *
+   * It seems like that "sequelizeJs + node-mysql2" is not using PreparedStatement in a smart enough way to prevent naive SQLInjections. To verify whether "PreparedStatement" is in use, check the "`general_log` of MySQL" https://dev.mysql.com/doc/refman/5.7/en/query-log.html.
+   *
+   * For the convenience of getting started, use 
+   * ```
+   * SET GLOBAL general_log = 1; # Verify by "SELECT @@GLOBAL.general_log".
+   * SET GLOBAL log_output='TABLE'; # Verify by "SELECT @@GLOBAL.log_output".
+   * SELECT * FROM mysql.general_log ORDER BY event_time DESC LIMIT 100;
+   * ```
+   * via a "mysqlclient" to do the checking is recommended, see https://dev.mysql.com/doc/refman/5.7/en/log-destinations.html for details.
+   */
+
+  let orgList = null;
   MySQLManager.instance.dbRef.transaction(t => {
     return MySQLManager.instance.dbRef.query(
-    "SELECT a.id as id,a.handle as handle,a.display_name as display_name, a.updated_at as updated_at FROM org as a JOIN writer_suborg_binding as b ON a.deleted_at is NULL AND b.deleted_at is NULL AND a.id=b.org_id AND b.writer_id=:writerId AND (a.display_name LIKE '%:searchKeyword%' OR a.handle LIKE '%:searchKeyword%') GROUP BY id ORDER BY :order1,:orientation1 LIMIT :offset,:count"
+    "SELECT a.id as id,a.handle as handle,a.display_name as display_name, a.updated_at as updated_at FROM org as a JOIN writer_suborg_binding as b ON a.deleted_at is NULL AND b.deleted_at is NULL AND a.id=b.org_id AND b.writer_id=? AND (a.display_name LIKE ? OR a.handle LIKE ?) GROUP BY id ORDER BY ?,? LIMIT ?,?"
     , {
       model: OrgTable,
       mappToModel: true,
-      replacements: { 
-        writerId: loggedInRole.id, 
-        searchKeyword: searchKeyword,
-        order1: orderKey,
-        orientation1: orientation,
-        offset: (page - 1)*nPerPage,
-        count: nPerPage,
-      },     
+      replacements: [loggedInRole.id, "%" + searchKeyword + "%", "%" + searchKeyword + "%", orderKey, orientation, (page - 1)*nPerPage, nPerPage],
       type: Sequelize.QueryTypes.SELECT,
       transaction: t,
-    });
-  })
-    .then(function(result) {
-      if (null == result) {
+    })
+    .then(function(resultRows) {
+      if (null == resultRows) {
         throw new signals.GeneralFailure(constants.RET_CODE.FAILURE);
       }
+      orgList = resultRows;
+      
+      return MySQLManager.instance.dbRef.query(
+      "SELECT COUNT(DISTINCT a.id) as total FROM org as a JOIN writer_suborg_binding as b ON a.deleted_at is NULL AND b.deleted_at is NULL AND a.id=b.org_id AND b.writer_id=? AND (a.display_name LIKE ? OR a.handle LIKE ?)"
+      , {
+        replacements: [loggedInRole.id, "%" + searchKeyword + "%", "%" + searchKeyword + "%"],
+        type: Sequelize.QueryTypes.SELECT,
+        transaction: t,
+      });
+    })
+  })
+    .then(function(resultRows) {
+      const totalCount = (null == resultRows ? 0 : resultRows[0].total);
       res.json({
         ret: constants.RET_CODE.OK,
-        orgList: result.rows,
+        orgList: orgList,
         page: page,
         nPerPage: nPerPage,
         requestNo: requestNo,
-        totalCount: result.count,
+        totalCount: totalCount,
       });
     })
     .catch(function(err) {
