@@ -92,7 +92,7 @@ const orgPaginationListApi = function(req, res) {
   let orgList = null;
   MySQLManager.instance.dbRef.transaction(t => {
     return MySQLManager.instance.dbRef.query(
-    "SELECT a.id as id,a.handle as handle,a.display_name as display_name, a.updated_at as updated_at FROM org as a JOIN writer_suborg_binding as b ON a.deleted_at is NULL AND b.deleted_at is NULL AND a.id=b.org_id AND b.writer_id=? AND (a.display_name LIKE ? OR a.handle LIKE ?) GROUP BY id ORDER BY ?,? LIMIT ?,?"
+    "SELECT a.id as id,a.handle as handle,a.display_name as display_name, a.updated_at as updated_at FROM org as a JOIN writer_suborg_binding as b ON a.deleted_at is NULL AND b.deleted_at is NULL AND a.id=b.org_id AND b.writer_id=? AND (a.display_name LIKE ? OR a.handle LIKE ?) GROUP BY id ORDER BY ? ? LIMIT ?,?"
     , {
       model: OrgTable,
       mappToModel: true,
@@ -129,6 +129,86 @@ const orgPaginationListApi = function(req, res) {
     .catch(function(err) {
       instance.respondWithError(res, err);
     });
+};
+
+const orgSuborgPathDetail = function(req, res) {
+  const instance = this;
+  const requestNo = req.query.requestNo;
+  const page = parseInt(req.query.page);
+
+  const nPerPage = 10;
+  const orientation = constants.DESC;
+  const orderKey = constants.UPDATED_AT;
+
+  let searchKeyword = "";
+  if (null != req.query.searchKeyword) {
+    searchKeyword = req.query.searchKeyword;
+  }
+
+  const loggedInRole = req.loggedInRole;
+
+  if (null == loggedInRole) {
+    instance.respondWithError(res, new signals.GeneralFailure(constants.RET_CODE.NONEXISTENT_WRITER));
+    return;
+  }
+
+  /*
+   * (
+   *   SELECT "suborg" as `type`, so.display_name as `display_name`, so.updated_at as `updated_at` 
+   *   FROM suborg as so 
+   *   WHERE 
+   *     so.org_id=:ordId 
+   *     AND 
+   *     (CASE WHEN :lastSuborgId is NULL THEN so.parent_id is NULL ELSE so.parent_id=:lastSuborgId END)  
+   *     AND 
+   *     so.deleted_at is NULL
+   * ) 
+   * UNION 
+   * (
+   *   SELECT "writer" as `type`, w.display_name as `display_name`, w.updated_at as `updated_at` 
+   *   FROM writer as w JOIN writer_suborg_binding as wsb   
+   *   ON 
+   *     w.id = wsb.writer_id 
+   *     AND 
+   *     wsb.org_id=:ordId
+   *     AND 
+   *     (CASE WHEN :lastSuborgId is NULL THEN wsb.suborg_id is NULL ELSE wsb.suborg_id=:lastSuborgId END)  
+   *     AND 
+   *     w.deleted_at is NULL 
+   *     AND 
+   *     wsb.deleted_at is NULL
+   * ) 
+   * ORDER BY :orderKey :orientation LIMIT (:page - 1)*:nPerPage,:nPerPage;
+   */
+  
+  let retRowList = null;
+  MySQLManager.instance.dbRef.transaction(t => {
+    return MySQLManager.instance.dbRef.query(
+    "( SELECT \"suborg\" as `type`, so.display_name as `display_name`, so.updated_at as `updated_at` FROM suborg as so WHERE so.org_id=? AND (CASE WHEN ? is NULL THEN so.parent_id is NULL ELSE so.parent_id=? END) AND so.deleted_at is NULL ) UNION ( SELECT \"writer\" as `type`, w.display_name as `display_name`, w.updated_at as `updated_at` FROM writer as w JOIN writer_suborg_binding as wsb ON w.id = wsb.writer_id AND wsb.org_id=? AND (CASE WHEN ? is NULL THEN wsb.suborg_id is NULL ELSE wsb.suborg_id=? END) AND w.deleted_at is NULL AND wsb.deleted_at is NULL ) ORDER BY ? ? LIMIT ?,?;"
+    , {
+      replacements: [orgId, lastSuborgId, lastSuborgId, orgId, lastSuborgId, lastSuborgId, orderKey, orientation, (page - 1)*nPerPage, nPerPage],
+      type: Sequelize.QueryTypes.SELECT,
+      transaction: t,
+    })
+    .then(function(resultRows) {
+      if (null == resultRows) {
+        throw new signals.GeneralFailure(constants.RET_CODE.FAILURE);
+      }
+      orgList = resultRows;
+      
+      return MySQLManager.instance.dbRef.query(
+      ""
+      , {
+        replacements: [orgId, lastSuborgId, lastSuborgId, orgId, lastSuborgId, lastSuborgId],
+        type: Sequelize.QueryTypes.SELECT,
+        transaction: t,
+      });
+    })
+  })
+
+  res.json({
+    ret: constants.RET_CODE.NOT_IMPLEMENTED_YET
+  });
 };
 
 const articlePaginationListApi = function(req, res) {

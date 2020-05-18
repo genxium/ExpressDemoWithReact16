@@ -192,6 +192,7 @@ const ROUTE_PATHS = {
   PLAYER: "/Player",
   ORG: "/Org",
   SUBORG: "/Suborg",
+  PATH: "/Path",
 
   ARTICLE: "/Article",
 
