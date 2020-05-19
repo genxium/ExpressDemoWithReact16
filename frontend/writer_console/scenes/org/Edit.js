@@ -35,7 +35,24 @@ class Edit extends Component {
                     } }
             key={ key }
             onClick={ (evt) => {
-                        // TBD.
+                        if ("suborg" == retRow.type) {
+                          const query = NetworkFunc.searchStrToMap(sceneRef.props.location.search);
+                          let targetSuborgIdPath = query.suborgIdPath;
+                          if (null == targetSuborgIdPath) {
+                            targetSuborgIdPath = "";
+                          }
+                          targetSuborgIdPath += ("/" + retRow.id);
+                          const pathname = constants.ROUTE_PATHS.ORG + constants.ROUTE_PATHS.EDIT;
+                          const params = {};
+                          for (let k in query) {
+                            params[k] = query[k];
+                          }
+                          Object.assign(params, {
+                            suborgIdPath: targetSuborgIdPath,
+                          });
+
+                          pushNewScene(sceneRef, pathname, params);
+                        } 
                       } }>
         { retRow.display_name }
       </View>

@@ -26,6 +26,16 @@ class WriterUtil {
     }
     return true;
   }
+
+  isModeratorOfOrg(writer, org, boundSuborgList) {
+    for (let i in boundSuborgList) {
+      const singleBoundSuborg = boundSuborgList[i]; 
+      if (singleBoundSuborg.org_id != org.id) continue;
+      if (constants.SUBORG.TYPE.MODERATOR != singleBoundSuborg.type) continue;
+      return true;
+    }
+    return false;
+  }
 }
 
 // Use "CommonJs `require`" syntax to import for both NodeJsBackend and React16Frontend to guarantee compatibility.

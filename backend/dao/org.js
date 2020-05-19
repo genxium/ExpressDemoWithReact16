@@ -5,6 +5,8 @@ const Time = require('../../common/Time').default;
 const Logger = require('../utils/Logger');
 const logger = Logger.instance.getLogger(__filename);
 
+const MySQLManager = require('../utils/MySQLManager');
+
 const OrgTable = require('../models/Org');
 const SuborgTable = require('../models/Suborg');
 const WriterTable = require('../models/Writer');
@@ -65,6 +67,22 @@ const queryWriterListOfSuborgAsync = function(specifiedOrgId, specifiedSuborgId,
   })
 };
 exports.queryWriterListOfSuborgAsync = queryWriterListOfSuborgAsync;  
+
+const querySuborgListOfWriterAndOrgAsync = function(specifiedOrgId, specifiedWriterId, trx) {
+  /*
+  * At this very moment we don't expect this query to be paginated. -- YFLu, 2020-05-19
+  */
+  return MySQLManager.instance.dbRef.query(
+  "SELECT a.id as `id`, a.org_id as `org_id`, a.display_name as `display_name`, a.type as `type` FROM suborg as a JOIN writer_suborg_binding as b ON a.deleted_at is NULL AND b.deleted_at is NULL AND a.org_id=b.org_id AND a.org_id=? AND b.writer_id=?"
+  , {
+    model: SuborgTable,
+    mappToModel: true,
+    replacements: [specifiedOrgId, specifiedWriterId],
+    type: Sequelize.QueryTypes.SELECT,
+    transaction: trx,
+  })
+};
+exports.querySuborgListOfWriterAndOrgAsync = querySuborgListOfWriterAndOrgAsync;  
 
 const upsertOrgAsync = function(specifiedOrgId, newHandle, newDisplayName, trx) {
   /*
