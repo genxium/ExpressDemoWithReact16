@@ -144,7 +144,7 @@ class List extends Component {
     const effectiveActivePage = (null == query.page ? sceneRef.state.activePage : parseInt(query.page));
     let effectiveSearchKeyword = sceneRef.state.searchKeyword;
 
-    if (undefined !== query.sk) {
+    if (null != query.sk) {
       effectiveSearchKeyword = query.sk;
     }
 

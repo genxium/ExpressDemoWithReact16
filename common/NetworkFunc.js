@@ -68,7 +68,7 @@ class NetworkFunc {
       if (null == kvStr) continue;
       const equalsSymbolSplits = kvStr.split('=');
       if (null == equalsSymbolSplits || 1 >= equalsSymbolSplits.length) continue;
-      toRet[equalsSymbolSplits[0]] = equalsSymbolSplits[1];
+      toRet[equalsSymbolSplits[0]] = decodeURIComponent(equalsSymbolSplits[1]);
     }
     return toRet;
   }
