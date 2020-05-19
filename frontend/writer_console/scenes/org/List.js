@@ -11,8 +11,6 @@ const NetworkFunc = require('../../../../common/NetworkFunc').default;
 const constants = require('../../../../common/constants');
 
 const ArticleUtil = require('../../../../common/ArticleUtil').default;
-const categoryChoiceList = ArticleUtil.instance.categoryChoiceList();
-const stateChoiceList = ArticleUtil.instance.stateChoiceList();
 
 const WebFunc = require('../../../utils/WebFunc').default;
 
@@ -90,8 +88,6 @@ class List extends Component {
       searchKeyword: "",
       cachedSearchKeyword: "",
       cellList: [],
-      statePicker: stateChoiceList[0],
-      categoryPicker: categoryChoiceList[0],
     };
 
     this.styles = {
@@ -106,7 +102,7 @@ class List extends Component {
     const sceneRef = this;
     changeSceneTitle(sceneRef, LocaleManager.instance.effectivePack().ORG_LIST);
 
-    if (null !== sceneRef.state.rootElementSize) return;
+    if (null != sceneRef.state.rootElementSize) return;
     const rootElementSize = getRootElementSize();
     sceneRef.setState({
       rootElementSize: rootElementSize,
@@ -148,34 +144,8 @@ class List extends Component {
       effectiveSearchKeyword = query.sk;
     }
 
-    let effectiveCategoryPicker = sceneRef.state.categoryPicker;
-    if (null != query.ctgry) {
-      const toMatchKey = parseInt(query.ctgry);
-      for (let i = 0; i < categoryChoiceList.length; ++i) {
-        if (categoryChoiceList[i].key != toMatchKey) {
-          continue;
-        }
-        effectiveCategoryPicker = categoryChoiceList[i];
-        break;
-      }
-    }
-
-    let effectiveStatePicker = sceneRef.state.statePicker;
-    if (null != query.st) {
-      const toMatchKey = parseInt(query.st);
-      for (let i = 0; i < stateChoiceList.length; ++i) {
-        if (stateChoiceList[i].key != toMatchKey) {
-          continue;
-        }
-        effectiveStatePicker = stateChoiceList[i];
-        break;
-      }
-    }
-
     sceneRef.setState({
       activePage: effectiveActivePage,
-      statePicker: effectiveStatePicker,
-      categoryPicker: effectiveCategoryPicker,
       searchKeyword: effectiveSearchKeyword,
       cachedSearchKeyword: effectiveSearchKeyword,
     }, function() {
@@ -191,53 +161,6 @@ class List extends Component {
     const styles = sceneRef.styles;
     const {RoleLoginSingleton, basename, location, ...other} = sceneRef.props;
     const query = NetworkFunc.searchStrToMap(sceneRef.props.location.search);
-
-    // State picker building.
-    let statePickerItemList = [];
-    stateChoiceList.map(function(single) {
-      const singleCell = (
-      <PickerItem
-                  key={ single.key }
-                  onClick={ (evt) => {
-                              const pathname = constants.ROUTE_PATHS.ORG + constants.ROUTE_PATHS.LIST;
-                              const params = {};
-                              for (let k in query) {
-                                params[k] = query[k];
-                              }
-                              if (single.key == sceneRef.state.statePicker.key) return;
-                            
-                              Object.assign(params, {
-                                st: single.key,
-                              });
-                              replaceNewScene(sceneRef, pathname, params);
-                            } }>
-        { single.title }
-      </PickerItem>
-      );
-      statePickerItemList.push(singleCell);
-    });
-
-    const statePickerNav = (
-    <View
-          style={ {
-                    display: 'inline-block',
-                    position: 'relative',
-                    height: 45,
-                    lineHeight: '45px',
-                    width: 150,
-                    fontSize: 12,
-                    textAlign: 'center',
-                    marginRight: 5,
-                  } }
-          key='state-picker-nav'>
-      <DropdownPicker
-                      id='state-picker'
-                      title={ sceneRef.state.statePicker.title }
-                      style={ styles.singlePicker }>
-        { statePickerItemList }
-      </DropdownPicker>
-    </View>
-    );
 
     // Search widget building.
     const searchInput = (
@@ -313,7 +236,7 @@ class List extends Component {
         if (!c) return;
         const newSize = getRenderedComponentSize(c);
         const oldSize = sceneRef.state.topbarSize;
-        if (null !== oldSize && oldSize.width == newSize.width && oldSize.height == newSize.height) return;
+        if (null != oldSize && oldSize.width == newSize.width && oldSize.height == newSize.height) return;
         sceneRef.setState({
           topbarSize: newSize,
         });
@@ -331,7 +254,7 @@ class List extends Component {
     );
 
     let listview = null;
-    if (null !== sceneRef.state.rootElementSize) {
+    if (null != sceneRef.state.rootElementSize) {
       const buttonsRow = (
         <View
               style={ {

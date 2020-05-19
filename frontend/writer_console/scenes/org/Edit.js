@@ -2,9 +2,10 @@
 
 import React, { Component } from 'react';
 
-import createReactClass from 'create-react-class';
+const Paginator = require('../../../widgets/Paginator').default;
+const ClipartSearch = require('../../../widgets/ClipartSearch').default;
 
-import { View, Topbar, Image, Video, Text, Input, NavItem, DropdownPicker, PickerItem, Button, pushNewScene, replaceNewScene, changeSceneTitle, HyperLink, goBack, topbarHeightPx, ModalPopup, queryNamedGatewayInfoDictSync, } from '../../../widgets/WebCommonRouteProps';
+import { View, Topbar, Image, Video, Text, Input, NavItem, DropdownPicker, PickerItem, Button, pushNewScene, replaceNewScene, changeSceneTitle, HyperLink, goBack, topbarHeightPx, ModalPopup, queryNamedGatewayInfoDictSync, getRootElementSize, getRenderedComponentSize } from '../../../widgets/WebCommonRouteProps';
 
 const LocaleManager = require('../../../../common/LocaleManager').default;
 const NetworkFunc = require('../../../../common/NetworkFunc').default;
@@ -13,7 +14,56 @@ const constants = require('../../../../common/constants');
 
 const WebFunc = require('../../../utils/WebFunc').default;
 
+/*
+* Note that for unprivileged users, this scene is read-only.
+*/
 class Edit extends Component {
+
+  createCellReactElement(retRow, key) {
+    const sceneRef = this;
+    const params = sceneRef.props.match.params;
+
+    const cellWidthPx = sceneRef.state.rootElementSize.width;
+    const cellHeightPx = sceneRef._cellHeightPx;
+
+    return (
+      <View
+            style={ {
+                      padding: 5,
+                      width: cellWidthPx,
+                      border: 'solid 1px ' + constants.THEME.MAIN.GREY,
+                    } }
+            key={ key }
+            onClick={ (evt) => {
+                        // TBD.
+                      } }>
+        { retRow.display_name }
+      </View>
+    );
+  }
+
+  handleListResponseData(responseData) {
+    const sceneRef = this;
+    const {RoleLoginSingleton, ...other} = sceneRef.props;
+    let retRowList = responseData.retRowList;
+    if (!retRowList) {
+      RoleLoginSingleton.instance.checkWhetherTokenHasExpiredAsync(sceneRef, responseData)
+        .then(function(trueOrFalse) {
+          if (!trueOrFalse) return;
+          RoleLoginSingleton.instance.replaceRoleLoginScene(sceneRef);
+        });
+      return;
+    }
+    let newCellList = [];
+    retRowList.map(function(single) {
+      const singleCell = sceneRef.createCellReactElement(single, single.id);
+      newCellList.push(singleCell);
+    });
+    sceneRef.setState({
+      cellList: newCellList,
+    });
+  }
+
   constructor(props) {
     super(props);
     const sceneRef = this;
@@ -24,22 +74,31 @@ class Edit extends Component {
     };
 
     this.state = {
+      rootElementSize: null,
       disabled: true,
-
+      buttonsRowSize: {
+        width: '100%',
+        height: 0,
+      },
+      topbarSize: {
+        width: '100%',
+        height: 0,
+      },
+      activePage: 1,
+      searchKeyword: "",
+      cachedSearchKeyword: "",
+      cellList: [],
     };
   }
 
-
   componentDidMount() {
     const sceneRef = this;
-    const query = NetworkFunc.searchStrToMap(sceneRef.props.location.search);
-    const orgId = query.orgId;
-    const isNew = (null == orgId);
-    if (isNew) {
-      changeSceneTitle(sceneRef, LocaleManager.instance.effectivePack().ADD_ORG);
-    } else {
-      changeSceneTitle(sceneRef, LocaleManager.instance.effectivePack().EDIT_ORG);
-    }
+    changeSceneTitle(sceneRef, LocaleManager.instance.effectivePack().ORG_DETAIL);
+    if (null != sceneRef.state.rootElementSize) return;
+    const rootElementSize = getRootElementSize();
+    sceneRef.setState({
+      rootElementSize: rootElementSize,
+    });
   }
 
   componentDidUpdate(prevProps) {
@@ -49,290 +108,228 @@ class Edit extends Component {
     }
   }
 
-  save() {
+  triggerSearch() {
     const sceneRef = this;
-    const params = sceneRef.props.match.params;
-    const {location, basename, ...other} = sceneRef.props;
     const query = NetworkFunc.searchStrToMap(sceneRef.props.location.search);
-    const orgId = query.orgId;
-    const isNewOrg = (null == orgId);
-
-    const bundleList = sceneRef.state.bundleListManager.bundleList;
-    let ossFilepathList = [];
-    if (null != sceneRef.state.cachedVideoOssFilepath) {
-      ossFilepathList.push(sceneRef.state.cachedVideoOssFilepath);
+    const pathname = constants.ROUTE_PATHS.ORG + constants.ROUTE_PATHS.EDIT;
+    const params = {};
+    for (let k in query) {
+      params[k] = query[k];
     }
-
-    for (let k in sceneRef.state.cachedImageOssFilepathDict) {
-      ossFilepathList.push(sceneRef.state.cachedImageOssFilepathDict[k]);
-    }
-
-    const cookieToken = WebFunc.getCookie(constants.WEB_FRONTEND_COOKIE_INT_AUTH_TOKEN_KEY);
-
-    let paramDict = {
-      title: sceneRef.state.cachedTitle,
-      category: sceneRef.state.cachedCategory,
-      content: sceneRef.state.cachedContent,
-      ossFilepathList: JSON.stringify(ossFilepathList),
-      keywordList: JSON.stringify(sceneRef.state.cachedKeywordList),
-      token: cookieToken,
-    };
-    let url = null;
-    if (isNewOrg) {
-      url = basename + constants.ROUTE_PATHS.API_V1 + constants.ROUTE_PATHS.ARTICLE + constants.ROUTE_PATHS.SAVE;
-    } else {
-      Object.assign(paramsDict, {
-        orgId: orgId,
-      });
-      url = basename + constants.ROUTE_PATHS.API_V1 + constants.ROUTE_PATHS.ARTICLE + constants.ROUTE_PATHS.SAVE;
-    }
-    NetworkFunc.post(url, paramDict)
-      .then(function(response) {
-        return response.json();
-      })
-      .then(function(responseData) {
-        if (constants.RET_CODE.OK != responseData.ret) {
-          console.log("Org not saved.");
-          sceneRef.setState({
-            disabled: false,
-            savable: true,
-            submittable: false,
-          });
-          return;
-        }
-
-        const orgIdStr = responseData.org.id;
-        const pathname = constants.ROUTE_PATHS.ARTICLE + "/" + orgIdStr + constants.ROUTE_PATHS.EDIT;
-        sceneRef._initialized = false;
-        replaceNewScene(sceneRef, pathname);
-      });
-  }
-
-  submit() {
-    const sceneRef = this;
-    const {location, basename, ...other} = sceneRef.props;
-    const params = sceneRef.props.match.params;
-    const query = NetworkFunc.searchStrToMap(sceneRef.props.location.search);
-    const orgId = query.orgId;
-    sceneRef.setState({
-      disabled: true,
-      submittable: false,
-    }, function() {
-      const url = basename + constants.ROUTE_PATHS.API_V1 + constants.ROUTE_PATHS.ARTICLE + constants.ROUTE_PATHS.SUBMIT;
-      const cookieToken = WebFunc.getCookie(constants.WEB_FRONTEND_COOKIE_INT_AUTH_TOKEN_KEY);
-
-      const paramDict = {
-        token: cookieToken,
-        orgId: orgId,
-      };
-      NetworkFunc.post(url, paramDict)
-        .then(function(response) {
-          return response.json();
-        })
-        .then(function(responseData) {
-          if (constants.RET_CODE.OK != responseData.ret) {
-            console.log("Org not submitted.");
-            alert(LocaleManager.instance.effectivePack().OOPS);
-            sceneRef.setState({
-              disabled: false,
-            });
-            return;
-          }
-          goBack(sceneRef);
-        });
+    Object.assign(params, {
+      sk: sceneRef.state.cachedSearchKeyword,
     });
+
+    replaceNewScene(sceneRef, pathname, params);
   }
 
   initScene() {
-    if (this._initialized) return;
-    this._initialized = true;
-
     const sceneRef = this;
-    const {location, basename, ...other} = sceneRef.props;
     const query = NetworkFunc.searchStrToMap(sceneRef.props.location.search);
-    const orgId = query.orgId;
+    const effectiveActivePage = (null == query.page ? sceneRef.state.activePage : parseInt(query.page));
+    let effectiveSearchKeyword = sceneRef.state.searchKeyword;
 
-    const cookieToken = WebFunc.getCookie(constants.WEB_FRONTEND_COOKIE_INT_AUTH_TOKEN_KEY);
-    const paramDict = {
-      token: cookieToken,
-      orgId: orgId,
-    };
-    const url = basename + constants.ROUTE_PATHS.API_V1 + constants.ROUTE_PATHS.ARTICLE + constants.ROUTE_PATHS.DETAIL;
-    let cachedOrg = null;
-    NetworkFunc.get(url, paramDict)
-      .then(function(response) {
-        return response.json();
-      })
-      .then(function(responseData) {
-        if (constants.RET_CODE.OK != responseData.ret) {
-          sceneRef.props.RoleLoginSingleton.instance.checkWhetherTokenHasExpiredAsync(sceneRef, responseData)
-            .then(function(trueOrFalse) {
-              if (false == trueOrFalse) {
-                return;
-              }
-              sceneRef.props.RoleLoginSingleton.instance.replaceRoleLoginScene(sceneRef);
-            });
-          return;
-        }
-        cachedOrg = responseData.org;
-        return sceneRef.refreshView(cachedOrg);
-      });
-  }
-
-  refreshView(cachedOrg) {
-    const sceneRef = this;
-  }
-
-  onSingleImageUploadError(index) {
-    console.log('onSingleImageUploadError ' + index);
-    const sceneRef = this;
-    const newBundleListManager = sceneRef.state.bundleListManager;
-    newBundleListManager.assignAtIndex(index, {
-      progressPercentage: 0.0,
-      uploaderState: SINGLE_UPLOADER_STATE.LOCALLY_PREVIEWING,
-    });
-
-    --sceneRef._toUploadCount;
-    if (0 != sceneRef._toUploadCount) {
-      sceneRef.setState({
-        bundleListManager: newBundleListManager,
-      });
-      return;
-    }
-
-    const imageBatchUploaderState = sceneRef._multiSelectorRef.getBatchUploaderStateSync();
-    if ((BATCH_UPLOADER_STATE.SOME_UPLOADING & imageBatchUploaderState) > 0) {
-      sceneRef.setState({
-        bundleListManager: newBundleListManager,
-      });
-    } else if ((BATCH_UPLOADER_STATE.SOME_LOCALLY_PREVIEWING & imageBatchUploaderState) > 0) {
-      sceneRef.setState({
-        disabled: false,
-        bundleListManager: newBundleListManager,
-      });
-    } else ;
-  }
-
-  onSingleImageUploaded(index) {
-    console.log('onSingleImageUploaded ' + index);
-    const sceneRef = this;
-    const {location, ...other} = sceneRef.props;
-    const newBundleListManager = sceneRef.state.bundleListManager;
-    const newImageOssFilepathDict = sceneRef.state.cachedImageOssFilepathDict;
-
-    newBundleListManager.assignAtIndex(index, {
-      progressPercentage: 100.0,
-      uploaderState: SINGLE_UPLOADER_STATE.UPLOADED,
-    });
-    const bundle = newBundleListManager.bundleList[index];
-    newImageOssFilepathDict[index] = bundle.extUploader.getOption(constants.KEY);
-
-    --sceneRef._toUploadCount;
-    if (0 != sceneRef._toUploadCount) {
-      sceneRef.setState({
-        bundleListManager: newBundleListManager,
-        cachedImageOssFilepathDict: newImageOssFilepathDict,
-      });
-      return;
-    }
-
-    sceneRef.saveIfAllUploaded(sceneRef.state.videoBundle, sceneRef.state.cachedVideoOssFilepath, newBundleListManager, newImageOssFilepathDict);
-  }
-
-  onVideoUploadError() {
-    const sceneRef = this;
-    const newVideoBundle = sceneRef.state.videoBundle;
-    newVideoBundle.assign({
-      progressPercentage: 0.0,
-      uploaderState: SINGLE_UPLOADER_STATE.LOCALLY_PREVIEWING,
-    });
-
-    --sceneRef._toUploadCount;
-    if (0 != sceneRef._toUploadCount) {
-      sceneRef.setState({
-        videoBundle: newVideoBundle,
-      });
-      return;
+    if (null != query.sk) {
+      effectiveSearchKeyword = query.sk;
     }
 
     sceneRef.setState({
-      disabled: false,
-      videoBundle: newVideoBundle,
-    });
+      activePage: effectiveActivePage,
+      searchKeyword: effectiveSearchKeyword,
+      cachedSearchKeyword: effectiveSearchKeyword,
+    }, function() {
+      sceneRef._listviewRef.requestDataAsync(sceneRef.state.activePage)
+        .then(function(responseData) {
+          sceneRef.handleListResponseData(responseData);
+        });
+    })
   }
 
   render() {
     const sceneRef = this;
-    const {location, basename, ...other} = sceneRef.props;
-    const params = sceneRef.props.match.params;
     const styles = sceneRef.styles;
+    const {RoleLoginSingleton, basename, location, ...other} = sceneRef.props;
     const query = NetworkFunc.searchStrToMap(sceneRef.props.location.search);
-    const orgId = query.orgId;
 
-    const isNewOrg = (null == orgId);
+    // Search widget building.
+    const searchInput = (
+    <Input
+           key='search-input'
+           style={ {
+                     height: 23,
+                     width: 146,
+                     padding: 3,
+                     border: 'none',
+                     color: constants.THEME.MAIN.BLACK,
+                     borderRadius: 4,
+                   } }
+           value={ sceneRef.state.cachedSearchKeyword }
+           onUpdated={ (evt) => {
+                         sceneRef.setState({
+                           cachedSearchKeyword: evt.target.value
+                         });
+                       } }
+           onKeyDown={ (evt) => {
+                         if (evt.keyCode != constants.KEYBOARD_CODE.RETURN) return;
+                         sceneRef.triggerSearch();
+                       } }>
+    </Input>
+    );
 
-    const currentMomentObj = Time.currentMomentObj();
+    const searchButton = (
+    <View
+          key='search-button'
+          style={ {
+                    display: 'inline-block',
+                    width: 18,
+                    marginLeft: 10,
+                    position: 'absolute',
+                  } }
+          onClick={ (evt) => {
+                      sceneRef.triggerSearch();
+                    } }>
+      <ClipartSearch />
+    </View>
+    );
 
-    const menuProps = Object.assign({
+    const searchEntry = (
+    <NavItem
+             style={ {
+                       lineHeight: 1,
+                       display: 'block',
+                       position: 'absolute',
+                       left: '15%',
+                       height: 45,
+                       paddingTop: 11,
+                       paddingBottom: 11,
+                       width: '70%',
+                       textAlign: 'center',
+                       marginLeft: 10,
+                     } }
+             key='search-entry-nav'>
+      { searchInput }
+      { searchButton }
+    </NavItem>
+    );
+
+    const topbarProps = Object.assign({
       showLoginNav: false,
-      ref: (c) => {
-        if (!c) return;
-      },
       onHasLoggedIn: () => {
         const boundInitScene = sceneRef.initScene.bind(sceneRef);
         boundInitScene();
       },
       onHasNotLoggedIn: () => {
-        sceneRef.props.RoleLoginSingleton.instance.replaceRoleLoginScene(sceneRef);
+        RoleLoginSingleton.instance.replaceRoleLoginScene(sceneRef);
+      },
+      ref: (c) => {
+        if (!c) return;
+        const newSize = getRenderedComponentSize(c);
+        const oldSize = sceneRef.state.topbarSize;
+        if (null != oldSize && oldSize.width == newSize.width && oldSize.height == newSize.height) return;
+        sceneRef.setState({
+          topbarSize: newSize,
+        });
       },
       sceneRef: sceneRef,
     }, sceneRef.props);
 
-    const topbarChildren = [orgStateToDisplay];
+    const topbarChildren = [searchEntry];
     const topbar = (
     <Topbar
-            style={ {
-                      paddingTop: 10
-                    } }
-            {...menuProps}>
+            style={ styles.topbar }
+            {...topbarProps}>
       { topbarChildren }
     </Topbar>
     );
 
-    // Category picker building.
-    let categoryPickerItemList = [];
-    categoryChoiceList.map(function(single) {
-      const singleCell = (
-      <PickerItem
-                  disabled={ sceneRef.state.disabled }
-                  key={ single.title }
-                  onClick={ (evt) => {
-                              sceneRef.setState({
-                                cachedCategory: single.key,
-                              });
-                            } }>
-        { single.title }
-      </PickerItem>
+    let listview = null;
+    if (null != sceneRef.state.rootElementSize) {
+      const buttonsRow = (
+        <View
+              style={ {
+                        width: '100%',
+                        height: 50,
+                        position: 'relative',
+                      } }
+              ref={ (c) => {
+                      if (!c) return;
+                      const newSize = getRenderedComponentSize(c);
+                      const oldSize = sceneRef.state.buttonsRowSize;
+                      if (null !== oldSize && oldSize.width == newSize.width && oldSize.height == newSize.height) return;
+                      sceneRef.setState({
+                        buttonsRowSize: newSize,
+                      });
+                    } }>
+          <View style={ {
+                          position: 'absolute',
+                        } }>
+          </View>
+        </View>
       );
-      categoryPickerItemList.push(singleCell);
-    });
 
-    let effectiveCategoryTitle = null;
-    for (let i = 0; i < categoryChoiceList.length; ++i) {
-      if (categoryChoiceList[i].key != sceneRef.state.cachedCategory) continue;
-      effectiveCategoryTitle = categoryChoiceList[i].title;
-      break;
+      const cookieToken = WebFunc.getCookie(constants.WEB_FRONTEND_COOKIE_INT_AUTH_TOKEN_KEY);
+
+      const listViewProps = Object.assign({
+        cellHeight: sceneRef._cellHeightPx,
+        totSizePx: {
+          width: sceneRef.state.rootElementSize.width,
+          height: (sceneRef.state.rootElementSize.height - sceneRef.state.topbarSize.height - sceneRef.state.buttonsRowSize.height),
+        },
+        noResultHint: LocaleManager.instance.effectivePack().NO_MORE,
+        collectFilters: () => {
+          const filters = {
+            token: cookieToken,
+            suborgIdPath: (null == query.suborgIdPath ? "/" : query.suborgIdPath),
+            orgId: query.orgId,
+            requestNo: 0,
+          };
+          Object.assign(filters, {
+            searchKeyword: sceneRef.state.searchKeyword,
+          });
+          return filters;
+        },
+        dataUrl: basename + constants.ROUTE_PATHS.API_V1 + constants.ROUTE_PATHS.ORG + constants.ROUTE_PATHS.SUBORG + constants.ROUTE_PATHS.PATH + constants.ROUTE_PATHS.DETAIL,
+        cellList: sceneRef.state.cellList,
+        activePage: () => {
+          return sceneRef.state.activePage;
+        },
+        onPageSelectedBridge: (page) => {
+          const pathname = constants.ROUTE_PATHS.ORG + constants.ROUTE_PATHS.LIST;
+          const params = {};
+          for (let k in query) {
+            params[k] = query[k];
+          }
+          Object.assign(params, {
+            page: page,
+          });
+
+          replaceNewScene(sceneRef, pathname, params);
+        },
+      }, sceneRef.props);
+
+      listview = (
+        <Paginator
+                   style={ {
+                             clear: 'both'
+                           } }
+                   ref={ (c) => {
+                           if (!c) return;
+                           sceneRef._listviewRef = c;
+                         } }
+                   {...listViewProps} />
+      );
     }
 
-    const namedGatewayInfo = queryNamedGatewayInfoDictSync().articleServer;
+    const mainScene = (
+    <View>
+      { listview }
+    </View>
+    );
 
     return (
-      <View style={ {
-                display: 'block',
-                paddingLeft: 5,
-                paddingRight: 5,
-              } }>
+      <View>
         { topbar }
+        { mainScene }
       </View>
     );
   }

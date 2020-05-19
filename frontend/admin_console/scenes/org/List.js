@@ -232,7 +232,7 @@ class List extends Component {
         if (!c) return;
         const newSize = getRenderedComponentSize(c);
         const oldSize = sceneRef.state.topbarSize;
-        if (null !== oldSize && oldSize.width == newSize.width && oldSize.height == newSize.height) return;
+        if (null != oldSize && oldSize.width == newSize.width && oldSize.height == newSize.height) return;
         sceneRef.setState({
           topbarSize: newSize,
         });

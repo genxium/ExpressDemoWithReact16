@@ -295,6 +295,7 @@ const ZH_CN = {
   ADD_ARTICLE: "新增文章",
   EDIT_ARTICLE: "编辑文章",
 
+  ORG_DETAIL: "组织机构详情",
   ORG_HANDLE: "组织机构代号(仅包含英文字母及数字)",
   ORG_LIST: "组织机构列表",
   ORG_DISPLAY_NAME: "组织架构名字",
