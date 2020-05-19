@@ -24,10 +24,11 @@ class SingleRoleLoginCache {
   getAsync(intAuthToken, trx) {
     const instance = this;
     const currentMillis = Time.currentMillis();
-    logger.info("RoleLoginCacheCollection intAuthToken == ", intAuthToken, "currentMillis == ", currentMillis);
+    logger.info("RoleLoginCacheCollection.getAsync for instance.roleName == ", instance.roleName, ", intAuthToken == ", intAuthToken, "currentMillis == ", currentMillis);
     return RoleLoginCacheTable.findOne({
       where: {
         int_auth_token: intAuthToken,
+        role_name: instance.props.roleName,
         expires_at: {
           [Op.gt]: currentMillis,
         },

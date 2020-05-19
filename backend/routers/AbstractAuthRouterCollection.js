@@ -23,12 +23,11 @@ class AbstractAuthRouterCollection {
     this.credentialsAuth = null;
     this.tokenAuth = function(req, res, next) {
       const token = (null == req.body || null == req.body.token ? req.query.token : req.body.token);
-      logger.info("Processing tokenAuth for req.originalUrl = ", req.originalUrl, ", req.query = ", req.query, ", token = ", token);
+      logger.info("Processing tokenAuth for instance.roleName = ", instance.roleName, ", req.originalUrl = ", req.originalUrl, ", req.query = ", req.query, ", token = ", token);
 
       if (null == token || "" == token) {
         return instance.tokenExpired(res);
       }
-      ;
 
       const trxInternalPromiseChain = (t) => {
         let tokenCache = instance.getOrCreateTokenCacheSync(req);
@@ -103,7 +102,7 @@ class AbstractAuthRouterCollection {
     if (null != instance.tokenCache) {
       return instance.tokenCache;
     }
-    const roleName = req.body.roleName;
+    const roleName = (null != instance.roleName ? instance.roleName : req.body.roleName /* calling from auth_server */);
     switch (roleName) {
       case constants.ROLE_NAME.ADMIN:
       case constants.ROLE_NAME.WRITER:
@@ -111,7 +110,7 @@ class AbstractAuthRouterCollection {
         return RoleLoginCacheCollection.instance.getOrCreateCacheSync(roleName);
         break;
       default:
-        logger.warn(Util.format("AbstractAuthRouterCollection.getOrCreateTokenCacheSync returning null for req.roleName == %s", req.roleName));
+        logger.warn(Util.format("AbstractAuthRouterCollection.getOrCreateTokenCacheSync returning null for roleName == %s", roleName));
         return null;
     }
   }

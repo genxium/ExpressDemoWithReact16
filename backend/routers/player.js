@@ -71,6 +71,7 @@ class PlayerRouterCollection extends AbstractAuthRouterCollection {
   constructor(props) {
     super(props);
     const instance = this;
+    this.roleName = constants.ROLE_NAME.PLAYER;
     this.tokenCache = RoleLoginCacheCollection.instance.getOrCreateCacheSync(constants.ROLE_NAME.PLAYER);
 
     this.pageRouter = (createPageRouter.bind(instance))();

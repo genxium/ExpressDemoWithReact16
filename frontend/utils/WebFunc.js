@@ -28,8 +28,11 @@ class WebFunc {
     Cookies.remove(key, attributes);
   }
 
-  static encodeStateWithAction(sceneRef, cbname, cbparams, skipEncodingURIComponent) {
-    const pathname = sceneRef.props.location.pathname;
+  static encodeStateWithAction(sceneRef, cbname, cbparams, skipEncodingURIComponent, includeLocationSearchInPathname) {
+    let pathname = sceneRef.props.location.pathname;
+    if (true == includeLocationSearchInPathname) {
+      pathname += sceneRef.props.location.search;
+    }
     let dict = {
       p: pathname
     };

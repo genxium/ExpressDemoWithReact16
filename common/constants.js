@@ -354,6 +354,8 @@ const ZH_CN = {
 
   CURRENCY_DICT: {},
 
+  MODERATOR: "管理员",
+
   HINT: {
     IMAGE_REQUIREMENT: "输入图片不符合要求",
     VIDEO_REQUIREMENT: "输入视频不符合要求",

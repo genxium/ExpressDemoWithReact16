@@ -634,6 +634,7 @@ class WriterRouterCollection extends AbstractAuthRouterCollection {
   constructor(props) {
     super(props);
     const instance = this;
+    this.roleName = constants.ROLE_NAME.WRITER;
     this.tokenCache = RoleLoginCacheCollection.instance.getOrCreateCacheSync(constants.ROLE_NAME.WRITER);
 
     this.pageRouter = (createPageRouter.bind(instance))();

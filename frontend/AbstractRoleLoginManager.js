@@ -32,7 +32,7 @@ class AbstractRoleLoginManager {
     const instance = this;
     const namedGatewayInfo = queryNamedGatewayInfoDictSync().authServer;
 
-    const encodedStateWithAction = WebFunc.encodeStateWithAction(sceneRef, cbname, cbparams, true);
+    const encodedStateWithAction = WebFunc.encodeStateWithAction(sceneRef, cbname, cbparams, true, true);
     const paramDict = {
       state: encodedStateWithAction,
       role: sceneRef.props.role,
