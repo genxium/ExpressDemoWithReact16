@@ -12,6 +12,7 @@ const SuborgTable = require('../models/Suborg');
 const WriterTable = require('../models/Writer');
 const WriterSuborgBindingTable = require('../models/WriterSuborgBinding');
 
+const Sequelize = require('sequelize');
 const writerDao = require('./writer');
 
 const querySuborgListByTypeAsync = function(specifiedOrgId, specifiedType, page, nPerPage, orderByConditionList, trx) {

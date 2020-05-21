@@ -26,6 +26,7 @@ const Logger = require('../utils/Logger');
 const logger = Logger.instance.getLogger(__filename);
 
 const writerDao = require('../dao/writer');
+const orgDao = require('../dao/org');
 const sharedDao = require('../dao/shared');
 
 const Sequelize = require('sequelize');
@@ -190,6 +191,7 @@ const orgSuborgPathDetail = function(req, res) {
    * ORDER BY :orderKey :orientation LIMIT (:page - 1)*:nPerPage,:nPerPage;
    */
 
+  let totalCount = 0;
   let retRowList = [];
   MySQLManager.instance.dbRef.transaction(t => {
     return MySQLManager.instance.dbRef.query(
@@ -216,9 +218,12 @@ const orgSuborgPathDetail = function(req, res) {
         transaction: t,
       });
     })
+    .then(function(resultRows) {
+      totalCount = (null == resultRows ? 0 : resultRows[0].total);
+      return orgDao.querySuborgListOfWriterAndOrgAsync(orgId, loggedInRole.id, t);
+    });
   })
-  .then(function(resultRows) {
-    const totalCount = (null == resultRows ? 0 : resultRows[0].total);
+  .then(function(boundSuborgList) {
     res.json({
       ret: constants.RET_CODE.OK,
       retRowList: retRowList,
@@ -226,6 +231,7 @@ const orgSuborgPathDetail = function(req, res) {
       nPerPage: nPerPage,
       requestNo: requestNo,
       totalCount: totalCount,
+      boundSuborgList: boundSuborgList, // Of the "loggedInRole & specifiedOrgId". 
     });
   })
   .catch(function(err) {
