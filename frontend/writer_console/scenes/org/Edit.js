@@ -26,11 +26,29 @@ class Edit extends Component {
     const cellWidthPx = sceneRef.state.rootElementSize.width;
     const cellHeightPx = sceneRef._cellHeightPx;
 
+    let iconPath = null;
+    switch(retRow.type) {
+      case constants.ORG.LIST_ITEM_ENTITY_TYPE_LITERAL.SUBORG:
+        iconPath = constants.ROUTE_PATHS.BASE + constants.ROUTE_PATHS.ICON + "/suborg.svg";
+      break;
+      case constants.ORG.LIST_ITEM_ENTITY_TYPE_LITERAL.WRITER:
+        iconPath = constants.ROUTE_PATHS.BASE + constants.ROUTE_PATHS.ICON + "/person.svg";
+      break;
+      default:
+      break;
+    };
+    const icon = (
+      <Image
+        src={iconPath}
+      />
+    );
+
     return (
       <View
             style={ {
                       padding: 5,
                       width: cellWidthPx,
+                      height: cellHeightPx,
                       border: 'solid 1px ' + constants.THEME.MAIN.GREY,
                     } }
             key={ key }
@@ -54,6 +72,7 @@ class Edit extends Component {
                           pushNewScene(sceneRef, pathname, params);
                         } 
                       } }>
+        { icon }
         { retRow.display_name }
       </View>
     );
@@ -86,6 +105,7 @@ class Edit extends Component {
     const sceneRef = this;
 
     this._initialized = false;
+    this._cellHeightPx = 64;
 
     this.styles = {
     };

@@ -410,11 +410,18 @@ exports.ROLE_NAME = {
 exports.WEB_FRONTEND_COOKIE_INT_AUTH_TOKEN_KEY = "IntAuthToken";
 exports.WEB_FRONTEND_LOCAL_STORAGE_LOGGED_IN_ROLE_KEY = "LoggedInRole";
 
+exports.ORG = {
+  LIST_ITEM_ENTITY_TYPE_LITERAL: {
+    SUBORG: "suborg", 
+    WRITER: "writer",
+  },
+};
+
 exports.SUBORG = {
   TYPE: {
     MODERATOR: 0,
     EMPLOYEE: 1,
-  }
+  },
 };
 
 exports.ATTACHMENT = {

@@ -31,6 +31,7 @@ class List extends Component {
             style={ {
                       padding: 5,
                       width: cellWidthPx,
+                      height: cellHeightPx,
                       border: 'solid 1px ' + constants.THEME.MAIN.GREY,
                     } }
             key={ key }

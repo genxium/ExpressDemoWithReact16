@@ -195,9 +195,9 @@ const orgSuborgPathDetail = function(req, res) {
   let retRowList = [];
   MySQLManager.instance.dbRef.transaction(t => {
     return MySQLManager.instance.dbRef.query(
-    "( SELECT \"suborg\" as `type`, so.id as `id`, so.display_name as `display_name`, so.updated_at as `updated_at` FROM suborg as so WHERE so.org_id=? AND (CASE WHEN ? is NULL THEN so.parent_id is NULL ELSE so.parent_id=? END) AND so.deleted_at is NULL ) UNION ( SELECT w.id as `id`, \"writer\" as `type`, w.display_name as `display_name`, w.updated_at as `updated_at` FROM writer as w JOIN writer_suborg_binding as wsb ON w.id = wsb.writer_id AND wsb.org_id=? AND (CASE WHEN ? is NULL THEN wsb.suborg_id is NULL ELSE wsb.suborg_id=? END) AND w.deleted_at is NULL AND wsb.deleted_at is NULL ) ORDER BY ? ? LIMIT ?,?;"
+    "( SELECT ? as `type`, so.id as `id`, so.display_name as `display_name`, so.updated_at as `updated_at` FROM suborg as so WHERE so.org_id=? AND (CASE WHEN ? is NULL THEN so.parent_id is NULL ELSE so.parent_id=? END) AND so.deleted_at is NULL ) UNION ( SELECT ? as `type`, w.id as `id`, w.display_name as `display_name`, w.updated_at as `updated_at` FROM writer as w JOIN writer_suborg_binding as wsb ON w.id = wsb.writer_id AND wsb.org_id=? AND (CASE WHEN ? is NULL THEN wsb.suborg_id is NULL ELSE wsb.suborg_id=? END) AND w.deleted_at is NULL AND wsb.deleted_at is NULL ) ORDER BY ? ? LIMIT ?,?;"
     , {
-      replacements: [orgId, lastSuborgId, lastSuborgId, orgId, lastSuborgId, lastSuborgId, orderKey, orientation, (page - 1)*nPerPage, nPerPage],
+      replacements: [constants.ORG.LIST_ITEM_ENTITY_TYPE_LITERAL.SUBORG, orgId, lastSuborgId, lastSuborgId, constants.ORG.LIST_ITEM_ENTITY_TYPE_LITERAL.WRITER, orgId, lastSuborgId, lastSuborgId, orderKey, orientation, (page - 1)*nPerPage, nPerPage],
       type: Sequelize.QueryTypes.SELECT,
       transaction: t,
     })
@@ -211,9 +211,9 @@ const orgSuborgPathDetail = function(req, res) {
       }
       
       return MySQLManager.instance.dbRef.query(
-      "SELECT COUNT(*) as total FROM ( ( SELECT \"suborg\" as `type`, so.id as `id`, so.display_name as `display_name`, so.updated_at as `updated_at` FROM suborg as so WHERE so.org_id=? AND (CASE WHEN ? is NULL THEN so.parent_id is NULL ELSE so.parent_id=? END) AND so.deleted_at is NULL ) UNION ( SELECT w.id as `id`, \"writer\" as `type`, w.display_name as `display_name`, w.updated_at as `updated_at` FROM writer as w JOIN writer_suborg_binding as wsb ON w.id = wsb.writer_id AND wsb.org_id=? AND (CASE WHEN ? is NULL THEN wsb.suborg_id is NULL ELSE wsb.suborg_id=? END) AND w.deleted_at is NULL AND wsb.deleted_at is NULL ) ) as temp"
+      "SELECT COUNT(*) as total FROM ( ( SELECT ? as `type`, so.id as `id`, so.display_name as `display_name`, so.updated_at as `updated_at` FROM suborg as so WHERE so.org_id=? AND (CASE WHEN ? is NULL THEN so.parent_id is NULL ELSE so.parent_id=? END) AND so.deleted_at is NULL ) UNION ( SELECT ? as `type`, w.id as `id`, w.display_name as `display_name`, w.updated_at as `updated_at` FROM writer as w JOIN writer_suborg_binding as wsb ON w.id = wsb.writer_id AND wsb.org_id=? AND (CASE WHEN ? is NULL THEN wsb.suborg_id is NULL ELSE wsb.suborg_id=? END) AND w.deleted_at is NULL AND wsb.deleted_at is NULL ) ) as temp"
       , {
-        replacements: [orgId, lastSuborgId, lastSuborgId, orgId, lastSuborgId, lastSuborgId],
+        replacements: [constants.ORG.LIST_ITEM_ENTITY_TYPE_LITERAL.SUBORG, orgId, lastSuborgId, lastSuborgId, constants.ORG.LIST_ITEM_ENTITY_TYPE_LITERAL.WRITER, orgId, lastSuborgId, lastSuborgId],
         type: Sequelize.QueryTypes.SELECT,
         transaction: t,
       });
