@@ -84,6 +84,9 @@ const routes = (
           <Route path={constants.ROUTE_PATHS.ARTICLE + constants.ROUTE_PATHS.LIST} render={(routerProps) => (
             <ArticleList {...commonRouteProps} />
           )} />
+          <Route path={constants.ROUTE_PATHS.ARTICLE + constants.ROUTE_PATHS.ADD} render={(routerProps) => (
+            <ArticleEdit {...commonRouteProps} />
+          )} />
           <Route path={constants.ROUTE_PATHS.ARTICLE + constants.ROUTE_PATHS.EDIT} render={(routerProps) => (
             <ArticleEdit {...commonRouteProps} />
           )} />
