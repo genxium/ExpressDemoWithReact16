@@ -20,7 +20,7 @@
     "mysql2": "^1.4.2",
     "node-schedule": "^1.3.0",
     "node-wechat-util": "git+https://github.com/genxium/node-wechat-util.git",
-    "pug": "^2.0.0-beta5",
+    "pug": "^3.0.1",
     "qiniu": "^6.1.13",
     "request": "^2.81.0",
     "sequelize": "^5.21.6"
