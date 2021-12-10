@@ -12,7 +12,7 @@
     "crimson-react-widgets": "git+https://github.com/genxium/crimson-react-16-widgets.git",
     "crypto-js": "^3.1.8",
     "js-cookie": "^2.2.1",
-    "mermaid": "^8.4.6",
+    "mermaid": "^8.11.0",
     "moment": "^2.14.1",
     "npm": "^6.13.7",
     "react": "^16.4.0",
