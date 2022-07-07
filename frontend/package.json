@@ -13,7 +13,7 @@
     "crypto-js": "^3.1.8",
     "js-cookie": "^2.2.1",
     "mermaid": "^8.4.6",
-    "moment": "^2.14.1",
+    "moment": "^2.29.4",
     "npm": "^6.13.7",
     "react": "^16.4.0",
     "react-bootstrap": "^1.0.0-beta.16",
